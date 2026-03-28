@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micheline Nail Bar | Butera Edition</title>
+  
+  <!-- Fonts: Beautera Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Source Serif 4"', 'serif'],
+            mono: ['"IBM Plex Mono"', 'monospace'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            butera: {
+              bg: '#FDFCFB',
+              text: '#141413',
+              accent: '#B08D57',
+              border: '#E8E4E1',
+              muted: '#9997AB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body { background-color: #FDFCFB; color: #141413; }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(180px, auto);
+      gap: 1.5rem;
+    }
+    .bento-item {
+      background: white;
+      border: 1px solid #E8E4E1;
+      border-radius: 28px;
+      padding: 2.5rem;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+    .bento-item:hover {
+      border-color: #B08D57;
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.04);
+    }
+    .custom-cursor {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #141413;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease-out;
+    }
+    .reveal-text {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: reveal 1.2s forwards cubic-bezier(0.23, 1, 0.320, 1);
+    }
+    @keyframes reveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .staff-card {
+      filter: grayscale(100%);
+      transition: all 0.5s ease;
+    }
+    .staff-card:hover {
+      filter: grayscale(0%);
+    }
+  </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden">
+
+  <!-- Custom Cursor -->
+  <div class="custom-cursor hidden md:block" id="cursor"></div>
+
+  <!-- Header -->
+  <header class="fixed top-0 w-full z-50 px-8 py-8 mix-blend-difference">
+    <nav class="flex justify-between items-center max-w-7xl mx-auto">
+      <a href="#" class="font-serif text-3xl tracking-tighter">Micheline<span class="text-butera-accent">.</span></a>
+      <div class="space-x-12 text-[10px] font-mono uppercase tracking-[0.4em] hidden md:flex">
+        <a href="#servicios" class="hover:text-butera-accent transition-colors">Servicios</a>
+        <a href="#precios" class="hover:text-butera-accent transition-colors">Precios</a>
+        <a href="#equipo" class="hover:text-butera-accent transition-colors">Equipo</a>
+        <a href="#reserva" class="hover:text-butera-accent transition-colors">Reservar</a>
+      </div>
+      <button class="font-mono text-[10px] border border-butera-text px-6 py-2 rounded-full hover:bg-butera-text hover:text-white transition-all tracking-widest">MENU</button>
+    </nav>
+  </header>
+
+  <main class="pt-48 px-8">
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto mb-32">
+      <div class="flex flex-col md:flex-row gap-16 items-end">
+        <div class="md:w-3/5">
+          <p class="font-mono text-[10px] uppercase tracking-[0.5em] text-butera-accent mb-8 reveal-text">Micheline Nail Bar & Beauty Lounge</p>
+          <h1 class="font-serif text-7xl md:text-9xl leading-[1] reveal-text" style="animation-delay: 0.2s;">
+            Arte & <span class="italic font-light">Belleza</span> en cada detalle.
+          </h1>
+        </div>
+        <div class="md:w-2/5 reveal-text" style="animation-delay: 0.4s;">
+          <p class="text-xl text-slate-400 font-light leading-relaxed mb-10">
+            La belleza es una forma de autocuidado. En Micheline, elevamos esa expresión personal al nivel de obra maestra.
+          </p>
+          <a href="#reserva" class="inline-flex items-center group font-mono text-[10px] tracking-[0.3em] uppercase">
+            Empezar Experiencia 
+            <span class="ml-6 w-16 h-16 rounded-full border border-butera-text flex items-center justify-center group-hover:bg-butera-text group-hover:text-white transition-all duration-500">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Services Grid -->
+    <section id="servicios" class="max-w-7xl mx-auto mb-40">
+      <div class="bento-grid">
+        <!-- Item 1: Nail Bar (Highlight) -->
+        <div class="bento-item col-span-4 md:col-span-2 row-span-2 flex flex-col justify-end min-h-[600px] relative overflow-hidden group">
+          <img src="C:\Users\IA Power Engine\.gemini\antigravity\brain\85d673b5-a60f-4b5f-bf66-9c50be42e7b7\micheline_hero_butera_1774670438389.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Nail Art Hero">
+          <div class="absolute inset-0 bg-gradient-to-t from-butera-bg via-transparent to-transparent opacity-90"></div>
+          <div class="relative z-10">
+            <span class="font-mono text-[10px] uppercase tracking-widest text-butera-accent">Exclusivo</span>
+            <h3 class="font-serif text-5xl mt-3 mb-6">Nail Art <br/>Profesional</h3>
+            <p class="text-sm opacity-60 max-w-xs leading-relaxed">Manicure, pedicure, gel y las más finas acrílicas para manos que cuentan historias.</p>
+          </div>
+        </div>
+
+        <!-- Item 2: Pedi Spa -->
+        <div class="bento-item col-span-4 md:col-span-2 min-h-[280px] flex flex-col justify-between relative overflow-hidden group">
+            <img src="C:\Users\IA Power Engine\.gemini\antigravity\brain\85d673b5-a60f-4b5f-bf66-9c50be42e7b7\micheline_pedi_spa_butera_1774670455859.png" class="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-30 transition-opacity" alt="Pedi Spa">
+            <div class="relative z-10">
+              <div class="flex justify-between items-start">
+                <h3 class="font-serif text-3xl">Pedi Spa <br/>4 Pasos</h3>
+                <span class="font-mono text-xs text-butera-accent">RD$950</span>
+              </div>
+              <p class="text-sm opacity-50 mt-4 max-w-sm">Exfoliación, hidratación profunda y relajación absoluta para tus pies.</p>
+            </div>
+            <a href="#" class="font-mono text-[9px] underline tracking-[0.3em] uppercase relative z-10">Ver Ritual</a>
+        </div>
+
+        <!-- Item 3: Peluquería -->
+        <div class="bento-item col-span-2 md:col-span-1 flex flex-col justify-between hover:bg-butera-text hover:text-white group">
+            <div class="text-butera-accent group-hover:text-white transition-colors">✂️</div>
+            <div>
+              <h3 class="font-serif text-2xl mb-2">Peluquería</h3>
+              <p class="text-[10px] font-mono opacity-50 uppercase tracking-widest">Desde RD$300</p>
+            </div>
+        </div>
+
+        <!-- Item 4: Depilación -->
+        <div class="bento-item col-span-2 md:col-span-1 flex flex-col justify-between border-butera-accent/20">
+            <h3 class="font-serif text-2xl">Cera & <br/>Cejas</h3>
+            <div class="flex items-center gap-2">
+              <div class="h-[1px] flex-1 bg-butera-border"></div>
+              <span class="font-mono text-[10px]">VER MÁS</span>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="precios" class="max-w-4xl mx-auto mb-40">
+      <div class="text-center mb-20">
+        <span class="font-mono text-[10px] uppercase tracking-[0.5em] text-butera-muted italic">Lista Seleccionada</span>
+        <h2 class="font-serif text-5xl mt-4">Inversión en ti.</h2>
+      </div>
+      
+      <div class="space-y-12">
+        <div class="grid md:grid-cols-2 gap-16">
+          <div>
+            <h4 class="font-mono text-[10px] uppercase tracking-widest mb-6 border-b border-butera-border pb-2">Uñas & Gel</h4>
+            <ul class="space-y-4 font-serif text-lg">
+              <li class="flex justify-between"><span>Manicure Regular</span> <span class="text-butera-accent italic">RD$300</span></li>
+              <li class="flex justify-between"><span>Manicure Spa</span> <span class="text-butera-accent italic">RD$500</span></li>
+              <li class="flex justify-between"><span>Acrílicas Regulares</span> <span class="text-butera-accent italic">RD$350</span></li>
+              <li class="flex justify-between"><span>Soft Gel Tips</span> <span class="text-butera-accent italic">RD$900</span></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-mono text-[10px] uppercase tracking-widest mb-6 border-b border-butera-border pb-2">Peluquería</h4>
+            <ul class="space-y-4 font-serif text-lg">
+              <li class="flex justify-between"><span>Lavado con Línea</span> <span class="text-butera-accent italic">RD$750</span></li>
+              <li class="flex justify-between"><span>Corte Elaborado</span> <span class="text-butera-accent italic">RD$1,000</span></li>
+              <li class="flex justify-between"><span>Maquillaje Pro</span> <span class="text-butera-accent italic">RD$300+</span></li>
+              <li class="flex justify-between"><span>Definition de Rizos</span> <span class="text-butera-accent italic">RD$450+</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Locations -->
+    <section class="max-w-7xl mx-auto mb-40">
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bento-item bg-zinc-900 text-white border-none p-12">
+          <span class="font-mono text-[9px] tracking-[0.4em] text-butera-accent">MAIN STUDIO</span>
+          <h3 class="font-serif text-4xl mt-4 mb-8">San Pedro de Macorís</h3>
+          <p class="font-light opacity-70 mb-12">Lunes a Sábado: 07:00 — 23:00<br/>Domingo: 07:00 — 22:00</p>
+          <a href="tel:8092465821" class="font-mono text-[10px] border border-white/20 px-8 py-3 rounded-full hover:bg-white hover:text-black transition-all uppercase tracking-widest">Llamar Ahora</a>
+        </div>
+        <div class="bento-item p-12">
+          <span class="font-mono text-[9px] tracking-[0.4em] text-butera-accent">COASTAL STUDIO</span>
+          <h3 class="font-serif text-4xl mt-4 mb-8">Boca Chica</h3>
+          <p class="font-light opacity-50 mb-12">Lunes a Sábado: 07:00 — 21:00<br/>Domingo: 07:00 — 20:00</p>
+          <a href="https://wa.me/8096277471" class="font-mono text-[10px] border border-butera-text px-8 py-3 rounded-full hover:bg-butera-text hover:text-white transition-all uppercase tracking-widest">WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto py-32 border-t border-butera-border text-center">
+      <h2 class="font-serif text-6xl mb-12 italic">Tu momento es ahora.</h2>
+      <div class="flex justify-center mb-16">
+        <button id="reservaBtn" class="font-mono text-3xl bg-butera-text text-white px-20 py-10 rounded-full hover:bg-butera-accent transition-all duration-700 shadow-2xl">
+          AGENDAR CITA
+        </button>
+      </div>
+      <p class="font-mono text-[10px] text-butera-muted tracking-[0.3em]">
+        © 2024 MICHELINE NAIL BAR — @MICHELINENAILBAR
+      </p>
+    </footer>
+  </main>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
+    });
+
+    document.querySelectorAll('a, button, .bento-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform += ' scale(3)';
+        cursor.style.backgroundColor = 'rgba(20,20,19,0.05)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = cursor.style.transform.replace(' scale(3)', '');
+        cursor.style.backgroundColor = 'transparent';
+      });
+    });
+
+    // n8n Booking Integration - Butera Edition
+    document.getElementById('reservaBtn').addEventListener('click', async () => {
+      const webhookUrl = "https://n8nsophia.duckdns.org/webhook/429dc08d-c49a-4840-8938-d3878efe5f6c";
+      alert("Cargando motor de reserva premium...");
+      // Simulación de envío a n8n
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "intent_reserva", source: "Micheline_Butera_V2" })
+        });
+        window.location.href = "https://wa.me/8096277471?text=Hola%20Micheline,%20vi%20la%20nueva%20web%20Butera%20y%20quiero%20agendar%20una%20cita.";
+      } catch (e) {
+        window.location.href = "https://wa.me/8096277471";
+      }
+    });
+  </script>
+</body>
+</html>
