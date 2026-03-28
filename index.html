@@ -26,6 +26,7 @@
               bg: '#FDFCFB',
               text: '#141413',
               accent: '#B08D57',
+              brand: '#D8A7B1', /* Rosa Micheline Luxury */
               border: '#E8E4E1',
               muted: '#9997AB'
             }
@@ -113,15 +114,15 @@
   <div class="custom-cursor hidden md:block" id="cursor"></div>
 
   <!-- Header -->
-  <header class="fixed top-0 w-full z-50 px-8 py-8 mix-blend-difference">
+  <header class="fixed top-0 w-full z-50 px-8 py-8 transition-all duration-500 hover:bg-white/80 hover:backdrop-blur-md">
     <nav class="flex justify-between items-center max-w-7xl mx-auto">
-      <a href="#" class="font-serif text-3xl tracking-tighter">Micheline<span class="text-butera-accent">.</span></a>
-      <div class="space-x-12 text-[10px] font-mono uppercase tracking-[0.4em] hidden md:flex">
-        <a href="#servicios" class="hover:text-butera-accent transition-colors">Servicios</a>
-        <a href="#equipo" class="hover:text-butera-accent transition-colors">Equipo</a>
-        <a href="#reserva" class="hover:text-butera-accent transition-colors">Reservar</a>
+      <a href="#" class="font-serif text-3xl tracking-tighter text-butera-text">Micheline<span class="text-butera-brand">.</span></a>
+      <div class="space-x-12 text-[10px] font-mono uppercase tracking-[0.4em] hidden md:flex text-butera-text/80">
+        <a href="#servicios" class="hover:text-butera-brand transition-colors font-bold">Servicios</a>
+        <a href="#equipo" class="hover:text-butera-brand transition-colors font-bold">Equipo</a>
+        <a href="#reserva" class="hover:text-butera-brand transition-colors font-bold">Reservar</a>
       </div>
-      <button class="font-mono text-[10px] border border-butera-text px-6 py-2 rounded-full hover:bg-butera-text hover:text-white transition-all tracking-widest">MENU</button>
+      <button class="font-mono text-[10px] border border-butera-text px-6 py-2 rounded-full hover:bg-butera-brand hover:border-butera-brand hover:text-white transition-all tracking-widest text-butera-text">MENU</button>
     </nav>
   </header>
 
@@ -174,20 +175,22 @@
         </div>
 
         <!-- Item 3: Peluquería -->
-        <div class="bento-item col-span-2 md:col-span-1 flex flex-col justify-between hover:bg-butera-text hover:text-white group">
-            <div class="text-butera-accent group-hover:text-white transition-colors">✂️</div>
-            <div>
-              <h3 class="font-serif text-2xl mb-2">Peluquería</h3>
-              <p class="text-[10px] font-mono opacity-50 uppercase tracking-widest">Estilo & Definición</p>
+        <div class="bento-item col-span-2 md:col-span-1 min-h-[400px] flex flex-col justify-end relative overflow-hidden group">
+            <img src="img/hair.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Hair Art">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative z-10 transition-transform duration-500 group-hover:-translate-y-4">
+              <h3 class="font-serif text-2xl mb-1 text-butera-text group-hover:text-white">Peluquería</h3>
+              <p class="text-[9px] font-mono opacity-50 uppercase tracking-widest text-butera-text group-hover:text-white/80">Estilo & Definición</p>
             </div>
         </div>
 
-        <!-- Item 4: Depilación -->
-        <div class="bento-item col-span-2 md:col-span-1 flex flex-col justify-between border-butera-accent/20">
-            <h3 class="font-serif text-2xl">Cera & <br/>Cejas</h3>
-            <div class="flex items-center gap-2">
-              <div class="h-[1px] flex-1 bg-butera-border"></div>
-              <span class="font-mono text-[10px]">VER MÁS</span>
+        <!-- Item 4: Depilación (Skin) -->
+        <div class="bento-item col-span-2 md:col-span-1 min-h-[400px] flex flex-col justify-between relative overflow-hidden group">
+            <img src="img/skin.png" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-100 transition-all duration-1000" alt="Skin Care">
+            <h3 class="font-serif text-2xl relative z-10">Cera & <br/><span class="text-butera-brand italic">Cuidado</span></h3>
+            <div class="flex items-center gap-2 relative z-10">
+              <div class="h-[1px] flex-1 bg-butera-brand/30"></div>
+              <span class="font-mono text-[9px] text-butera-brand">REVELAR</span>
             </div>
         </div>
       </div>
@@ -218,7 +221,7 @@
     <footer class="max-w-7xl mx-auto py-32 border-t border-butera-border text-center">
       <h2 class="font-serif text-6xl mb-12 italic">Tu momento es ahora.</h2>
       <div class="flex justify-center mb-16">
-        <button id="reservaBtn" class="font-mono text-3xl bg-butera-text text-white px-20 py-10 rounded-full hover:bg-butera-accent transition-all duration-700 shadow-2xl">
+        <button id="reservaBtn" class="font-mono text-3xl bg-butera-brand text-white px-20 py-10 rounded-full hover:bg-butera-text transition-all duration-700 shadow-[0_20px_50px_rgba(216,167,177,0.4)] hover:shadow-2xl">
           AGENDAR CITA
         </button>
       </div>
