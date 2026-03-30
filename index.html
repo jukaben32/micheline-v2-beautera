@@ -47,6 +47,74 @@
       box-shadow: 0 0 15px rgba(255, 0, 127, 0.2), inset 0 0 10px rgba(255, 0, 127, 0.1);
       border: 1px solid rgba(255, 0, 127, 0.3);
     }
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 20, 19, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-container {
+      background: rgba(253, 252, 251, 0.95);
+      border: 1px solid rgba(255, 0, 127, 0.3);
+      border-radius: 32px;
+      width: 90%;
+      max-width: 480px;
+      padding: 3rem;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.2), 0 0 40px rgba(255, 0, 127, 0.15);
+      position: relative;
+    }
+    .modal-overlay.active .modal-container {
+      transform: translateY(0) scale(1);
+    }
+    .close-modal {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(20, 20, 19, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .close-modal:hover {
+      background: #FF007F;
+      color: white;
+      transform: rotate(90deg);
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid #E8E4E1;
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      outline: none;
+      transition: all 0.3s ease;
+      font-family: 'Inter', sans-serif;
+    }
+    .form-input:focus {
+      border-color: #FF007F;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);
+      background: white;
+    }
     .bento-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -131,7 +199,7 @@
       <div class="space-x-12 text-[10px] font-mono uppercase tracking-[0.4em] hidden md:flex text-butera-text/80">
         <a href="#servicios" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Servicios</a>
         <a href="#equipo" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Equipo</a>
-        <a href="#reserva" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Reservar</a>
+        <a href="#" onclick="openModal(event)" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Reservar</a>
       </div>
       <button class="font-mono text-[10px] border border-butera-text px-6 py-2 rounded-full hover:bg-butera-brand hover:border-butera-brand hover:text-white hover:shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all tracking-widest text-butera-text">MENU</button>
     </nav>
@@ -151,7 +219,7 @@
           <p class="text-xl text-slate-400 font-light leading-relaxed mb-10">
             La belleza es una forma de autocuidado. En Micheline, elevamos esa expresión personal al nivel de obra maestra.
           </p>
-          <a href="#reserva" class="inline-flex items-center group font-mono text-[10px] tracking-[0.3em] uppercase">
+          <a href="#" onclick="openModal(event)" class="inline-flex items-center group font-mono text-[10px] tracking-[0.3em] uppercase">
             Empieza tu experiencia
             <span class="ml-6 w-16 h-16 rounded-full border border-butera-brand text-butera-brand flex items-center justify-center group-hover:bg-butera-brand group-hover:text-white group-hover:shadow-[0_0_20px_rgba(255,0,127,0.5)] transition-all duration-500">→</span>
           </a>
@@ -210,8 +278,12 @@
     <!-- Space Divider -->
     <div class="h-32"></div>
 
-    <!-- Locations -->
-    <section class="max-w-7xl mx-auto mb-40">
+    <!-- Locations / Equipo -->
+    <section id="equipo" class="max-w-7xl mx-auto mb-40 pt-10">
+      <div class="mb-16">
+        <h2 class="font-serif text-5xl mb-4">Nuestro <span class="text-butera-brand italic">Equipo & Studios</span></h2>
+        <p class="font-light text-slate-400 max-w-lg leading-relaxed">Conoce nuestras ubicaciones de alto nivel, donde nuestras especialistas te esperan para brindarte una experiencia inolvidable.</p>
+      </div>
       <div class="grid md:grid-cols-2 gap-8">
         <div class="bento-item bg-zinc-900 text-white border-none p-12">
           <span class="font-mono text-[9px] tracking-[0.4em] text-butera-brandLight font-bold">MAIN STUDIO</span>
@@ -251,6 +323,54 @@
     </a>
   </main>
 
+  <!-- Modal de Reserva -->
+  <div class="modal-overlay" id="reservaModal" role="dialog" aria-modal="true">
+    <div class="modal-container">
+      <button class="close-modal" aria-label="Cerrar modal" onclick="closeModal()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <span class="font-mono text-[10px] uppercase tracking-widest text-butera-brandLight font-bold mb-2 block">Premium Booking</span>
+      <h3 class="font-serif text-4xl mb-6">Tu momento <br/><span class="text-butera-brand italic drop-shadow-[0_0_10px_rgba(255,0,127,0.2)]">Micheline.</span></h3>
+      
+      <form id="reservaForm" class="space-y-4">
+        <div>
+          <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Paso 1: Elige tu Servicio</label>
+          <select name="servicio" required class="form-input text-sm text-butera-text cursor-pointer appearance-none">
+            <option value="" disabled selected>Selecciona tu experiencia de lujo...</option>
+            <option value="Nail Bar & Manicure">Nail Bar & Manicure</option>
+            <option value="Peluquería & Peinados">Peluquería & Peinados</option>
+            <option value="Pedi Spa (4 Pasos)">Pedi Spa (4 Pasos)</option>
+            <option value="Uñas Acrílicas">Uñas Acrílicas</option>
+            <option value="Maquillaje Profesional">Maquillaje Profesional</option>
+            <option value="Depilación con Cera">Depilación con Cera</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+             <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Fecha</label>
+             <input type="date" name="fecha" required class="form-input text-sm text-butera-text cursor-pointer" />
+          </div>
+          <div>
+             <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Hora Ideal</label>
+             <input type="time" name="hora" required class="form-input text-sm text-butera-text cursor-pointer" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Tu Nombre</label>
+          <input type="text" name="nombre" required placeholder="Ej: Sophia Butera" class="form-input text-sm text-butera-text" />
+        </div>
+        <div>
+          <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Tu WhatsApp</label>
+          <input type="tel" name="telefono" required placeholder="+1 809..." class="form-input text-sm text-butera-text" />
+        </div>
+        <button type="submit" class="w-full mt-6 relative group font-mono text-sm tracking-widest text-white px-8 py-4 rounded-2xl transition-all duration-500 overflow-hidden shadow-lg hover:shadow-[0_15px_30px_rgba(255,0,127,0.3)]">
+           <div class="absolute inset-0 bg-gradient-to-r from-butera-brand to-butera-brandLight group-hover:scale-105 transition-transform duration-500"></div>
+           <span class="relative z-10 font-bold uppercase transition-all" id="btnText">Confirmar Reserva ✦</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
   <script>
     const cursor = document.getElementById('cursor');
     document.addEventListener('mousemove', (e) => {
@@ -268,20 +388,67 @@
       });
     });
 
-    // n8n Booking Integration - Butera Edition
-    document.getElementById('reservaBtn').addEventListener('click', async () => {
+    // Premium Modal Logic
+    const modal = document.getElementById('reservaModal');
+    const reservaForm = document.getElementById('reservaForm');
+    const btnText = document.getElementById('btnText');
+
+    function openModal(e) {
+      if(e) e.preventDefault();
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      modal.classList.remove('active');
+      setTimeout(() => reservaForm.reset(), 400); // reset after animation
+    }
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Both "AGENDAR CITA" buttons use this
+    document.getElementById('reservaBtn').addEventListener('click', openModal);
+
+    // Form Submit Logic to n8n Webhook
+    reservaForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(reservaForm);
+      const data = Object.fromEntries(formData.entries());
       const webhookUrl = "https://n8nsophia.duckdns.org/webhook-test/429dc08d-c49a-4840-8938-d3878efe5f6c";
-      alert("Cargando motor de reserva premium...");
-      // Simulación de envío a n8n
+      
+      // Loading State
+      const originalText = btnText.innerHTML;
+      btnText.innerHTML = "PROCESANDO... ✦";
+      
       try {
         await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "intent_reserva", source: "Micheline_Butera_V2" })
+          body: JSON.stringify({ 
+             action: "intent_reserva", 
+             source: "Micheline_Butera_Modal_V2",
+             reserva: data
+          })
         });
-        window.location.href = "https://wa.me/8096277471?text=Hola%20Micheline,%20vi%20la%20nueva%20web%20Butera%20y%20quiero%20agendar%20una%20cita.";
-      } catch (e) {
-        window.location.href = "https://wa.me/8096277471";
+        
+        // Success: Redirect to WhatsApp
+        const waText = `Hola Micheline, vi la web Butera y me gustaría reservar:
+✨ *Servicio*: ${data.servicio}
+📅 *Fecha*: ${data.fecha}
+⌚ *Hora*: ${data.hora}
+👤 *Nombre*: ${data.nombre}
+
+¿Me confirman disponibilidad por favor?`;
+        
+        window.open(`https://wa.me/8096277471?text=${encodeURIComponent(waText)}`, '_blank');
+        closeModal();
+      } catch (err) {
+         alert("Hubo un pequeño error. Te redirigiremos a WhatsApp directamente.");
+         window.open("https://wa.me/8096277471", '_blank');
+      } finally {
+        btnText.innerHTML = originalText;
       }
     });
   </script>
