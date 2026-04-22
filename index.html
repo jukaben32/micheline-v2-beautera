@@ -1543,6 +1543,128 @@
       padding-inline: 30px;
     }
 
+    .social-band {
+      margin-bottom: 88px;
+    }
+
+    .social-card {
+      padding: clamp(26px, 4vw, 38px);
+      border-radius: 34px;
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.08), transparent 24%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(250, 241, 233, 0.95));
+      box-shadow: 0 18px 46px rgba(44, 25, 20, 0.08);
+    }
+
+    .social-head {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 22px;
+      max-width: 54ch;
+    }
+
+    .social-head h2 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2.8rem, 5vw, 4.4rem);
+      line-height: 0.94;
+      letter-spacing: -0.05em;
+    }
+
+    .social-head p {
+      color: var(--muted);
+      line-height: 1.82;
+    }
+
+    .social-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .social-link {
+      min-height: 124px;
+      padding: 18px 14px;
+      border-radius: 24px;
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background: rgba(255, 255, 255, 0.62);
+      display: grid;
+      align-content: space-between;
+      gap: 18px;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease, background-color 0.35s ease;
+    }
+
+    .social-link:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 40px rgba(35, 21, 15, 0.1);
+    }
+
+    .social-link svg {
+      width: 28px;
+      height: 28px;
+      display: block;
+    }
+
+    .social-meta {
+      display: grid;
+      gap: 6px;
+    }
+
+    .social-name {
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--text);
+    }
+
+    .social-tag {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.54rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .social-link.facebook:hover {
+      border-color: rgba(24, 119, 242, 0.28);
+      background: rgba(24, 119, 242, 0.05);
+    }
+
+    .social-link.instagram:hover {
+      border-color: rgba(225, 48, 108, 0.26);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.78)),
+        radial-gradient(circle at top right, rgba(245, 133, 41, 0.16), transparent 38%),
+        radial-gradient(circle at bottom left, rgba(131, 58, 180, 0.16), transparent 42%);
+    }
+
+    .social-link.x:hover {
+      border-color: rgba(17, 17, 17, 0.18);
+      background: rgba(17, 17, 17, 0.04);
+    }
+
+    .social-link.tiktok:hover {
+      border-color: rgba(37, 244, 238, 0.24);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.82)),
+        radial-gradient(circle at top right, rgba(254, 44, 85, 0.14), transparent 38%),
+        radial-gradient(circle at bottom left, rgba(37, 244, 238, 0.16), transparent 36%);
+    }
+
+    .social-link.youtube:hover {
+      border-color: rgba(255, 0, 0, 0.24);
+      background: rgba(255, 0, 0, 0.045);
+    }
+
+    .social-link.linkedin:hover {
+      border-color: rgba(10, 102, 194, 0.24);
+      background: rgba(10, 102, 194, 0.05);
+    }
+
+    .social-link.pinterest:hover {
+      border-color: rgba(230, 0, 35, 0.24);
+      background: rgba(230, 0, 35, 0.045);
+    }
+
     .footer {
       width: var(--container);
       margin: 0 auto;
@@ -1770,6 +1892,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      .social-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
       .metrics-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1849,7 +1975,8 @@
       }
 
       .detail-mini-grid,
-      .quote-grid {
+      .quote-grid,
+      .social-grid {
         grid-template-columns: 1fr;
       }
 
@@ -2454,6 +2581,100 @@
             <button class="primary-btn" id="reservaBtn" type="button">Agendar cita</button>
             <a class="ghost-btn" href="https://wa.me/8098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita." target="_blank" rel="noreferrer">
               WhatsApp directo
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section social-band" id="social">
+        <div class="social-card" data-fade>
+          <div class="social-head">
+            <div class="eyebrow">Siguenos</div>
+            <h2>Nuestra presencia tambien vive fuera del estudio.</h2>
+            <p>
+              Redes pensadas como extensiones de la marca: inspiracion, novedades, trabajos recientes y una comunidad que sigue creciendo con Micheline.
+            </p>
+          </div>
+
+          <div class="social-grid">
+            <a class="social-link facebook" href="#" aria-label="Facebook Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#1877F2" d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073c0 6.019 4.388 11.009 10.125 11.927v-8.438H7.078v-3.49h3.047V9.41c0-3.022 1.792-4.693 4.533-4.693 1.313 0 2.686.235 2.686.235v2.969H15.83c-1.491 0-1.956.931-1.956 1.887v2.264h3.328l-.532 3.49h-2.796V24C19.612 23.082 24 18.092 24 12.073Z"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">Facebook</span>
+                <span class="social-tag">updates</span>
+              </div>
+            </a>
+
+            <a class="social-link instagram" href="#" aria-label="Instagram Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <defs>
+                  <linearGradient id="igGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#F58529"/>
+                    <stop offset="35%" stop-color="#DD2A7B"/>
+                    <stop offset="70%" stop-color="#8134AF"/>
+                    <stop offset="100%" stop-color="#515BD4"/>
+                  </linearGradient>
+                </defs>
+                <path fill="url(#igGradient)" d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 1.8A3.7 3.7 0 0 0 3.8 7.5v9a3.7 3.7 0 0 0 3.7 3.7h9a3.7 3.7 0 0 0 3.7-3.7v-9a3.7 3.7 0 0 0-3.7-3.7h-9Zm9.7 1.35a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3ZM12 6.6A5.4 5.4 0 1 1 6.6 12 5.4 5.4 0 0 1 12 6.6Zm0 1.8A3.6 3.6 0 1 0 15.6 12 3.6 3.6 0 0 0 12 8.4Z"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">Instagram</span>
+                <span class="social-tag">beauty feed</span>
+              </div>
+            </a>
+
+            <a class="social-link x" href="#" aria-label="X Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#111111" d="M18.901 2H21.99l-6.748 7.713L23.18 22h-6.217l-4.87-7.436L5.59 22H2.5l7.217-8.247L1.75 2h6.375l4.402 6.72L18.901 2Zm-1.084 18.13h1.712L7.198 3.776H5.36l12.457 16.355Z"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">X</span>
+                <span class="social-tag">news</span>
+              </div>
+            </a>
+
+            <a class="social-link tiktok" href="#" aria-label="TikTok Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#25F4EE" d="M15.42 2h3.08c.12 1.05.6 2.03 1.36 2.76.76.73 1.75 1.16 2.81 1.23v3.12a8.44 8.44 0 0 1-4.17-1.18v6.33a6.26 6.26 0 1 1-6.26-6.25c.33 0 .65.03.96.08v3.19a3.1 3.1 0 1 0 2.22 2.98V2Z"/>
+                <path fill="#FE2C55" d="M14.83 2h2.48c.12 1.05.6 2.03 1.36 2.76.76.73 1.75 1.16 2.81 1.23v2.98a8.5 8.5 0 0 1-4.17-1.15v6.44a6.26 6.26 0 1 1-6.26-6.25c.25 0 .5.02.74.05v1.67a4.55 4.55 0 1 0 3.04 4.28V2Z" opacity=".85"/>
+                <path fill="#111111" d="M15.12 2h2.4a5.33 5.33 0 0 0 1.31 2.47 5.4 5.4 0 0 0 2.44 1.43v2.13a7.14 7.14 0 0 1-3.93-1.22v7.45a5.34 5.34 0 1 1-5.34-5.33c.18 0 .35.01.52.03v2.32a3.01 3.01 0 1 0 2.6 2.98V2Z"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">TikTok</span>
+                <span class="social-tag">short videos</span>
+              </div>
+            </a>
+
+            <a class="social-link youtube" href="#" aria-label="YouTube Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#FF0000" d="M23.5 7.19a3.05 3.05 0 0 0-2.14-2.16C19.48 4.5 12 4.5 12 4.5s-7.48 0-9.36.53A3.05 3.05 0 0 0 .5 7.19 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 4.81 3.05 3.05 0 0 0 2.14 2.16C4.52 19.5 12 19.5 12 19.5s7.48 0 9.36-.53a3.05 3.05 0 0 0 2.14-2.16A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-4.81ZM9.6 15.02V8.98L15.82 12 9.6 15.02Z"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">YouTube</span>
+                <span class="social-tag">long form</span>
+              </div>
+            </a>
+
+            <a class="social-link linkedin" href="#" aria-label="LinkedIn Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#0A66C2" d="M20.45 20.45h-3.56v-5.58c0-1.33-.03-3.05-1.86-3.05-1.86 0-2.14 1.45-2.14 2.95v5.68H9.33V9h3.42v1.56h.05c.48-.9 1.64-1.86 3.37-1.86 3.61 0 4.28 2.38 4.28 5.48v6.27ZM5.31 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.09 20.45H3.53V9h3.56v11.45Z"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">LinkedIn</span>
+                <span class="social-tag">brand</span>
+              </div>
+            </a>
+
+            <a class="social-link pinterest" href="#" aria-label="Pinterest Micheline">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#E60023" d="M12 2a10 10 0 0 0-3.65 19.31c-.05-1.64-.01-3.61.42-5.36.47-1.88 3.16-13.42 3.16-13.42s-.79-1.59-.79-3.94c0-3.69 2.14-6.44 4.8-6.44 2.26 0 3.35 1.7 3.35 3.73 0 2.27-1.45 5.66-2.19 8.8-.62 2.64 1.32 4.79 3.9 4.79 4.68 0 7.83-6 7.83-13.1C28.83-8.16 23.82-12 16.73-12 8.44-12 3.2-5.76 3.2 1.09c0 2 .59 3.41 1.52 4.5.43.5.49.7.33 1.27-.11.42-.36 1.42-.46 1.81-.15.58-.62.79-1.14.57C.97 8.43-1.2 4.7-1.2-.39-1.2-8.57 5.09-16 17-16c9.57 0 15.87 6.93 15.87 14.37 0 9.84-5.47 17.18-13.53 17.18-2.7 0-5.23-1.46-6.09-3.1l-1.66 6.34A21.36 21.36 0 0 1 8.7 24 10 10 0 1 0 12 2Z" transform="scale(.6) translate(7 8)"/>
+              </svg>
+              <div class="social-meta">
+                <span class="social-name">Pinterest</span>
+                <span class="social-tag">moodboards</span>
+              </div>
             </a>
           </div>
         </div>
