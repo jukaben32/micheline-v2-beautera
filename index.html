@@ -1,454 +1,1898 @@
 <!DOCTYPE html>
-<html lang="es" class="scroll-smooth">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Micheline Nail Bar | Butera Edition</title>
-  
-  <!-- Fonts: Beautera Aesthetic -->
+  <meta
+    name="description"
+    content="Micheline Nail Bar & Beauty Lounge. Una landing cinematica para manicure, pedi spa, peluqueria y reservas premium."
+  >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-  
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            serif: ['"Source Serif 4"', 'serif'],
-            mono: ['"IBM Plex Mono"', 'monospace'],
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            butera: {
-              bg: '#FDFCFB',
-              text: '#141413',
-              accent: '#B08D57',
-              brand: '#FF007F', /* Rosa Intenso Micheline */
-              brandLight: '#FF4D94',
-              brandDark: '#C70063',
-              border: '#E8E4E1',
-              muted: '#9997AB'
-            }
-          }
-        }
-      }
-    }
-  </script>
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <style>
-    body { background-color: #FDFCFB; color: #141413; }
-    .text-glow {
-      text-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+    :root {
+      --bg: #f7f1eb;
+      --bg-soft: #fbf7f2;
+      --surface: rgba(255, 251, 247, 0.82);
+      --surface-strong: rgba(255, 249, 244, 0.94);
+      --text: #181310;
+      --muted: #6f645d;
+      --line: rgba(24, 19, 16, 0.1);
+      --pink: #ff007f;
+      --pink-soft: rgba(255, 0, 127, 0.12);
+      --gold: #b9935f;
+      --gold-deep: #78593f;
+      --shadow: 0 30px 80px rgba(50, 30, 20, 0.12);
+      --radius-xl: 38px;
+      --radius-lg: 26px;
+      --radius-md: 18px;
+      --container: min(1240px, calc(100vw - 40px));
+      --header-h: 92px;
     }
-    .neon-border {
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.2), inset 0 0 10px rgba(255, 0, 127, 0.1);
-      border: 1px solid rgba(255, 0, 127, 0.3);
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    /* Modal Styles */
-    .modal-overlay {
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.08), transparent 22%),
+        radial-gradient(circle at left 20%, rgba(185, 147, 95, 0.12), transparent 25%),
+        linear-gradient(180deg, #fbf6f1 0%, #f5eee6 56%, #f8f1ea 100%);
+      color: var(--text);
+      font-family: "Manrope", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    img {
+      display: block;
+      max-width: 100%;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .noise {
       position: fixed;
       inset: 0;
-      background: rgba(20, 20, 19, 0.6);
+      pointer-events: none;
+      opacity: 0.04;
+      z-index: 1;
+      background-image:
+        radial-gradient(circle at 20% 20%, #000 0.8px, transparent 0.9px),
+        radial-gradient(circle at 80% 30%, #000 0.6px, transparent 0.8px),
+        radial-gradient(circle at 40% 80%, #000 0.7px, transparent 0.9px);
+      background-size: 24px 24px, 28px 28px, 22px 22px;
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 2;
+    }
+
+    .cursor-ring,
+    .cursor-dot {
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 1200;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .cursor-ring {
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255, 0, 127, 0.4);
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.18);
+      backdrop-filter: blur(8px);
+      transform: translate(-50%, -50%);
+    }
+
+    .cursor-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--pink);
+      box-shadow: 0 0 16px rgba(255, 0, 127, 0.6);
+      transform: translate(-50%, -50%);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .cursor-ring,
+      .cursor-dot {
+        opacity: 1;
+      }
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 900;
+      width: 100%;
+      padding: 18px 0;
+      transition: transform 0.45s ease, background-color 0.45s ease;
+    }
+
+    .site-header.is-solid .header-inner {
+      background: rgba(251, 246, 241, 0.84);
+      border-color: rgba(24, 19, 16, 0.09);
+      box-shadow: 0 14px 40px rgba(35, 21, 15, 0.08);
+    }
+
+    .header-inner {
+      width: var(--container);
+      min-height: var(--header-h);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 22px;
+      border: 1px solid rgba(24, 19, 16, 0.06);
+      border-radius: 999px;
+      backdrop-filter: blur(18px);
+      transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 2px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2rem, 2.4vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    .brand span {
+      color: var(--pink);
+      text-shadow: 0 0 20px rgba(255, 0, 127, 0.25);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-links a {
+      position: relative;
+      transition: color 0.3s ease;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -6px;
+      width: 100%;
+      height: 1px;
+      background: var(--pink);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.35s ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .nav-links a:hover::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .header-cta,
+    .primary-btn,
+    .ghost-btn,
+    .pill-link {
+      border: none;
+      cursor: pointer;
+      border-radius: 999px;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease, color 0.35s ease, border-color 0.35s ease;
+    }
+
+    .header-cta {
+      padding: 14px 22px;
+      background: linear-gradient(135deg, var(--pink), #ff5ea9);
+      color: white;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      box-shadow: 0 18px 36px rgba(255, 0, 127, 0.2);
+    }
+
+    .header-cta:hover,
+    .primary-btn:hover,
+    .ghost-btn:hover,
+    .pill-link:hover {
+      transform: translateY(-2px);
+    }
+
+    .section {
+      width: var(--container);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(360px, 0.95fr);
+      align-items: end;
+      gap: clamp(32px, 5vw, 86px);
+      padding: 42px 0 90px;
+      min-height: calc(100vh - var(--header-h) - 36px);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--pink);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 34px;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.5;
+    }
+
+    .hero-title {
+      max-width: 10ch;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(4.5rem, 11vw, 8.5rem);
+      line-height: 0.88;
+      letter-spacing: -0.06em;
+      font-weight: 700;
+    }
+
+    .hero-title .accent {
+      color: var(--pink);
+      text-shadow: 0 0 28px rgba(255, 0, 127, 0.16);
+    }
+
+    .hero-title .soft {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--gold-deep);
+    }
+
+    .hero-copy {
+      padding-bottom: 18px;
+    }
+
+    .hero-text-block {
+      max-width: 580px;
+      margin-top: 26px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .lede {
+      max-width: 28ch;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.6vw, 1.16rem);
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    .primary-btn {
+      padding: 18px 30px;
+      background: linear-gradient(135deg, var(--pink), #ff58a6);
+      color: white;
+      box-shadow: 0 20px 40px rgba(255, 0, 127, 0.22);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+    }
+
+    .ghost-btn {
+      padding: 17px 28px;
+      border: 1px solid rgba(24, 19, 16, 0.12);
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--text);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .hero-meta strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 720px;
+      display: grid;
+      align-items: center;
+    }
+
+    .hero-arch {
+      position: relative;
+      border-radius: 320px 320px 36px 36px;
+      overflow: hidden;
+      min-height: 720px;
+      box-shadow: var(--shadow);
+      isolation: isolate;
+      background: #eadfd5;
+    }
+
+    .hero-arch::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(17, 10, 9, 0.02) 0%, rgba(17, 10, 9, 0.14) 100%),
+        radial-gradient(circle at 60% 25%, transparent 0%, transparent 35%, rgba(255, 255, 255, 0.18) 100%);
+      z-index: 1;
+    }
+
+    .hero-arch img {
+      width: 100%;
+      height: 100%;
+      min-height: 720px;
+      object-fit: cover;
+      transform: scale(1.06);
+    }
+
+    .hero-caption {
+      position: absolute;
+      left: 28px;
+      bottom: 28px;
+      z-index: 2;
+      display: grid;
+      gap: 8px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: rgba(255, 249, 244, 0.78);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      max-width: 280px;
+    }
+
+    .hero-caption small,
+    .kicker,
+    .mini-label,
+    .stat-label,
+    .location-tag,
+    .footer-copy,
+    .modal-label,
+    .field-label,
+    .step-count {
+      font-family: "IBM Plex Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+    }
+
+    .hero-caption small {
+      font-size: 0.6rem;
+      color: var(--pink);
+    }
+
+    .hero-caption p {
+      font-size: 0.92rem;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .floating-panel,
+    .floating-note {
+      position: absolute;
+      background: rgba(255, 251, 247, 0.75);
+      backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.52);
+      box-shadow: 0 18px 44px rgba(65, 34, 26, 0.12);
+    }
+
+    .floating-panel {
+      top: 7%;
+      right: -4%;
+      width: min(280px, 46vw);
+      padding: 22px;
+      border-radius: 24px;
+      display: grid;
+      gap: 14px;
+      z-index: 3;
+    }
+
+    .kicker {
+      font-size: 0.62rem;
+      color: var(--pink);
+    }
+
+    .floating-panel h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2rem;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .floating-panel p {
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .floating-note {
+      left: -6%;
+      bottom: 12%;
+      width: min(220px, 42vw);
+      padding: 18px 20px;
+      border-radius: 24px;
+      z-index: 3;
+    }
+
+    .floating-note strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .hero-side-tag {
+      position: absolute;
+      top: 50%;
+      right: -52px;
+      transform: translateY(-50%) rotate(90deg);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(24, 19, 16, 0.44);
+      z-index: 3;
+    }
+
+    .metrics {
+      margin-bottom: 110px;
+      padding: 28px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.64), rgba(255, 249, 243, 0.88));
+      border: 1px solid rgba(24, 19, 16, 0.06);
+      box-shadow: 0 20px 56px rgba(60, 34, 22, 0.08);
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .metric-card {
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(24, 19, 16, 0.06);
+    }
+
+    .metric-value {
+      display: block;
+      margin-bottom: 8px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .stat-label {
+      font-size: 0.58rem;
+      color: var(--pink);
+      margin-bottom: 14px;
+      display: block;
+    }
+
+    .metric-card p {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 0.95rem;
+    }
+
+    .section-heading {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 32px;
+      max-width: 700px;
+    }
+
+    .section-heading h2 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(3rem, 7vw, 5rem);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+    }
+
+    .section-heading h2 em {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--gold-deep);
+    }
+
+    .section-heading p {
+      color: var(--muted);
+      max-width: 54ch;
+      line-height: 1.8;
+      font-size: 1rem;
+    }
+
+    .spotlight-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 22px;
+      margin-bottom: 120px;
+    }
+
+    .feature-card,
+    .service-card,
+    .location-card,
+    .story-step,
+    .cta-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background: var(--surface);
+      box-shadow: 0 14px 42px rgba(52, 29, 22, 0.08);
+    }
+
+    .feature-card {
+      min-height: 680px;
+      padding: 28px;
+      display: flex;
+      align-items: end;
+      isolation: isolate;
+    }
+
+    .feature-card::before,
+    .service-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(15, 11, 9, 0.05) 0%, rgba(15, 11, 9, 0.66) 100%);
+    }
+
+    .feature-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .feature-card:hover img,
+    .service-card:hover img {
+      transform: scale(1.06);
+    }
+
+    .feature-content {
+      position: relative;
+      z-index: 2;
+      max-width: 460px;
+      display: grid;
+      gap: 16px;
+      color: white;
+    }
+
+    .feature-content h3,
+    .service-card h3,
+    .story-pin h2,
+    .cta-copy h2,
+    .modal-card h3 {
+      font-family: "Cormorant Garamond", serif;
+      letter-spacing: -0.05em;
+    }
+
+    .feature-content h3 {
+      font-size: clamp(3.2rem, 5vw, 4.8rem);
+      line-height: 0.92;
+    }
+
+    .feature-content p {
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+    }
+
+    .feature-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .pill-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 20px;
+      background: rgba(255, 255, 255, 0.14);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
       backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      z-index: 99999;
+    }
+
+    .service-stack {
+      display: grid;
+      gap: 22px;
+    }
+
+    .service-card {
+      min-height: 210px;
+      padding: 26px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 22px;
+      align-items: end;
+      isolation: isolate;
+      transition: transform 0.45s ease, border-color 0.45s ease, box-shadow 0.45s ease;
+    }
+
+    .service-card:hover,
+    .story-step:hover,
+    .location-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 0, 127, 0.22);
+      box-shadow: 0 24px 56px rgba(255, 0, 127, 0.09);
+    }
+
+    .service-card img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .service-card::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0 0;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(15, 11, 9, 0.08) 0%, rgba(15, 11, 9, 0.72) 58%, rgba(15, 11, 9, 0.6) 100%);
+      z-index: 1;
+    }
+
+    .service-card.empty-pane {
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.08), transparent 30%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(249, 240, 232, 0.92));
+      min-height: 190px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .service-card.empty-pane::before,
+    .service-card.empty-pane::after {
+      display: none;
+    }
+
+    .service-card.empty-pane .service-copy {
+      color: var(--text);
+    }
+
+    .service-card.empty-pane .service-copy p {
+      color: var(--muted);
+    }
+
+    .service-copy {
+      position: relative;
+      z-index: 2;
+      color: white;
+      margin-left: auto;
+      max-width: 330px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .mini-label {
+      font-size: 0.55rem;
+      color: rgba(255, 255, 255, 0.78);
+    }
+
+    .service-card.empty-pane .mini-label {
+      color: var(--pink);
+    }
+
+    .service-card h3 {
+      font-size: 2.2rem;
+      line-height: 0.96;
+    }
+
+    .service-card p {
+      color: rgba(255, 255, 255, 0.78);
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+
+    .story-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1fr);
+      gap: clamp(30px, 5vw, 80px);
+      margin-bottom: 120px;
+      align-items: start;
+    }
+
+    .story-pin {
+      position: relative;
+      top: 0;
+      display: grid;
+      gap: 18px;
+      padding: 36px 0 12px;
+    }
+
+    .story-pin h2 {
+      font-size: clamp(3rem, 6vw, 4.8rem);
+      line-height: 0.93;
+    }
+
+    .story-pin p {
+      max-width: 36ch;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    .story-track {
+      display: grid;
+      gap: 20px;
+    }
+
+    .story-step {
+      padding: 30px;
+      display: grid;
+      gap: 14px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(252, 245, 240, 0.92));
+    }
+
+    .step-count {
+      font-size: 0.6rem;
+      color: var(--pink);
+    }
+
+    .story-step h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2.25rem;
+      line-height: 0.98;
+      letter-spacing: -0.04em;
+    }
+
+    .story-step p {
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 52ch;
+    }
+
+    .story-step ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .story-step li {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 0, 127, 0.08);
+      color: var(--text);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .locations-wrap {
+      margin-bottom: 110px;
+    }
+
+    .locations-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .location-card {
+      padding: 34px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(248, 239, 232, 0.9));
+    }
+
+    .location-card.dark {
+      color: white;
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.24), transparent 25%),
+        linear-gradient(180deg, #201712 0%, #110d0a 100%);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 26px 70px rgba(17, 12, 10, 0.26);
+    }
+
+    .location-tag {
+      font-size: 0.58rem;
+      color: var(--pink);
+    }
+
+    .location-card.dark .location-tag {
+      color: rgba(255, 255, 255, 0.65);
+    }
+
+    .location-card h3 {
+      margin-top: 14px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2.5rem, 4vw, 3.6rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .location-card p {
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 34ch;
+    }
+
+    .location-card.dark p {
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .location-meta {
+      display: grid;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .location-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .location-card .ghost-btn,
+    .location-card .primary-btn {
+      padding: 15px 20px;
+      font-size: 0.65rem;
+    }
+
+    .booking-band {
+      position: relative;
+      margin-bottom: 80px;
+      padding-bottom: 60px;
+    }
+
+    .marquee-shell {
+      overflow: hidden;
+      margin-bottom: 24px;
+      border-block: 1px solid rgba(24, 19, 16, 0.08);
+      padding: 18px 0;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 28px;
+      min-width: max-content;
+      animation: marquee 18s linear infinite;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      letter-spacing: -0.04em;
+      color: rgba(24, 19, 16, 0.16);
+      white-space: nowrap;
+    }
+
+    .marquee-track span em {
+      color: rgba(255, 0, 127, 0.28);
+      font-style: italic;
+      font-weight: 600;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .cta-card {
+      padding: clamp(28px, 5vw, 54px);
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 26px;
+      align-items: center;
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.12), transparent 24%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(250, 241, 233, 0.96));
+    }
+
+    .cta-copy {
+      display: grid;
+      gap: 16px;
+      max-width: 660px;
+    }
+
+    .cta-copy h2 {
+      font-size: clamp(3rem, 6vw, 5.2rem);
+      line-height: 0.9;
+    }
+
+    .cta-copy p {
+      color: var(--muted);
+      line-height: 1.85;
+      max-width: 50ch;
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .cta-actions .primary-btn {
+      padding-inline: 30px;
+    }
+
+    .footer {
+      width: var(--container);
+      margin: 0 auto;
+      padding: 0 0 44px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(3.2rem, 9vw, 7rem);
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+      color: rgba(24, 19, 16, 0.08);
+    }
+
+    .footer-copy {
+      font-size: 0.58rem;
+      color: rgba(24, 19, 16, 0.5);
+    }
+
+    .wa-btn {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #25d366;
       display: flex;
       align-items: center;
       justify-content: center;
+      box-shadow: 0 18px 36px rgba(37, 211, 102, 0.3);
+      z-index: 980;
+      animation: pulse-wa 2.4s infinite;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+
+    @keyframes pulse-wa {
+      0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.55); }
+      70% { box-shadow: 0 0 0 18px rgba(37, 211, 102, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+
+    .wa-btn:hover {
+      transform: scale(1.06);
+      background: #128c7e;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1400;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(16, 11, 10, 0.56);
+      backdrop-filter: blur(18px);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.4s ease;
+      transition: opacity 0.35s ease;
     }
+
     .modal-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
-    .modal-container {
-      background: rgba(253, 252, 251, 0.95);
-      border: 1px solid rgba(255, 0, 127, 0.3);
-      border-radius: 32px;
-      width: 90%;
-      max-width: 480px;
-      padding: 3rem;
-      transform: translateY(20px) scale(0.95);
-      transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-      box-shadow: 0 40px 80px rgba(0,0,0,0.2), 0 0 40px rgba(255, 0, 127, 0.15);
+
+    .modal-card {
       position: relative;
+      width: min(560px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      padding: 34px;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.1), transparent 22%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(250, 244, 239, 0.98));
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 36px 84px rgba(19, 11, 9, 0.28);
+      transform: translateY(16px) scale(0.98);
+      transition: transform 0.35s ease;
     }
-    .modal-overlay.active .modal-container {
+
+    .modal-overlay.active .modal-card {
       transform: translateY(0) scale(1);
     }
+
     .close-modal {
       position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      width: 40px;
-      height: 40px;
+      top: 18px;
+      right: 18px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: rgba(20, 20, 19, 0.05);
-      display: flex;
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
+      display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
     }
-    .close-modal:hover {
-      background: #FF007F;
-      color: white;
-      transform: rotate(90deg);
+
+    .modal-label {
+      font-size: 0.58rem;
+      color: var(--pink);
+      margin-bottom: 12px;
+      display: block;
     }
+
+    .modal-card h3 {
+      max-width: 10ch;
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      line-height: 0.9;
+      margin-bottom: 10px;
+    }
+
+    .modal-card p {
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 28px;
+      max-width: 50ch;
+    }
+
+    .booking-form {
+      display: grid;
+      gap: 18px;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 9px;
+    }
+
+    .field-label {
+      font-size: 0.58rem;
+      color: var(--muted);
+    }
+
     .form-input {
       width: 100%;
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid #E8E4E1;
-      border-radius: 16px;
-      padding: 1rem 1.5rem;
+      padding: 15px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--text);
       outline: none;
-      transition: all 0.3s ease;
-      font-family: 'Inter', sans-serif;
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
     }
+
     .form-input:focus {
-      border-color: #FF007F;
-      box-shadow: 0 0 15px rgba(255, 0, 127, 0.15);
+      border-color: rgba(255, 0, 127, 0.45);
+      box-shadow: 0 0 0 4px rgba(255, 0, 127, 0.08);
       background: white;
     }
-    .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      grid-auto-rows: minmax(180px, auto);
-      gap: 1.5rem;
+
+    .submit-btn {
+      width: 100%;
+      padding: 18px 22px;
+      margin-top: 6px;
+      border: none;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--pink), #ff5ea9);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 18px 36px rgba(255, 0, 127, 0.22);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
     }
-    .bento-item {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(232, 228, 225, 0.8);
-      border-radius: 28px;
-      padding: 2.5rem;
-      transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
-    }
-    .bento-item:hover {
-      border-color: #FF007F;
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(255, 0, 127, 0.15), 0 0 20px rgba(255, 0, 127, 0.1);
-    }
-    .custom-cursor {
-      width: 20px;
-      height: 20px;
-      border: 1px solid #141413;
-      border-radius: 50%;
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      transition: transform 0.15s ease-out;
-    }
-    .reveal-text {
+
+    [data-reveal],
+    [data-slide-up] {
       opacity: 0;
-      transform: translateY(30px);
-      animation: reveal 1.2s forwards cubic-bezier(0.23, 1, 0.320, 1);
+      transform: translateY(36px);
     }
-    @keyframes reveal {
-      to { opacity: 1; transform: translateY(0); }
+
+    [data-fade] {
+      opacity: 0;
     }
-    .staff-card {
-      filter: grayscale(100%);
-      transition: all 0.5s ease;
+
+    @media (max-width: 1080px) {
+      .hero {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        padding-top: 20px;
+      }
+
+      .hero-title {
+        max-width: 12ch;
+      }
+
+      .hero-visual {
+        min-height: auto;
+      }
+
+      .hero-arch,
+      .hero-arch img {
+        min-height: 560px;
+      }
+
+      .spotlight-grid,
+      .story-layout,
+      .locations-grid,
+      .cta-card {
+        grid-template-columns: 1fr;
+      }
+
+      .metrics-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .cta-actions {
+        justify-content: flex-start;
+      }
     }
-    .staff-card:hover {
-      filter: grayscale(0%);
+
+    @media (max-width: 820px) {
+      .site-header {
+        padding: 12px 0;
+      }
+
+      .header-inner {
+        padding: 15px 18px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .header-cta {
+        padding: 12px 16px;
+      }
+
+      .hero-title,
+      .section-heading h2,
+      .story-pin h2,
+      .cta-copy h2,
+      .modal-card h3 {
+        max-width: none;
+      }
+
+      .hero-arch,
+      .hero-arch img {
+        min-height: 430px;
+        border-radius: 220px 220px 28px 28px;
+      }
+
+      .floating-panel {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        margin: 18px 0 0;
+      }
+
+      .floating-note,
+      .hero-side-tag {
+        display: none;
+      }
+
+      .service-card {
+        grid-template-columns: 1fr;
+        min-height: 280px;
+      }
+
+      .service-copy {
+        max-width: none;
+      }
+
+      .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer {
+        padding-bottom: 100px;
+      }
     }
-    .wa-btn {
-      position: fixed;
-      bottom: 2rem;
-      right: 2rem;
-      z-index: 1000;
-      width: 65px;
-      height: 65px;
-      background: #25D366;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      animation: pulse-wa 2s infinite;
-    }
-    @keyframes pulse-wa {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-      70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-    }
-    .wa-btn:hover {
-      transform: scale(1.15) rotate(10deg);
-      background: #128C7E;
+
+    @media (max-width: 560px) {
+      :root {
+        --container: min(1240px, calc(100vw - 24px));
+      }
+
+      .hero {
+        padding-bottom: 70px;
+      }
+
+      .primary-btn,
+      .ghost-btn,
+      .header-cta,
+      .submit-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .hero-actions,
+      .cta-actions,
+      .location-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-card,
+      .location-card,
+      .cta-card,
+      .modal-card {
+        border-radius: 28px;
+      }
+
+      .feature-card {
+        min-height: 520px;
+      }
+
+      .feature-content h3 {
+        font-size: 3rem;
+      }
+
+      .wa-btn {
+        width: 60px;
+        height: 60px;
+        right: 16px;
+        bottom: 16px;
+      }
     }
   </style>
 </head>
-<body class="font-sans antialiased overflow-x-hidden">
+<body>
+  <div class="noise"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
 
-  <!-- Custom Cursor -->
-  <div class="custom-cursor hidden md:block" id="cursor"></div>
-
-  <!-- Header -->
-  <header class="fixed top-0 w-full z-50 px-8 py-8 transition-all duration-500 hover:bg-white/90 hover:backdrop-blur-xl">
-    <nav class="flex justify-between items-center max-w-7xl mx-auto">
-      <a href="#" class="font-serif text-3xl tracking-tighter text-butera-text relative group">Micheline<span class="text-butera-brand group-hover:text-glow transition-all">.</span></a>
-      <div class="space-x-12 text-[10px] font-mono uppercase tracking-[0.4em] hidden md:flex text-butera-text/80">
-        <a href="#servicios" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Servicios</a>
-        <a href="#equipo" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Equipo</a>
-        <a href="#" onclick="openModal(event)" class="hover:text-butera-brand hover:text-glow transition-all font-bold">Reservar</a>
+  <div class="page-shell">
+    <header class="site-header" id="siteHeader">
+      <div class="header-inner">
+        <a href="#top" class="brand">Micheline<span>.</span></a>
+        <nav class="nav-links" aria-label="Principal">
+          <a href="#servicios">Servicios</a>
+          <a href="#experiencia">Experiencia</a>
+          <a href="#studios">Studios</a>
+          <a href="#reserva">Reserva</a>
+        </nav>
+        <button class="header-cta" type="button" onclick="openModal()">Reservar</button>
       </div>
-      <button class="font-mono text-[10px] border border-butera-text px-6 py-2 rounded-full hover:bg-butera-brand hover:border-butera-brand hover:text-white hover:shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all tracking-widest text-butera-text">MENU</button>
-    </nav>
-  </header>
+    </header>
 
-  <main class="pt-48 px-8">
-    <!-- Hero Section -->
-    <section class="max-w-7xl mx-auto mb-32">
-      <div class="flex flex-col md:flex-row gap-16 items-end">
-        <div class="md:w-3/5">
-          <p class="font-mono text-[10px] uppercase tracking-[0.5em] text-butera-brandLight font-bold mb-8 reveal-text">Micheline Nail Bar & Beauty Lounge</p>
-          <h1 class="font-serif text-7xl md:text-9xl leading-[1] reveal-text" style="animation-delay: 0.2s;">
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-butera-brand to-butera-brandLight text-glow font-bold">Arte</span> & <span class="italic font-light">Belleza</span> en cada detalle.
+    <main>
+      <section class="section hero" id="top">
+        <div class="hero-copy">
+          <div class="eyebrow" data-slide-up>Micheline Nail Bar & Beauty Lounge</div>
+          <h1 class="hero-title" data-slide-up>
+            <span class="accent">Belleza</span>
+            <br>
+            <span class="soft">que entra</span>
+            <br>
+            en escena.
           </h1>
-        </div>
-        <div class="md:w-2/5 reveal-text" style="animation-delay: 0.4s;">
-          <p class="text-xl text-slate-400 font-light leading-relaxed mb-10">
-            La belleza es una forma de autocuidado. En Micheline, elevamos esa expresión personal al nivel de obra maestra.
-          </p>
-          <a href="#" onclick="openModal(event)" class="inline-flex items-center group font-mono text-[10px] tracking-[0.3em] uppercase">
-            Empieza tu experiencia
-            <span class="ml-6 w-16 h-16 rounded-full border border-butera-brand text-butera-brand flex items-center justify-center group-hover:bg-butera-brand group-hover:text-white group-hover:shadow-[0_0_20px_rgba(255,0,127,0.5)] transition-all duration-500">→</span>
-          </a>
-        </div>
-      </div>
-    </section>
 
-    <!-- Bento Services Grid -->
-    <section id="servicios" class="max-w-7xl mx-auto mb-40">
-      <div class="bento-grid">
-        <!-- Item 1: Nail Bar (Highlight) -->
-        <div class="bento-item col-span-4 md:col-span-2 row-span-2 flex flex-col justify-end min-h-[600px] relative overflow-hidden group">
-          <img src="img/hero.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Nail Art Hero">
-          <div class="absolute inset-0 bg-gradient-to-t from-butera-bg via-transparent to-transparent opacity-90"></div>
-          <div class="relative z-10">
-            <span class="font-mono text-[10px] uppercase tracking-widest text-butera-brandLight font-bold">Exclusivo</span>
-            <h3 class="font-serif text-5xl mt-3 mb-6">Nail Art <br/><span class="text-butera-brand italic drop-shadow-[0_0_10px_rgba(255,0,127,0.3)]">Profesional</span></h3>
-            <p class="text-sm opacity-60 max-w-xs leading-relaxed">Manicure, pedicure, gel y las más finas acrílicas para manos que cuentan historias.</p>
+          <div class="hero-text-block">
+            <p class="lede" data-slide-up>
+              La experiencia Micheline ahora se presenta con una presencia mas editorial y cinematica:
+              manicure, pedi spa, peluqueria y cuidado personal convertidos en un ritual visual.
+            </p>
+
+            <div class="hero-actions" data-slide-up>
+              <button class="primary-btn" type="button" onclick="openModal()">Agendar cita</button>
+              <a class="ghost-btn" href="#servicios">Explorar rituales</a>
+            </div>
+
+            <div class="hero-meta" data-slide-up>
+              <span><strong>2</strong> studios activos</span>
+              <span><strong>7:00 AM</strong> apertura diaria</span>
+              <span><strong>WhatsApp</strong> respuesta directa</span>
+            </div>
           </div>
         </div>
 
-        <!-- Item 2: Pedi Spa -->
-        <div class="bento-item col-span-4 md:col-span-2 min-h-[280px] flex flex-col justify-between relative overflow-hidden group">
-            <img src="img/pedi.png" class="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-30 transition-opacity" alt="Pedi Spa">
-            <div class="relative z-10">
-              <div class="flex justify-between items-start">
-                <h3 class="font-serif text-3xl">Pedi Spa <br/>4 Pasos</h3>
+        <div class="hero-visual">
+          <div class="hero-arch" data-fade>
+            <img src="img/hero.png" alt="Detalle de manicure premium en Micheline">
+            <div class="hero-caption">
+              <small>Butera Edition</small>
+              <p>Direccion de arte limpia, femenina y con una sensacion de lujo silencioso.</p>
+            </div>
+          </div>
+
+          <aside class="floating-panel" data-slide-up>
+            <span class="kicker">Signature Atmosphere</span>
+            <h3>Rituales con presencia, textura y precision.</h3>
+            <p>
+              Disenamos una experiencia que se siente curada desde el primer scroll hasta la reserva final.
+            </p>
+          </aside>
+
+          <aside class="floating-note" data-slide-up>
+            <span class="kicker">San Pedro / Boca Chica</span>
+            <strong>Servicio premium, agenda flexible y atencion cercana.</strong>
+          </aside>
+
+          <div class="hero-side-tag">beauty lounge / premium booking / micheline</div>
+        </div>
+      </section>
+
+      <section class="section metrics" aria-label="Metricas">
+        <div class="metrics-grid">
+          <article class="metric-card" data-reveal>
+            <span class="stat-label">Ritual 01</span>
+            <span class="metric-value">Nail Art</span>
+            <p>Diseno, precision y acabado limpio para manos que se convierten en detalle protagonista.</p>
+          </article>
+          <article class="metric-card" data-reveal>
+            <span class="stat-label">Ritual 02</span>
+            <span class="metric-value">Pedi Spa</span>
+            <p>Un recorrido relajante de cuatro pasos para pies cuidados con calma y presencia.</p>
+          </article>
+          <article class="metric-card" data-reveal>
+            <span class="stat-label">Ritual 03</span>
+            <span class="metric-value">Hair</span>
+            <p>Movimiento, forma y definicion para un look pulido que sostiene toda la imagen.</p>
+          </article>
+          <article class="metric-card" data-reveal>
+            <span class="stat-label">Ritual 04</span>
+            <span class="metric-value">Glow</span>
+            <p>Depilacion y cuidado para una sensacion final de limpieza, suavidad y confianza.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="servicios">
+        <div class="section-heading" data-reveal>
+          <div class="eyebrow">Servicios destacados</div>
+          <h2>Una landing con <em>lenguaje visual</em> de estudio.</h2>
+          <p>
+            Se reorganizo la informacion para que la marca se sienta mas elevada y memorable. El foco ahora
+            esta en el impacto visual, la lectura clara y el llamado a reserva en puntos estrategicos.
+          </p>
+        </div>
+
+        <div class="spotlight-grid">
+          <article class="feature-card" data-fade>
+            <img src="img/pedi.png" alt="Pedi spa de Micheline">
+            <div class="feature-content">
+              <span class="mini-label">Hero Ritual</span>
+              <h3>Pedi Spa de cuatro pasos para una pausa real.</h3>
+              <p>
+                Exfoliacion, hidratacion profunda y un ritmo visual que transmite cuidado premium desde el primer vistazo.
+              </p>
+              <div class="feature-meta">
+                <a href="#reserva" class="pill-link">Quiero reservar</a>
+                <a href="#experiencia" class="pill-link">Ver experiencia</a>
               </div>
-              <p class="text-sm opacity-50 mt-4 max-w-sm">Exfoliación, hidratación profunda y relajación absoluta para tus pies.</p>
             </div>
-            <a href="#" class="font-mono text-[9px] underline tracking-[0.3em] uppercase relative z-10 text-butera-brand hover:text-butera-brandLight hover:text-glow transition-all">Ver Ritual</a>
+          </article>
+
+          <div class="service-stack">
+            <article class="service-card" data-slide-up>
+              <img src="img/hair.png" alt="Servicio de peluqueria y peinado">
+              <div class="service-copy">
+                <span class="mini-label">Hair Styling</span>
+                <h3>Peluqueria & peinados</h3>
+                <p>Textura, forma y brillo para un acabado que complementa toda la experiencia Micheline.</p>
+              </div>
+            </article>
+
+            <article class="service-card" data-slide-up>
+              <img src="img/skin.png" alt="Depilacion y cuidado de piel">
+              <div class="service-copy">
+                <span class="mini-label">Skin & Wax</span>
+                <h3>Cera & cuidado</h3>
+                <p>Una escena de suavidad y limpieza con un look mas sereno, pulido y femenino.</p>
+              </div>
+            </article>
+
+            <article class="service-card empty-pane" data-slide-up>
+              <div class="service-copy">
+                <span class="mini-label">Conversion Focus</span>
+                <h3>Menos ruido. Mas deseo de reserva.</h3>
+                <p>
+                  La estructura nueva reduce saturacion visual, mejora jerarquia y acerca al usuario a WhatsApp
+                  y al modal de agendado sin perder sofisticacion.
+                </p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section story-layout" id="experiencia">
+        <div class="story-pin">
+          <div class="eyebrow">Experiencia Micheline</div>
+          <h2>El recorrido se siente curado en cada bloque.</h2>
+          <p>
+            Esta parte reemplaza la sensacion de landing estatica por una narrativa mas controlada:
+            presentacion, servicio, confianza y reserva con ritmo visual.
+          </p>
         </div>
 
-        <!-- Item 3: Peluquería -->
-        <div class="bento-item col-span-2 md:col-span-1 min-h-[400px] flex flex-col justify-end relative overflow-hidden group">
-            <img src="img/hair.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Hair Art">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative z-10 transition-transform duration-500 group-hover:-translate-y-4">
-              <h3 class="font-serif text-2xl mb-1 text-butera-text group-hover:text-white">Peluquería</h3>
-              <p class="text-[9px] font-mono opacity-50 uppercase tracking-widest text-butera-text group-hover:text-white/80">Estilo & Definición</p>
+        <div class="story-track">
+          <article class="story-step" data-slide-up>
+            <span class="step-count">Paso 01</span>
+            <h3>Entrada editorial</h3>
+            <p>
+              Un hero dominante con imagen en arco, tipografia expresiva y capas flotantes para instalar marca en segundos.
+            </p>
+            <ul>
+              <li>impacto inicial</li>
+              <li>cta visible</li>
+              <li>marca clara</li>
+            </ul>
+          </article>
+
+          <article class="story-step" data-slide-up>
+            <span class="step-count">Paso 02</span>
+            <h3>Servicios como escenas</h3>
+            <p>
+              Cada categoria se muestra como una pieza visual propia, con imagen, nombre y tono de lujo contemporaneo.
+            </p>
+            <ul>
+              <li>nail art</li>
+              <li>pedi spa</li>
+              <li>hair styling</li>
+            </ul>
+          </article>
+
+          <article class="story-step" data-slide-up>
+            <span class="step-count">Paso 03</span>
+            <h3>Confianza operativa</h3>
+            <p>
+              Los estudios y horarios siguen presentes, pero ahora con mejor jerarquia y botones de accion mas evidentes.
+            </p>
+            <ul>
+              <li>ubicaciones</li>
+              <li>horarios</li>
+              <li>contacto directo</li>
+            </ul>
+          </article>
+
+          <article class="story-step" data-slide-up>
+            <span class="step-count">Paso 04</span>
+            <h3>Cierre con conversion</h3>
+            <p>
+              El recorrido termina con una banda de cierre mas premium que empuja al modal y conserva el flujo actual al webhook y WhatsApp.
+            </p>
+            <ul>
+              <li>modal intacto</li>
+              <li>webhook intacto</li>
+              <li>whatsapp intacto</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section locations-wrap" id="studios">
+        <div class="section-heading" data-reveal>
+          <div class="eyebrow">Studios & horarios</div>
+          <h2>Dos espacios, una misma <em>firma visual</em>.</h2>
+          <p>
+            Mantuvimos las sedes activas de la landing original, pero integradas dentro de la nueva direccion de arte.
+          </p>
+        </div>
+
+        <div class="locations-grid">
+          <article class="location-card dark" data-slide-up>
+            <div>
+              <span class="location-tag">Main Studio</span>
+              <h3>San Pedro de Macoris</h3>
+              <div class="location-meta">
+                <p>Lunes a Sabado: 07:00 - 23:00<br>Domingo: 07:00 - 22:00</p>
+                <p>El espacio principal para una experiencia de servicio extensa, cuidada y con energia premium.</p>
+              </div>
             </div>
-        </div>
-
-        <!-- Item 4: Depilación (Skin) -->
-        <div class="bento-item col-span-2 md:col-span-1 min-h-[400px] flex flex-col justify-between relative overflow-hidden group">
-            <img src="img/skin.png" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-100 transition-all duration-1000" alt="Skin Care">
-            <h3 class="font-serif text-2xl relative z-10">Cera & <br/><span class="text-butera-brand italic">Cuidado</span></h3>
-            <div class="flex items-center gap-2 relative z-10">
-              <div class="h-[1px] flex-1 bg-butera-brand/30"></div>
-              <span class="font-mono text-[9px] text-butera-brand">REVELAR</span>
+            <div class="location-actions">
+              <a class="primary-btn" href="tel:8092465821">Llamar ahora</a>
+              <button class="ghost-btn" type="button" onclick="openModal()">Reservar cita</button>
             </div>
-        </div>
-      </div>
-    </section>
+          </article>
 
-    <!-- Space Divider -->
-    <div class="h-32"></div>
-
-    <!-- Locations / Equipo -->
-    <section id="equipo" class="max-w-7xl mx-auto mb-40 pt-10">
-      <div class="mb-16">
-        <h2 class="font-serif text-5xl mb-4">Nuestro <span class="text-butera-brand italic">Equipo & Studios</span></h2>
-        <p class="font-light text-slate-400 max-w-lg leading-relaxed">Conoce nuestras ubicaciones de alto nivel, donde nuestras especialistas te esperan para brindarte una experiencia inolvidable.</p>
-      </div>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="bento-item bg-zinc-900 text-white border-none p-12">
-          <span class="font-mono text-[9px] tracking-[0.4em] text-butera-brandLight font-bold">MAIN STUDIO</span>
-          <h3 class="font-serif text-4xl mt-4 mb-8">San Pedro de Macorís</h3>
-          <p class="font-light opacity-70 mb-12">Lunes a Sábado: 07:00 — 23:00<br/>Domingo: 07:00 — 22:00</p>
-          <a href="tel:8092465821" class="font-mono text-[10px] border border-white/20 px-8 py-3 rounded-full hover:bg-butera-brand hover:border-butera-brand hover:text-white hover:shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all uppercase tracking-widest">Llamar Ahora</a>
+          <article class="location-card" data-slide-up>
+            <div>
+              <span class="location-tag">Coastal Studio</span>
+              <h3>Boca Chica</h3>
+              <div class="location-meta">
+                <p>Lunes a Sabado: 07:00 - 21:00<br>Domingo: 07:00 - 20:00</p>
+                <p>Un formato mas ligero y cercano, con salida directa a WhatsApp para coordinar disponibilidad.</p>
+              </div>
+            </div>
+            <div class="location-actions">
+              <a class="ghost-btn" href="https://wa.me/8098979609" target="_blank" rel="noreferrer">WhatsApp</a>
+              <button class="primary-btn" type="button" onclick="openModal()">Agendar</button>
+            </div>
+          </article>
         </div>
-        <div class="bento-item p-12">
-          <span class="font-mono text-[9px] tracking-[0.4em] text-butera-brandLight font-bold">COASTAL STUDIO</span>
-          <h3 class="font-serif text-4xl mt-4 mb-8">Boca Chica</h3>
-          <p class="font-light opacity-50 mb-12">Lunes a Sábado: 07:00 — 21:00<br/>Domingo: 07:00 — 20:00</p>
-          <a href="https://wa.me/8098979609" class="font-mono text-[10px] border border-butera-text px-8 py-3 rounded-full hover:bg-butera-brand hover:border-butera-brand hover:text-white hover:shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all uppercase tracking-widest">WhatsApp</a>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Footer -->
-    <footer class="max-w-7xl mx-auto py-32 border-t border-butera-border text-center">
-      <h2 class="font-serif text-6xl mb-12 italic">Tu momento es ahora.</h2>
-      <div class="flex justify-center mb-16">
-        <button id="reservaBtn" class="relative group font-mono text-3xl text-white px-20 py-10 rounded-full transition-all duration-700">
-          <div class="absolute inset-0 bg-gradient-to-r from-butera-brand to-butera-brandLight rounded-full group-hover:scale-105 transition-transform duration-500"></div>
-          <div class="absolute inset-0 bg-butera-brand rounded-full blur-xl opacity-50 group-hover:opacity-100 group-hover:blur-2xl transition-all duration-500"></div>
-          <span class="relative z-10 font-bold tracking-widest">AGENDAR CITA</span>
-        </button>
-      </div>
-      <p class="font-mono text-[10px] text-butera-muted tracking-[0.3em]">
-        © 2024 MICHELINE NAIL BAR — @MICHELINENAILBAR
-      </p>
+      <section class="section booking-band" id="reserva">
+        <div class="marquee-shell" aria-hidden="true">
+          <div class="marquee-track">
+            <span>Micheline <em>Butera Edition</em> Micheline <em>Butera Edition</em> Micheline <em>Butera Edition</em></span>
+            <span>Micheline <em>Butera Edition</em> Micheline <em>Butera Edition</em> Micheline <em>Butera Edition</em></span>
+          </div>
+        </div>
+
+        <div class="cta-card" data-fade>
+          <div class="cta-copy">
+            <div class="eyebrow">Reserva premium</div>
+            <h2>Tu momento Micheline empieza aqui.</h2>
+            <p>
+              El formulario mantiene la misma logica de envio y redireccion. Cambiamos el empaque visual para que
+              el cierre se sienta mas exclusivo y coherente con el resto de la pagina.
+            </p>
+          </div>
+          <div class="cta-actions">
+            <button class="primary-btn" id="reservaBtn" type="button">Agendar cita</button>
+            <a class="ghost-btn" href="https://wa.me/8098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita." target="_blank" rel="noreferrer">
+              WhatsApp directo
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-logo">Micheline</div>
+      <p class="footer-copy">© 2024 MICHELINE NAIL BAR — @MICHELINENAILBAR</p>
     </footer>
+  </div>
 
-    <!-- WhatsApp Floating Button -->
-    <a href="https://wa.me/8098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita." class="wa-btn flex items-center justify-center p-4 group" target="_blank" aria-label="WhatsApp Micheline">
-      <svg viewBox="0 0 448 512" width="28" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.4-8.6-44.6-27.6-16.5-14.7-27.6-32.8-30.8-38.4-3.2-5.6-.3-8.6 2.5-11.4 2.5-2.5 5.5-6.5 8.3-9.8 2.8-3.3 3.7-5.5 5.5-9.2 1.9-3.7 1-6.9-.5-9.8-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
-      </svg>
-    </a>
-  </main>
+  <a
+    href="https://wa.me/8098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita."
+    class="wa-btn"
+    target="_blank"
+    rel="noreferrer"
+    aria-label="WhatsApp Micheline"
+  >
+    <svg viewBox="0 0 448 512" width="28" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.4-8.6-44.6-27.6-16.5-14.7-27.6-32.8-30.8-38.4-3.2-5.6-.3-8.6 2.5-11.4 2.5-2.5 5.5-6.5 8.3-9.8 2.8-3.3 3.7-5.5 5.5-9.2 1.9-3.7 1-6.9-.5-9.8-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+    </svg>
+  </a>
 
-  <!-- Modal de Reserva -->
-  <div class="modal-overlay" id="reservaModal" role="dialog" aria-modal="true">
-    <div class="modal-container">
-      <button class="close-modal" aria-label="Cerrar modal" onclick="closeModal()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+  <div class="modal-overlay" id="reservaModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <button class="close-modal" type="button" aria-label="Cerrar modal" onclick="closeModal()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
-      <span class="font-mono text-[10px] uppercase tracking-widest text-butera-brandLight font-bold mb-2 block">Premium Booking</span>
-      <h3 class="font-serif text-4xl mb-6">Tu momento <br/><span class="text-butera-brand italic drop-shadow-[0_0_10px_rgba(255,0,127,0.2)]">Micheline.</span></h3>
-      
-      <form id="reservaForm" class="space-y-4">
-        <div>
-          <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Paso 1: Elige tu Servicio</label>
-          <select name="servicio" required class="form-input text-sm text-butera-text cursor-pointer appearance-none">
-            <option value="" disabled selected>Selecciona tu experiencia de lujo...</option>
+
+      <span class="modal-label">Premium Booking</span>
+      <h3 id="modalTitle">Tu momento Micheline.</h3>
+      <p>
+        Completa tu solicitud y te redirigimos a WhatsApp con el detalle de la reserva para confirmar disponibilidad.
+      </p>
+
+      <form id="reservaForm" class="booking-form">
+        <div class="field">
+          <label class="field-label" for="servicio">Servicio</label>
+          <select id="servicio" name="servicio" required class="form-input">
+            <option value="" disabled selected>Selecciona tu experiencia...</option>
             <option value="Nail Bar & Manicure">Nail Bar & Manicure</option>
-            <option value="Peluquería & Peinados">Peluquería & Peinados</option>
+            <option value="Peluqueria & Peinados">Peluqueria & Peinados</option>
             <option value="Pedi Spa (4 Pasos)">Pedi Spa (4 Pasos)</option>
-            <option value="Uñas Acrílicas">Uñas Acrílicas</option>
+            <option value="Unas Acrilicas">Unas Acrilicas</option>
             <option value="Maquillaje Profesional">Maquillaje Profesional</option>
-            <option value="Depilación con Cera">Depilación con Cera</option>
+            <option value="Depilacion con Cera">Depilacion con Cera</option>
           </select>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-             <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Fecha</label>
-             <input type="date" name="fecha" required class="form-input text-sm text-butera-text cursor-pointer" />
+
+        <div class="field-grid">
+          <div class="field">
+            <label class="field-label" for="fecha">Fecha</label>
+            <input id="fecha" type="date" name="fecha" required class="form-input">
           </div>
-          <div>
-             <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Hora Ideal</label>
-             <input type="time" name="hora" required class="form-input text-sm text-butera-text cursor-pointer" />
+          <div class="field">
+            <label class="field-label" for="hora">Hora ideal</label>
+            <input id="hora" type="time" name="hora" required class="form-input">
           </div>
         </div>
-        <div>
-          <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Tu Nombre</label>
-          <input type="text" name="nombre" required placeholder="Ej: Sophia Butera" class="form-input text-sm text-butera-text" />
+
+        <div class="field">
+          <label class="field-label" for="nombre">Tu nombre</label>
+          <input id="nombre" type="text" name="nombre" required placeholder="Ej: Sophia Butera" class="form-input">
         </div>
-        <div>
-          <label class="block font-mono text-[10px] uppercase tracking-widest text-butera-muted mb-2">Tu WhatsApp</label>
-          <input type="tel" name="telefono" required placeholder="+1 809..." class="form-input text-sm text-butera-text" />
+
+        <div class="field">
+          <label class="field-label" for="telefono">Tu WhatsApp</label>
+          <input id="telefono" type="tel" name="telefono" required placeholder="+1 809..." class="form-input">
         </div>
-        <button type="submit" class="w-full mt-6 relative group font-mono text-sm tracking-widest text-white px-8 py-4 rounded-2xl transition-all duration-500 overflow-hidden shadow-lg hover:shadow-[0_15px_30px_rgba(255,0,127,0.3)]">
-           <div class="absolute inset-0 bg-gradient-to-r from-butera-brand to-butera-brandLight group-hover:scale-105 transition-transform duration-500"></div>
-           <span class="relative z-10 font-bold uppercase transition-all" id="btnText">Confirmar Reserva ✦</span>
+
+        <button type="submit" class="submit-btn">
+          <span id="btnText">Confirmar reserva</span>
         </button>
       </form>
     </div>
   </div>
 
   <script>
-    const cursor = document.getElementById('cursor');
-    document.addEventListener('mousemove', (e) => {
-      cursor.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
-    });
+    gsap.registerPlugin(ScrollTrigger);
 
-    document.querySelectorAll('a, button, .bento-item').forEach(el => {
-      el.addEventListener('mouseenter', () => {
-        cursor.style.transform += ' scale(3)';
-        cursor.style.backgroundColor = 'rgba(20,20,19,0.05)';
-      });
-      el.addEventListener('mouseleave', () => {
-        cursor.style.transform = cursor.style.transform.replace(' scale(3)', '');
-        cursor.style.backgroundColor = 'transparent';
-      });
-    });
+    const siteHeader = document.getElementById("siteHeader");
+    const modal = document.getElementById("reservaModal");
+    const reservaForm = document.getElementById("reservaForm");
+    const btnText = document.getElementById("btnText");
+    const reservaBtn = document.getElementById("reservaBtn");
 
-    // Premium Modal Logic
-    const modal = document.getElementById('reservaModal');
-    const reservaForm = document.getElementById('reservaForm');
-    const btnText = document.getElementById('btnText');
-
-    function openModal(e) {
-      if(e) e.preventDefault();
-      modal.classList.add('active');
+    function openModal(event) {
+      if (event) event.preventDefault();
+      modal.classList.add("active");
+      document.body.classList.add("modal-open");
     }
 
     function closeModal() {
-      modal.classList.remove('active');
-      setTimeout(() => reservaForm.reset(), 400); // reset after animation
+      modal.classList.remove("active");
+      document.body.classList.remove("modal-open");
+      setTimeout(() => reservaForm.reset(), 250);
     }
 
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
+    modal.addEventListener("click", (event) => {
+      if (event.target === modal) closeModal();
     });
 
-    // Both "AGENDAR CITA" buttons use this
-    document.getElementById('reservaBtn').addEventListener('click', openModal);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && modal.classList.contains("active")) {
+        closeModal();
+      }
+    });
 
-    // Form Submit Logic to n8n Webhook
-    reservaForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
+    reservaBtn.addEventListener("click", openModal);
+
+    ScrollTrigger.create({
+      start: 40,
+      onUpdate: (self) => {
+        siteHeader.classList.toggle("is-solid", self.scroll() > 40);
+      }
+    });
+
+    gsap.utils.toArray("[data-reveal]").forEach((element) => {
+      gsap.to(element, {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: element,
+          start: "top 88%"
+        }
+      });
+    });
+
+    gsap.utils.toArray("[data-slide-up]").forEach((element, index) => {
+      gsap.to(element, {
+        opacity: 1,
+        y: 0,
+        duration: 0.95,
+        delay: index * 0.05,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: element,
+          start: "top 90%"
+        }
+      });
+    });
+
+    gsap.utils.toArray("[data-fade]").forEach((element) => {
+      gsap.to(element, {
+        opacity: 1,
+        duration: 1.1,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: element,
+          start: "top 88%"
+        }
+      });
+    });
+
+    gsap.to(".hero-arch img", {
+      scale: 1,
+      yPercent: 6,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+
+    gsap.to(".floating-panel", {
+      yPercent: -8,
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".hero",
+        start: "top top",
+        end: "bottom top",
+        scrub: true
+      }
+    });
+
+    ScrollTrigger.matchMedia({
+      "(min-width: 981px)": function () {
+        ScrollTrigger.create({
+          trigger: ".story-layout",
+          start: "top 120px",
+          end: "bottom bottom",
+          pin: ".story-pin"
+        });
+      }
+    });
+
+    const cursorRing = document.getElementById("cursorRing");
+    const cursorDot = document.getElementById("cursorDot");
+
+    if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      window.addEventListener("mousemove", (event) => {
+        const { clientX, clientY } = event;
+        gsap.to(cursorRing, { x: clientX, y: clientY, duration: 0.18, ease: "power3.out" });
+        gsap.to(cursorDot, { x: clientX, y: clientY, duration: 0.08, ease: "power3.out" });
+      });
+
+      document.querySelectorAll("a, button, .feature-card, .service-card, .story-step, .location-card").forEach((element) => {
+        element.addEventListener("mouseenter", () => {
+          gsap.to(cursorRing, {
+            scale: 1.55,
+            borderColor: "rgba(255, 0, 127, 0.6)",
+            backgroundColor: "rgba(255, 255, 255, 0.32)",
+            duration: 0.22
+          });
+          gsap.to(cursorDot, { scale: 1.4, duration: 0.22 });
+        });
+
+        element.addEventListener("mouseleave", () => {
+          gsap.to(cursorRing, {
+            scale: 1,
+            borderColor: "rgba(255, 0, 127, 0.4)",
+            backgroundColor: "rgba(255, 255, 255, 0.18)",
+            duration: 0.22
+          });
+          gsap.to(cursorDot, { scale: 1, duration: 0.22 });
+        });
+      });
+    }
+
+    reservaForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
       const formData = new FormData(reservaForm);
       const data = Object.fromEntries(formData.entries());
       const webhookUrl = "https://n8nsophia.duckdns.org/webhook-test/429dc08d-c49a-4840-8938-d3878efe5f6c";
-      
-      // Loading State
-      const originalText = btnText.innerHTML;
-      btnText.innerHTML = "PROCESANDO... ✦";
-      
+      const originalText = btnText.textContent;
+
+      btnText.textContent = "Procesando";
+
       try {
         await fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ 
-             action: "intent_reserva", 
-             source: "Micheline_Butera_Modal_V2",
-             reserva: data
+          body: JSON.stringify({
+            action: "intent_reserva",
+            source: "Micheline_Butera_Modal_V2",
+            reserva: data
           })
         });
-        
-        // Success: Redirect to WhatsApp
-        const waText = `Hola Micheline, vi la web Butera y me gustaría reservar:
+
+        const waText = `Hola Micheline, vi la web Butera y me gustaria reservar:
 ✨ *Servicio*: ${data.servicio}
 📅 *Fecha*: ${data.fecha}
 ⌚ *Hora*: ${data.hora}
 👤 *Nombre*: ${data.nombre}
 
 ¿Me confirman disponibilidad por favor?`;
-        
-        window.open(`https://wa.me/8098979609?text=${encodeURIComponent(waText)}`, '_blank');
+
+        window.open(`https://wa.me/8098979609?text=${encodeURIComponent(waText)}`, "_blank");
         closeModal();
-      } catch (err) {
-         alert("Hubo un pequeño error. Te redirigiremos a WhatsApp directamente.");
-         window.open("https://wa.me/8098979609", '_blank');
+      } catch (error) {
+        alert("Hubo un pequeno error. Te redirigiremos a WhatsApp directamente.");
+        window.open("https://wa.me/8098979609", "_blank");
       } finally {
-        btnText.innerHTML = originalText;
+        btnText.textContent = originalText;
       }
     });
   </script>
