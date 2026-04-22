@@ -922,6 +922,551 @@
       font-size: 0.65rem;
     }
 
+    .signature-interlude {
+      position: relative;
+      margin-bottom: 120px;
+      padding: clamp(32px, 6vw, 64px);
+      border-radius: 40px;
+      overflow: hidden;
+      color: white;
+      background:
+        radial-gradient(circle at top right, rgba(255, 0, 127, 0.24), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(185, 147, 95, 0.18), transparent 28%),
+        linear-gradient(180deg, #1e1511 0%, #0f0b09 100%);
+      box-shadow: 0 30px 80px rgba(17, 12, 10, 0.24);
+    }
+
+    .signature-interlude::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.06) 48%, transparent 100%);
+      opacity: 0.3;
+      transform: translateX(-40%);
+    }
+
+    .interlude-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.65fr);
+      gap: 28px;
+      align-items: end;
+    }
+
+    .mask-block {
+      display: grid;
+      gap: 16px;
+    }
+
+    .mask-wrap {
+      position: relative;
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(3.2rem, 8vw, 6.8rem);
+      font-weight: 700;
+    }
+
+    .mask-base,
+    .mask-fill {
+      display: block;
+    }
+
+    .mask-base {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.26);
+    }
+
+    .mask-fill {
+      position: absolute;
+      inset: 0;
+      color: transparent;
+      background: linear-gradient(90deg, #fff6ea 0%, #ff83bb 45%, #f4d0a2 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      clip-path: inset(0 100% 0 0);
+    }
+
+    .interlude-copy {
+      max-width: 52ch;
+      color: rgba(255, 255, 255, 0.76);
+      line-height: 1.85;
+    }
+
+    .interlude-side {
+      display: grid;
+      gap: 16px;
+      padding: 24px;
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(12px);
+    }
+
+    .interlude-side p {
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.8;
+      font-size: 0.96rem;
+    }
+
+    .micro-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .micro-list span {
+      padding: 9px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .ritual-showcase {
+      margin-bottom: 120px;
+    }
+
+    .accordion-stage {
+      display: flex;
+      gap: 14px;
+      min-height: 560px;
+    }
+
+    .accordion-panel {
+      position: relative;
+      flex: 1 1 0;
+      border-radius: 32px;
+      overflow: hidden;
+      transition: flex 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s ease, box-shadow 0.45s ease;
+      cursor: pointer;
+      box-shadow: 0 18px 50px rgba(35, 21, 15, 0.1);
+    }
+
+    .accordion-panel:hover,
+    .accordion-panel.is-active {
+      flex: 2.4 1 0;
+      transform: translateY(-4px);
+      box-shadow: 0 28px 60px rgba(35, 21, 15, 0.16);
+    }
+
+    .accordion-panel img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .accordion-panel:hover img,
+    .accordion-panel.is-active img {
+      transform: scale(1.05);
+    }
+
+    .accordion-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(12, 9, 8, 0.08) 0%, rgba(12, 9, 8, 0.7) 100%);
+      z-index: 1;
+    }
+
+    .panel-copy {
+      position: absolute;
+      inset: auto 0 0 0;
+      z-index: 2;
+      padding: 24px;
+      display: grid;
+      gap: 12px;
+      color: white;
+      transform: translateY(18px);
+      opacity: 0.86;
+      transition: transform 0.45s ease, opacity 0.45s ease;
+    }
+
+    .accordion-panel:hover .panel-copy,
+    .accordion-panel.is-active .panel-copy {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .panel-copy h3 {
+      font-family: "Cormorant Garamond", serif;
+      font-size: 2.4rem;
+      line-height: 0.95;
+      letter-spacing: -0.04em;
+    }
+
+    .panel-copy p {
+      max-width: 24ch;
+      color: rgba(255, 255, 255, 0.78);
+      line-height: 1.7;
+      font-size: 0.94rem;
+    }
+
+    .detail-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+      gap: 22px;
+      margin-bottom: 120px;
+      align-items: stretch;
+    }
+
+    .detail-card,
+    .compare-card,
+    .quote-card,
+    .standard-card,
+    .faq-card {
+      border-radius: 34px;
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(251, 242, 235, 0.94));
+      box-shadow: 0 18px 46px rgba(44, 25, 20, 0.08);
+      overflow: hidden;
+    }
+
+    .detail-card {
+      padding: 30px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .detail-card h3,
+    .compare-copy h3,
+    .quote-card h3,
+    .faq-head h2,
+    .standard-card h3 {
+      font-family: "Cormorant Garamond", serif;
+      letter-spacing: -0.05em;
+    }
+
+    .detail-card h3 {
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      line-height: 0.92;
+    }
+
+    .detail-card p {
+      color: var(--muted);
+      line-height: 1.85;
+      max-width: 50ch;
+    }
+
+    .detail-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    .detail-mini {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(24, 19, 16, 0.06);
+    }
+
+    .detail-mini strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    .detail-mini span {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 0.92rem;
+    }
+
+    .compare-card {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      min-height: 560px;
+    }
+
+    .compare-stage {
+      position: relative;
+      min-height: 400px;
+      overflow: hidden;
+      cursor: ew-resize;
+      background: #e8ddd3;
+    }
+
+    .compare-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .compare-stage img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .compare-overlay {
+      clip-path: inset(0 50% 0 0);
+    }
+
+    .compare-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 1px;
+      background: rgba(255, 255, 255, 0.92);
+      transform: translateX(-50%);
+      z-index: 3;
+    }
+
+    .compare-handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 4;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+      box-shadow: 0 16px 34px rgba(38, 21, 15, 0.18);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.64rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .compare-labels {
+      position: absolute;
+      inset: auto 20px 20px 20px;
+      z-index: 4;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .compare-labels span {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.38);
+      color: white;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.55rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      backdrop-filter: blur(8px);
+    }
+
+    .compare-copy {
+      padding: 24px 26px 30px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .compare-copy h3 {
+      font-size: 2.4rem;
+      line-height: 0.95;
+    }
+
+    .compare-copy p {
+      color: var(--muted);
+      line-height: 1.78;
+    }
+
+    .standards-wrap {
+      margin-bottom: 120px;
+    }
+
+    .standards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .standard-card {
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+      transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .standard-card:hover,
+    .quote-card:hover,
+    .faq-item:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 0, 127, 0.16);
+      box-shadow: 0 24px 52px rgba(255, 0, 127, 0.08);
+    }
+
+    .standard-index {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--pink);
+    }
+
+    .standard-card h3 {
+      font-size: 2rem;
+      line-height: 0.95;
+    }
+
+    .standard-card p {
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 0.94rem;
+    }
+
+    .social-proof {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      margin-bottom: 120px;
+    }
+
+    .quote-card {
+      padding: 30px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .quote-card h3 {
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      line-height: 0.94;
+    }
+
+    .quote-card > p {
+      color: var(--muted);
+      line-height: 1.82;
+      max-width: 48ch;
+    }
+
+    .quote-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .quote {
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.52);
+      border: 1px solid rgba(24, 19, 16, 0.06);
+      display: grid;
+      gap: 12px;
+    }
+
+    .quote p {
+      color: var(--text);
+      line-height: 1.8;
+      font-size: 0.96rem;
+    }
+
+    .quote footer {
+      padding: 0;
+      border: none;
+      text-align: left;
+      color: var(--muted);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.56rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .faq-card {
+      padding: 30px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .faq-head {
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-head h2 {
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      line-height: 0.94;
+    }
+
+    .faq-head p {
+      color: var(--muted);
+      line-height: 1.82;
+      max-width: 42ch;
+    }
+
+    .faq-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .faq-item {
+      border-radius: 22px;
+      border: 1px solid rgba(24, 19, 16, 0.08);
+      background: rgba(255, 255, 255, 0.56);
+      transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+    }
+
+    .faq-toggle {
+      width: 100%;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .faq-toggle span:first-child {
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .faq-icon {
+      flex: 0 0 auto;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(24, 19, 16, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .faq-item.active .faq-icon {
+      transform: rotate(45deg);
+      background: var(--pink-soft);
+      border-color: rgba(255, 0, 127, 0.18);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .faq-answer p {
+      padding: 0 20px 20px;
+      color: var(--muted);
+      line-height: 1.82;
+      max-width: 52ch;
+    }
+
     .booking-band {
       position: relative;
       margin-bottom: 80px;
@@ -1213,9 +1758,16 @@
 
       .spotlight-grid,
       .story-layout,
+      .interlude-grid,
+      .detail-wrap,
+      .social-proof,
       .locations-grid,
       .cta-card {
         grid-template-columns: 1fr;
+      }
+
+      .standards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .metrics-grid {
@@ -1276,11 +1828,28 @@
         min-height: 280px;
       }
 
+      .accordion-stage {
+        flex-direction: column;
+        min-height: auto;
+      }
+
+      .accordion-panel,
+      .accordion-panel:hover,
+      .accordion-panel.is-active {
+        flex: none;
+        min-height: 340px;
+      }
+
       .service-copy {
         max-width: none;
       }
 
       .field-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-mini-grid,
+      .quote-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1318,8 +1887,17 @@
         grid-template-columns: 1fr;
       }
 
+      .standards-grid {
+        grid-template-columns: 1fr;
+      }
+
       .feature-card,
       .location-card,
+      .detail-card,
+      .compare-card,
+      .quote-card,
+      .faq-card,
+      .signature-interlude,
       .cta-card,
       .modal-card {
         border-radius: 28px;
@@ -1375,8 +1953,8 @@
 
           <div class="hero-text-block">
             <p class="lede" data-slide-up>
-              La experiencia Micheline ahora se presenta con una presencia mas editorial y cinematica:
-              manicure, pedi spa, peluqueria y cuidado personal convertidos en un ritual visual.
+              Manicure, pedi spa, peluqueria y cuidado personal reunidos en una experiencia que se siente
+              editorial, suave y cinematica desde el primer instante.
             </p>
 
             <div class="hero-actions" data-slide-up>
@@ -1402,7 +1980,7 @@
           </div>
 
           <aside class="floating-panel" data-slide-up>
-            <span class="kicker">Signature Atmosphere</span>
+            <span class="kicker">Atmosfera signature</span>
             <h3>Rituales con presencia, textura y precision.</h3>
             <p>
               Disenamos una experiencia que se siente curada desde el primer scroll hasta la reserva final.
@@ -1446,10 +2024,10 @@
       <section class="section" id="servicios">
         <div class="section-heading" data-reveal>
           <div class="eyebrow">Servicios destacados</div>
-          <h2>Una landing con <em>lenguaje visual</em> de estudio.</h2>
+          <h2>Rituales con un <em>lenguaje visual</em> mas fino.</h2>
           <p>
-            Se reorganizo la informacion para que la marca se sienta mas elevada y memorable. El foco ahora
-            esta en el impacto visual, la lectura clara y el llamado a reserva en puntos estrategicos.
+            Cada servicio se presenta como una escena propia: luz suave, texturas limpias y una sensacion de lujo
+            tranquilo que acompana el proceso de reserva.
           </p>
         </div>
 
@@ -1457,7 +2035,7 @@
           <article class="feature-card" data-fade>
             <img src="img/pedi.png" alt="Pedi spa de Micheline">
             <div class="feature-content">
-              <span class="mini-label">Hero Ritual</span>
+              <span class="mini-label">Ritual estrella</span>
               <h3>Pedi Spa de cuatro pasos para una pausa real.</h3>
               <p>
                 Exfoliacion, hidratacion profunda y un ritmo visual que transmite cuidado premium desde el primer vistazo.
@@ -1473,7 +2051,7 @@
             <article class="service-card" data-slide-up>
               <img src="img/hair.png" alt="Servicio de peluqueria y peinado">
               <div class="service-copy">
-                <span class="mini-label">Hair Styling</span>
+                <span class="mini-label">Cabello</span>
                 <h3>Peluqueria & peinados</h3>
                 <p>Textura, forma y brillo para un acabado que complementa toda la experiencia Micheline.</p>
               </div>
@@ -1482,7 +2060,7 @@
             <article class="service-card" data-slide-up>
               <img src="img/skin.png" alt="Depilacion y cuidado de piel">
               <div class="service-copy">
-                <span class="mini-label">Skin & Wax</span>
+                <span class="mini-label">Piel & cera</span>
                 <h3>Cera & cuidado</h3>
                 <p>Una escena de suavidad y limpieza con un look mas sereno, pulido y femenino.</p>
               </div>
@@ -1490,11 +2068,11 @@
 
             <article class="service-card empty-pane" data-slide-up>
               <div class="service-copy">
-                <span class="mini-label">Conversion Focus</span>
-                <h3>Menos ruido. Mas deseo de reserva.</h3>
+                <span class="mini-label">Acabado signature</span>
+                <h3>Detalles curados para que todo se sienta mas premium.</h3>
                 <p>
-                  La estructura nueva reduce saturacion visual, mejora jerarquia y acerca al usuario a WhatsApp
-                  y al modal de agendado sin perder sofisticacion.
+                  Tonos suaves, puntos de color precisos y una navegacion mas serena para que la experiencia digital
+                  se sienta tan cuidada como el servicio presencial.
                 </p>
               </div>
             </article>
@@ -1502,67 +2080,313 @@
         </div>
       </section>
 
+      <section class="section signature-interlude">
+        <div class="interlude-grid">
+          <div class="mask-block">
+            <div class="eyebrow">Manifiesto</div>
+            <div class="mask-wrap" data-mask-reveal>
+              <span class="mask-base">La belleza es una forma de autocuidado.</span>
+              <span class="mask-fill">La belleza es una forma de autocuidado.</span>
+            </div>
+            <p class="interlude-copy">
+              En Micheline, ese autocuidado se vuelve un ritual preciso: tiempo bien utilizado, manos expertas y una
+              atmosfera que baja el ruido para dejar solo presencia, calma y detalle.
+            </p>
+          </div>
+
+          <aside class="interlude-side" data-slide-up>
+            <span class="kicker">Lujo, pero suave</span>
+            <p>
+              Un tono limpio y silencioso, con mas confianza visual y una sensacion de cuidado que se percibe desde el primer scroll.
+            </p>
+            <div class="micro-list">
+              <span>ritmo curado</span>
+              <span>glow sutil</span>
+              <span>reserva premium</span>
+              <span>motion suave</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
       <section class="section story-layout" id="experiencia">
         <div class="story-pin">
           <div class="eyebrow">Experiencia Micheline</div>
-          <h2>El recorrido se siente curado en cada bloque.</h2>
+          <h2>La experiencia se construye en capas sutiles.</h2>
           <p>
-            Esta parte reemplaza la sensacion de landing estatica por una narrativa mas controlada:
-            presentacion, servicio, confianza y reserva con ritmo visual.
+            Desde la primera consulta hasta el acabado final, cada etapa esta pensada para que el servicio se sienta
+            ordenado, limpio y genuinamente especial.
           </p>
         </div>
 
         <div class="story-track">
           <article class="story-step" data-slide-up>
             <span class="step-count">Paso 01</span>
-            <h3>Entrada editorial</h3>
+            <h3>Consulta breve y lectura del estilo</h3>
             <p>
-              Un hero dominante con imagen en arco, tipografia expresiva y capas flotantes para instalar marca en segundos.
+              Escuchamos el acabado que buscas, la ocasion, el ritmo de tu semana y el tipo de cuidado que te hace sentir mejor.
             </p>
             <ul>
-              <li>impacto inicial</li>
-              <li>cta visible</li>
-              <li>marca clara</li>
+              <li>tono personal</li>
+              <li>detalle estetico</li>
+              <li>expectativa clara</li>
             </ul>
           </article>
 
           <article class="story-step" data-slide-up>
             <span class="step-count">Paso 02</span>
-            <h3>Servicios como escenas</h3>
+            <h3>Preparacion impecable</h3>
             <p>
-              Cada categoria se muestra como una pieza visual propia, con imagen, nombre y tono de lujo contemporaneo.
+              Herramientas, productos y tiempos se alinean antes de empezar. Esa calma previa cambia por completo la experiencia.
             </p>
             <ul>
-              <li>nail art</li>
-              <li>pedi spa</li>
-              <li>hair styling</li>
+              <li>orden visual</li>
+              <li>ritmo sereno</li>
+              <li>atencion completa</li>
             </ul>
           </article>
 
           <article class="story-step" data-slide-up>
             <span class="step-count">Paso 03</span>
-            <h3>Confianza operativa</h3>
+            <h3>Ritual principal</h3>
             <p>
-              Los estudios y horarios siguen presentes, pero ahora con mejor jerarquia y botones de accion mas evidentes.
+              Manicure, pedi spa, peluqueria o depilacion: el servicio se ejecuta con precision y con una atmosfera de pausa real.
             </p>
             <ul>
-              <li>ubicaciones</li>
-              <li>horarios</li>
-              <li>contacto directo</li>
+              <li>precision</li>
+              <li>textura</li>
+              <li>acabado limpio</li>
             </ul>
           </article>
 
           <article class="story-step" data-slide-up>
             <span class="step-count">Paso 04</span>
-            <h3>Cierre con conversion</h3>
+            <h3>Detalle final y salida</h3>
             <p>
-              El recorrido termina con una banda de cierre mas premium que empuja al modal y conserva el flujo actual al webhook y WhatsApp.
+              Terminamos afinando el look, revisando comodidad, brillo y duracion para que salgas con seguridad visual y emocional.
             </p>
             <ul>
-              <li>modal intacto</li>
-              <li>webhook intacto</li>
-              <li>whatsapp intacto</li>
+              <li>retoque final</li>
+              <li>aftercare</li>
+              <li>reserva siguiente</li>
             </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="section ritual-showcase">
+        <div class="section-heading" data-reveal>
+          <div class="eyebrow">Ritual atlas</div>
+          <h2>Explora cada servicio como si fuera una <em>escena abierta</em>.</h2>
+          <p>
+            Cada panel gana presencia al pasar sobre el, guiando la mirada sin saturar la pantalla y manteniendo el tono refinado.
+          </p>
+        </div>
+
+        <div class="accordion-stage">
+          <article class="accordion-panel is-active" data-slide-up>
+            <img src="img/hero.png" alt="Nail atelier Micheline">
+            <div class="panel-copy">
+              <span class="mini-label">Atelier de unas</span>
+              <h3>Manos que se ven delicadas desde cerca.</h3>
+              <p>Disenos limpios, tonos suaves y acabados que elevan el detalle sin caer en exceso.</p>
+            </div>
+          </article>
+
+          <article class="accordion-panel" data-slide-up>
+            <img src="img/pedi.png" alt="Pedi spa Micheline">
+            <div class="panel-copy">
+              <span class="mini-label">Ritual pedi</span>
+              <h3>Una pausa tibia para pies cuidados de verdad.</h3>
+              <p>El pedi spa se presenta como descanso, no solo como mantenimiento estetico.</p>
+            </div>
+          </article>
+
+          <article class="accordion-panel" data-slide-up>
+            <img src="img/hair.png" alt="Hair styling Micheline">
+            <div class="panel-copy">
+              <span class="mini-label">Lounge capilar</span>
+              <h3>Movimiento, brillo y forma con presencia.</h3>
+              <p>Peinados y trabajos capilares pensados para verse suaves, pulidos y actuales.</p>
+            </div>
+          </article>
+
+          <article class="accordion-panel" data-slide-up>
+            <img src="img/skin.png" alt="Skin care Micheline">
+            <div class="panel-copy">
+              <span class="mini-label">Piel suave</span>
+              <h3>Piel limpia, lisa y en calma.</h3>
+              <p>Depilacion y cuidado con una sensacion final de limpieza, serenidad y confianza.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section detail-wrap">
+        <article class="detail-card" data-slide-up>
+          <div class="eyebrow">Detalles signature</div>
+          <h3>Lujo silencioso con informacion que acompana.</h3>
+          <p>
+            Todo esta pensado para inspirar y orientar al mismo tiempo: confianza, standards del servicio, preguntas frecuentes
+            y puntos de reserva bien ubicados para decidir con calma.
+          </p>
+
+          <div class="detail-mini-grid">
+            <div class="detail-mini">
+              <strong>Agenda facil</strong>
+              <span>CTA visible, modal claro y salida directa a WhatsApp para confirmar disponibilidad.</span>
+            </div>
+            <div class="detail-mini">
+              <strong>Lectura fluida</strong>
+              <span>Mas ritmo visual, mejores pausas y secciones que se sienten respiradas.</span>
+            </div>
+            <div class="detail-mini">
+              <strong>Marca mas fuerte</strong>
+              <span>Tipografia editorial, glow sutil y contrastes mas sofisticados.</span>
+            </div>
+            <div class="detail-mini">
+              <strong>Confianza real</strong>
+              <span>Horarios, protocolos, testimonios y FAQ visibles antes del cierre.</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="compare-card" data-fade>
+          <div class="compare-stage" id="compareStage">
+            <div class="compare-layer">
+              <img src="img/hair.png" alt="Presencia general del servicio Micheline">
+            </div>
+            <div class="compare-layer compare-overlay" id="compareOverlay">
+              <img src="img/hero.png" alt="Detalle cercano del servicio Micheline">
+            </div>
+            <div class="compare-divider" id="compareDivider"></div>
+            <div class="compare-handle" id="compareHandle">drag</div>
+            <div class="compare-labels">
+              <span>presencia</span>
+              <span>detalle</span>
+            </div>
+          </div>
+          <div class="compare-copy">
+            <span class="mini-label">Reveal interactivo</span>
+            <h3>Descubrir tambien genera deseo.</h3>
+            <p>
+              Esta interaccion sutil hace que la visita no sea solo lectura: tambien hay exploracion, tactilidad
+              y una pequena sorpresa controlada.
+            </p>
+          </div>
+        </article>
+      </section>
+
+      <section class="section standards-wrap" id="standards">
+        <div class="section-heading" data-reveal>
+          <div class="eyebrow">Estandares</div>
+          <h2>Todo lo que hace que la experiencia se sienta <em>completa</em>.</h2>
+          <p>
+            Estos bloques agregan profundidad comercial sin romper la limpieza visual: confianza, calidad y criterio.
+          </p>
+        </div>
+
+        <div class="standards-grid">
+          <article class="standard-card" data-slide-up>
+            <span class="standard-index">01</span>
+            <h3>Higiene visible</h3>
+            <p>La percepcion de limpieza importa. Por eso el lenguaje visual insiste en orden, claridad y acabados pulidos.</p>
+          </article>
+          <article class="standard-card" data-slide-up>
+            <span class="standard-index">02</span>
+            <h3>Asesoria suave</h3>
+            <p>No todo servicio premium necesita rigidez. Aqui el tono sigue siendo cercano, pero con mejor direccion.</p>
+          </article>
+          <article class="standard-card" data-slide-up>
+            <span class="standard-index">03</span>
+            <h3>Aftercare claro</h3>
+            <p>La experiencia no termina al salir. Todo sugiere continuidad, cuidado posterior y una relacion de largo plazo.</p>
+          </article>
+          <article class="standard-card" data-slide-up>
+            <span class="standard-index">04</span>
+            <h3>Reserva sin friccion</h3>
+            <p>Mas puntos de accion y menos ruido entre deseo, decision y contacto real con el estudio.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section social-proof">
+        <article class="quote-card" data-slide-up>
+          <div class="eyebrow">Sensacion cliente</div>
+          <h3>La experiencia digital acompana el nivel del servicio.</h3>
+          <p>
+            Sofisticacion sin dureza, limpieza sin frialdad y una sensacion general de marca mucho mas asentada.
+          </p>
+        </article>
+
+        <div class="quote-grid">
+          <article class="quote" data-slide-up>
+            <p>"Me gusta que todo se sienta fino, pero no distante. La reserva se siente facil y la marca se ve preciosa."</p>
+            <footer>Client voice / nail art</footer>
+          </article>
+          <article class="quote" data-slide-up>
+            <p>"La mezcla de calma, lujo y claridad hace que todo se sienta profesional desde el primer scroll."</p>
+            <footer>Client voice / pedi spa</footer>
+          </article>
+          <article class="quote" data-slide-up>
+            <p>"Se siente mas premium y mas completa, pero sigue siendo limpia. Eso era exactamente el punto."</p>
+            <footer>Client voice / hair styling</footer>
+          </article>
+          <article class="quote" data-slide-up>
+            <p>"La marca tiene mas presencia y reservar se siente natural, sin esfuerzo ni confusiones."</p>
+            <footer>Client voice / booking flow</footer>
+          </article>
+        </div>
+      </section>
+
+      <section class="section faq-card" id="faq" data-fade>
+        <div class="faq-head">
+          <div class="eyebrow">FAQ</div>
+          <h2>Preguntas que ayudan a decidir mas rapido.</h2>
+          <p>
+            Un cierre premium tambien necesita claridad. Estas respuestas refuerzan confianza antes de pasar al modal o a WhatsApp.
+          </p>
+        </div>
+
+        <div class="faq-list">
+          <article class="faq-item active">
+            <button class="faq-toggle" type="button" aria-expanded="true">
+              <span>Como reservo mi cita de forma mas rapida?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Puedes usar el boton de agendar o escribir por WhatsApp. Ambas opciones te llevan rapido a la confirmacion de horario y servicio.</p>
+            </div>
+          </article>
+
+          <article class="faq-item">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>Que servicios pueden combinarse en una misma visita?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Manicure, pedi spa, peluqueria y otros cuidados pueden coordinarse segun tiempo y disponibilidad del estudio.</p>
+            </div>
+          </article>
+
+          <article class="faq-item">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>Debo escribir por WhatsApp aunque complete el formulario?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Si. El formulario ordena la solicitud y la salida a WhatsApp acelera la confirmacion humana de horario, servicio y estudio.</p>
+            </div>
+          </article>
+
+          <article class="faq-item">
+            <button class="faq-toggle" type="button" aria-expanded="false">
+              <span>Hay diferencia entre San Pedro de Macoris y Boca Chica?</span>
+              <span class="faq-icon">+</span>
+            </button>
+            <div class="faq-answer">
+              <p>Ambos espacios comparten la misma firma visual y el mismo tono de servicio. La disponibilidad y el ritmo pueden variar segun sede.</p>
+            </div>
           </article>
         </div>
       </section>
@@ -1572,14 +2396,14 @@
           <div class="eyebrow">Studios & horarios</div>
           <h2>Dos espacios, una misma <em>firma visual</em>.</h2>
           <p>
-            Mantuvimos las sedes activas de la landing original, pero integradas dentro de la nueva direccion de arte.
+            Dos ubicaciones para reservar con comodidad, cada una con su propio ritmo, pero con la misma atencion cuidada.
           </p>
         </div>
 
         <div class="locations-grid">
           <article class="location-card dark" data-slide-up>
             <div>
-              <span class="location-tag">Main Studio</span>
+              <span class="location-tag">Studio principal</span>
               <h3>San Pedro de Macoris</h3>
               <div class="location-meta">
                 <p>Lunes a Sabado: 07:00 - 23:00<br>Domingo: 07:00 - 22:00</p>
@@ -1594,7 +2418,7 @@
 
           <article class="location-card" data-slide-up>
             <div>
-              <span class="location-tag">Coastal Studio</span>
+              <span class="location-tag">Studio costero</span>
               <h3>Boca Chica</h3>
               <div class="location-meta">
                 <p>Lunes a Sabado: 07:00 - 21:00<br>Domingo: 07:00 - 20:00</p>
@@ -1622,8 +2446,8 @@
             <div class="eyebrow">Reserva premium</div>
             <h2>Tu momento Micheline empieza aqui.</h2>
             <p>
-              El formulario mantiene la misma logica de envio y redireccion. Cambiamos el empaque visual para que
-              el cierre se sienta mas exclusivo y coherente con el resto de la pagina.
+              Agenda tu servicio, comparte el horario ideal y continua la confirmacion por WhatsApp con un contexto
+              mas claro, mas elegante y mejor ordenado.
             </p>
           </div>
           <div class="cta-actions">
@@ -1663,7 +2487,7 @@
         </svg>
       </button>
 
-      <span class="modal-label">Premium Booking</span>
+      <span class="modal-label">Reserva premium</span>
       <h3 id="modalTitle">Tu momento Micheline.</h3>
       <p>
         Completa tu solicitud y te redirigimos a WhatsApp con el detalle de la reserva para confirmar disponibilidad.
@@ -1719,6 +2543,12 @@
     const reservaForm = document.getElementById("reservaForm");
     const btnText = document.getElementById("btnText");
     const reservaBtn = document.getElementById("reservaBtn");
+    const accordionPanels = document.querySelectorAll(".accordion-panel");
+    const faqItems = document.querySelectorAll(".faq-item");
+    const compareStage = document.getElementById("compareStage");
+    const compareOverlay = document.getElementById("compareOverlay");
+    const compareDivider = document.getElementById("compareDivider");
+    const compareHandle = document.getElementById("compareHandle");
 
     function openModal(event) {
       if (event) event.preventDefault();
@@ -1749,6 +2579,21 @@
       onUpdate: (self) => {
         siteHeader.classList.toggle("is-solid", self.scroll() > 40);
       }
+    });
+
+    gsap.utils.toArray("[data-mask-reveal]").forEach((element) => {
+      const fill = element.querySelector(".mask-fill");
+
+      gsap.to(fill, {
+        clipPath: "inset(0 0% 0 0)",
+        ease: "none",
+        scrollTrigger: {
+          trigger: element,
+          start: "top 85%",
+          end: "bottom 45%",
+          scrub: true
+        }
+      });
     });
 
     gsap.utils.toArray("[data-reveal]").forEach((element) => {
@@ -1824,6 +2669,79 @@
       }
     });
 
+    const storySteps = gsap.utils.toArray(".story-step");
+    storySteps.forEach((step, index) => {
+      if (index < storySteps.length - 1) {
+        gsap.to(step, {
+          scale: 0.97,
+          opacity: 0.72,
+          ease: "none",
+          scrollTrigger: {
+            trigger: storySteps[index + 1],
+            start: "top 82%",
+            end: "top 26%",
+            scrub: true
+          }
+        });
+      }
+    });
+
+    function setActiveAccordion(targetPanel) {
+      accordionPanels.forEach((panel) => {
+        panel.classList.toggle("is-active", panel === targetPanel);
+      });
+    }
+
+    accordionPanels.forEach((panel) => {
+      panel.addEventListener("mouseenter", () => setActiveAccordion(panel));
+      panel.addEventListener("focusin", () => setActiveAccordion(panel));
+      panel.addEventListener("click", () => setActiveAccordion(panel));
+    });
+
+    function updateFaqHeight(item, isOpen) {
+      const answer = item.querySelector(".faq-answer");
+      const toggle = item.querySelector(".faq-toggle");
+      item.classList.toggle("active", isOpen);
+      toggle.setAttribute("aria-expanded", String(isOpen));
+      answer.style.maxHeight = isOpen ? `${answer.scrollHeight}px` : "0px";
+    }
+
+    faqItems.forEach((item, index) => {
+      updateFaqHeight(item, index === 0);
+
+      item.querySelector(".faq-toggle").addEventListener("click", () => {
+        const willOpen = !item.classList.contains("active");
+        faqItems.forEach((entry) => updateFaqHeight(entry, false));
+        updateFaqHeight(item, willOpen);
+      });
+    });
+
+    window.addEventListener("resize", () => {
+      faqItems.forEach((item) => {
+        if (item.classList.contains("active")) {
+          updateFaqHeight(item, true);
+        }
+      });
+    });
+
+    function setComparePosition(clientX) {
+      if (!compareStage) return;
+
+      const rect = compareStage.getBoundingClientRect();
+      const ratio = Math.min(Math.max((clientX - rect.left) / rect.width, 0), 1);
+      const percent = ratio * 100;
+      compareOverlay.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+      compareDivider.style.left = `${percent}%`;
+      compareHandle.style.left = `${percent}%`;
+    }
+
+    if (compareStage) {
+      compareStage.addEventListener("pointerenter", (event) => setComparePosition(event.clientX));
+      compareStage.addEventListener("pointermove", (event) => setComparePosition(event.clientX));
+      compareStage.addEventListener("pointerdown", (event) => setComparePosition(event.clientX));
+      setComparePosition(compareStage.getBoundingClientRect().left + compareStage.getBoundingClientRect().width / 2);
+    }
+
     const cursorRing = document.getElementById("cursorRing");
     const cursorDot = document.getElementById("cursorDot");
 
@@ -1834,7 +2752,7 @@
         gsap.to(cursorDot, { x: clientX, y: clientY, duration: 0.08, ease: "power3.out" });
       });
 
-      document.querySelectorAll("a, button, .feature-card, .service-card, .story-step, .location-card").forEach((element) => {
+      document.querySelectorAll("a, button, .feature-card, .service-card, .story-step, .location-card, .accordion-panel, .standard-card, .quote, .faq-item, .detail-card, .compare-card").forEach((element) => {
         element.addEventListener("mouseenter", () => {
           gsap.to(cursorRing, {
             scale: 1.55,
