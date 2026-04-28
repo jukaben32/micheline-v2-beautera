@@ -2202,6 +2202,32 @@
       display: block;
     }
 
+    .chat-typing {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 10px 16px;
+      background: white;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .chat-typing span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--pink);
+      animation: typing-v2 1.2s infinite;
+      opacity: 0.4;
+    }
+    .chat-typing span:nth-child(2) { animation-delay: 0.2s; }
+    .chat-typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing-v2 {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
     .chat-quick {
       padding: 12px 20px;
       display: flex;
@@ -3338,6 +3364,20 @@
         msgs.scrollTop = msgs.scrollHeight;
       }
 
+      function showTyping() {
+        const t = document.createElement("div");
+        t.className = "chat-typing";
+        t.id = "chatTyping";
+        t.innerHTML = "<span></span><span></span><span></span>";
+        msgs.appendChild(t);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      function removeTyping() {
+        const t = document.getElementById("chatTyping");
+        if (t) t.remove();
+      }
+
       function greet() {
         if (greeted) return;
         greeted = true;
@@ -3365,24 +3405,44 @@
 
         addMsg(text, "user");
         input.value = "";
+        showTyping();
         
-        // Tracking a n8n/Evolution API
-        fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            action: "chat_intent",
-            sessionId,
-            mensaje: text,
-            source: "Butera_V2_Chat"
-          })
-        }).catch(() => {});
+        try {
+          const res = await fetch(webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "chat_intent",
+              sessionId,
+              mensaje: text,
+              source: "Butera_V2_Chat"
+            })
+          });
 
-        setTimeout(() => {
-          // Redirigir a WhatsApp real
-          window.open(`https://wa.me/18098979609?text=${encodeURIComponent(text)}`, "_blank");
-          addMsg("✅ ¡Perfecto! Te he redirigido a WhatsApp para continuar la conversación de forma directa.", "bot");
-        }, 600);
+          removeTyping();
+
+          if (res.ok) {
+            const data = await res.json().catch(() => ({}));
+            const reply = data.reply || data.message || data.output || data.text || data.respuesta;
+            
+            if (reply) {
+              addMsg(reply, "bot");
+            } else {
+              addMsg("✅ ¡Recibido! Nuestro equipo te contactará pronto. Si prefieres hablar ahora mismo, haz clic aquí: <a href='https://wa.me/18098979609' target='_blank' style='color:var(--pink);text-decoration:underline;'>WhatsApp directo</a>", "bot");
+            }
+          } else {
+            addMsg("Redirigiendo a WhatsApp para asegurar tu respuesta...", "bot");
+            setTimeout(() => {
+              window.open(`https://wa.me/18098979609?text=${encodeURIComponent(text)}`, "_blank");
+            }, 1000);
+          }
+        } catch (err) {
+          removeTyping();
+          addMsg("Conectando con WhatsApp...", "bot");
+          setTimeout(() => {
+            window.open(`https://wa.me/18098979609?text=${encodeURIComponent(text)}`, "_blank");
+          }, 1000);
+        }
       }
 
       sendBtn.addEventListener("click", () => send(input.value));
