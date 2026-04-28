@@ -2045,6 +2045,217 @@
         bottom: 16px;
       }
     }
+
+    /* CHAT WIDGET (Adapted to V2) */
+    .chat-fab {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #25d366;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 18px 36px rgba(37, 211, 102, 0.3);
+      z-index: 1400;
+      cursor: pointer;
+      transition: transform 0.3s ease, background-color 0.3s ease;
+      animation: pulse-wa 2.4s infinite;
+    }
+    .chat-fab:hover {
+      transform: scale(1.06);
+    }
+    .chat-fab.open {
+      background: #128c7e;
+      animation: none;
+    }
+    .chat-fab svg {
+      width: 28px;
+      height: 28px;
+      fill: white;
+    }
+    .chat-fab .close-icon {
+      display: none;
+      font-size: 1.8rem;
+      color: white;
+      font-weight: 300;
+    }
+    .chat-fab.open svg.wa-icon { display: none; }
+    .chat-fab.open .close-icon { display: block; }
+
+    .chat-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--pink);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(255, 0, 127, 0.3);
+    }
+
+    .chat-window {
+      position: fixed;
+      bottom: 100px;
+      right: 22px;
+      width: min(360px, calc(100vw - 44px));
+      background: white;
+      border-radius: 28px;
+      box-shadow: 0 24px 60px rgba(16, 11, 10, 0.18);
+      z-index: 1399;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(20px) scale(0.95);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .chat-window.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-win-header {
+      padding: 24px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 1px solid rgba(16, 11, 10, 0.05);
+    }
+    .chat-win-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--pink-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Cormorant Garamond", serif;
+      font-size: 1.4rem;
+      color: var(--pink);
+      font-style: italic;
+    }
+    .chat-win-info h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin: 0;
+    }
+    .chat-win-info span {
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chat-win-info span::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #25d366;
+    }
+
+    .chat-messages {
+      padding: 20px;
+      flex: 1;
+      max-height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #fafafa;
+    }
+    .chat-msg {
+      padding: 12px 16px;
+      border-radius: 18px;
+      font-size: 0.88rem;
+      line-height: 1.5;
+      max-width: 85%;
+    }
+    .chat-msg.bot {
+      background: white;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+    .chat-msg.user {
+      background: var(--pink);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg-time {
+      font-size: 0.65rem;
+      opacity: 0.5;
+      margin-top: 4px;
+      display: block;
+    }
+
+    .chat-quick {
+      padding: 12px 20px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      background: white;
+    }
+    .chat-quick-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 0, 127, 0.15);
+      background: var(--pink-soft);
+      color: var(--pink);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .chat-quick-btn:hover {
+      background: var(--pink);
+      color: white;
+    }
+
+    .chat-input-row {
+      padding: 16px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      background: white;
+      border-top: 1px solid rgba(16, 11, 10, 0.05);
+    }
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: var(--bg);
+      padding: 12px 18px;
+      border-radius: 24px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .chat-send-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--pink);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .chat-send-btn:hover { transform: scale(1.05); }
+    .chat-send-btn svg { width: 20px; height: 20px; fill: white; }
   </style>
 </head>
 <body>
@@ -2538,7 +2749,7 @@
               </div>
             </div>
             <div class="location-actions">
-              <a class="primary-btn" href="tel:8092465821">Llamar ahora</a>
+              <a class="primary-btn" href="tel:18098979609" id="ctaLlamarSP">Llamar ahora</a>
               <button class="ghost-btn" type="button" onclick="openModal()">Reservar cita</button>
             </div>
           </article>
@@ -2553,7 +2764,7 @@
               </div>
             </div>
             <div class="location-actions">
-              <a class="ghost-btn" href="https://wa.me/8098979609" target="_blank" rel="noreferrer">WhatsApp</a>
+              <a class="ghost-btn" href="https://wa.me/18098979609" target="_blank" rel="noreferrer" id="ctaWhatsAppBC">WhatsApp</a>
               <button class="primary-btn" type="button" onclick="openModal()">Agendar</button>
             </div>
           </article>
@@ -2579,7 +2790,7 @@
           </div>
           <div class="cta-actions">
             <button class="primary-btn" id="reservaBtn" type="button">Agendar cita</button>
-            <a class="ghost-btn" href="https://wa.me/8098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita." target="_blank" rel="noreferrer">
+            <a class="ghost-btn" href="https://wa.me/18098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita." target="_blank" rel="noreferrer" id="ctaWhatsAppDirecto">
               WhatsApp directo
             </a>
           </div>
@@ -2687,17 +2898,37 @@
     </footer>
   </div>
 
-  <a
-    href="https://wa.me/8098979609?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita."
-    class="wa-btn"
-    target="_blank"
-    rel="noreferrer"
-    aria-label="WhatsApp Micheline"
-  >
-    <svg viewBox="0 0 448 512" width="28" fill="white" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <div class="chat-fab" id="chatFab">
+    <div class="chat-badge" id="chatBadge">1</div>
+    <svg class="wa-icon" viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg">
       <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.4-8.6-44.6-27.6-16.5-14.7-27.6-32.8-30.8-38.4-3.2-5.6-.3-8.6 2.5-11.4 2.5-2.5 5.5-6.5 8.3-9.8 2.8-3.3 3.7-5.5 5.5-9.2 1.9-3.7 1-6.9-.5-9.8-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
     </svg>
-  </a>
+    <div class="close-icon">&times;</div>
+  </div>
+
+  <div class="chat-window" id="chatWindow">
+    <div class="chat-win-header">
+      <div class="chat-win-avatar">M</div>
+      <div class="chat-win-info">
+        <h4>Micheline Assistant</h4>
+        <span>En línea</span>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <!-- Los mensajes se cargarán dinámicamente -->
+    </div>
+    <div class="chat-quick" id="chatQuick">
+      <button class="chat-quick-btn" data-msg="Quiero agendar una cita">Agendar cita</button>
+      <button class="chat-quick-btn" data-msg="¿Cuáles son los horarios?">Horarios</button>
+      <button class="chat-quick-btn" data-msg="¿Dónde están ubicados?">Ubicación</button>
+    </div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu mensaje...">
+      <button class="chat-send-btn" id="chatSend">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </div>
+  </div>
 
   <div class="modal-overlay" id="reservaModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-card">
@@ -3078,6 +3309,107 @@
       } finally {
         btnText.textContent = originalText;
       }
+    });
+
+    // --- CHAT WIDGET ENGINE ---
+    (function initChat() {
+      const fab = document.getElementById("chatFab");
+      const win = document.getElementById("chatWindow");
+      const msgs = document.getElementById("chatMessages");
+      const input = document.getElementById("chatInput");
+      const sendBtn = document.getElementById("chatSend");
+      const quick = document.getElementById("chatQuick");
+      const badge = document.getElementById("chatBadge");
+      const webhookUrl = "https://n8nsophia.duckdns.org/webhook/429dc08d-c49a-4840-8938-d3878efe5f6c";
+
+      let isOpen = false;
+      let greeted = false;
+      let sessionId = "web_v2_" + Date.now();
+
+      function now() {
+        return new Date().toLocaleTimeString("es-DO", { hour: "2-digit", minute: "2-digit" });
+      }
+
+      function addMsg(html, type) {
+        const d = document.createElement("div");
+        d.className = "chat-msg " + type;
+        d.innerHTML = html + '<span class="chat-msg-time">' + now() + "</span>";
+        msgs.appendChild(d);
+        msgs.scrollTop = msgs.scrollHeight;
+      }
+
+      function greet() {
+        if (greeted) return;
+        greeted = true;
+        if (badge) badge.style.display = "none";
+        setTimeout(() => {
+          addMsg("👋 ¡Hola! Bienvenida a <strong>Micheline</strong>.<br/>Soy tu asistente. ¿En qué puedo ayudarte hoy?", "bot");
+        }, 800);
+      }
+
+      function toggleChat() {
+        isOpen = !isOpen;
+        fab.classList.toggle("open", isOpen);
+        win.classList.toggle("open", isOpen);
+        if (isOpen) {
+          greet();
+          setTimeout(() => input.focus(), 300);
+        }
+      }
+
+      fab.addEventListener("click", toggleChat);
+
+      async function send(text) {
+        text = text.trim();
+        if (!text) return;
+
+        addMsg(text, "user");
+        input.value = "";
+        
+        // Tracking a n8n/Evolution API
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "chat_intent",
+            sessionId,
+            mensaje: text,
+            source: "Butera_V2_Chat"
+          })
+        }).catch(() => {});
+
+        setTimeout(() => {
+          // Redirigir a WhatsApp real
+          window.open(`https://wa.me/18098979609?text=${encodeURIComponent(text)}`, "_blank");
+          addMsg("✅ ¡Perfecto! Te he redirigido a WhatsApp para continuar la conversación de forma directa.", "bot");
+        }, 600);
+      }
+
+      sendBtn.addEventListener("click", () => send(input.value));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") send(input.value);
+      });
+
+      quick.addEventListener("click", (e) => {
+        const btn = e.target.closest(".chat-quick-btn");
+        if (btn) send(btn.dataset.msg);
+      });
+    })();
+
+    // --- CONTACT BUTTONS TRACKING ---
+    const webhookUrl = "https://n8nsophia.duckdns.org/webhook/429dc08d-c49a-4840-8938-d3878efe5f6c";
+    document.querySelectorAll("#ctaLlamarSP, #ctaWhatsAppBC, #ctaWhatsAppDirecto").forEach(btn => {
+      btn.addEventListener("click", () => {
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "contact_click",
+            button_id: btn.id,
+            source: "Butera_V2_Landpage"
+          })
+        }).catch(() => {});
+      });
     });
   </script>
 </body>
