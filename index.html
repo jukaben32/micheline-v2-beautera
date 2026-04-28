@@ -3310,9 +3310,10 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "intent_reserva",
+            event: "reserva_enviada",
+            timestamp: new Date().toISOString(),
             source: "Micheline_Butera_Modal_V2",
-            reserva: data
+            ...data
           })
         }).catch(err => console.log("N8n webhook track error (silent)"));
 
@@ -3412,10 +3413,11 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              action: "chat_intent",
+              event: "chat_mensaje",
               sessionId,
               mensaje: text,
-              source: "Butera_V2_Chat"
+              timestamp: new Date().toISOString(),
+              source: "web_chat"
             })
           });
 
@@ -3459,8 +3461,9 @@
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            action: "contact_click",
+            event: "contacto_click",
             button_id: btn.id,
+            timestamp: new Date().toISOString(),
             source: "Butera_V2_Landpage"
           })
         }).catch(() => {});
