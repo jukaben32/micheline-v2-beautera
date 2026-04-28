@@ -2716,15 +2716,51 @@
 
       <form id="reservaForm" class="booking-form">
         <div class="field">
+          <label class="field-label" for="sucursal">Sucursal</label>
+          <select id="sucursal" name="sucursal" required class="form-input">
+            <option value="" disabled selected>Elige una ubicación...</option>
+            <option value="San Pedro de Macorís">San Pedro de Macorís</option>
+            <option value="Boca Chica">Boca Chica</option>
+          </select>
+        </div>
+
+        <div class="field">
           <label class="field-label" for="servicio">Servicio</label>
           <select id="servicio" name="servicio" required class="form-input">
             <option value="" disabled selected>Selecciona tu experiencia...</option>
-            <option value="Nail Bar & Manicure">Nail Bar & Manicure</option>
-            <option value="Peluqueria & Peinados">Peluqueria & Peinados</option>
-            <option value="Pedi Spa (4 Pasos)">Pedi Spa (4 Pasos)</option>
-            <option value="Unas Acrilicas">Unas Acrilicas</option>
-            <option value="Maquillaje Profesional">Maquillaje Profesional</option>
-            <option value="Depilacion con Cera">Depilacion con Cera</option>
+            <optgroup label="💅 Nail Bar">
+              <option value="Manicure regular">Manicure regular</option>
+              <option value="Manicure Spa">Manicure Spa</option>
+              <option value="Pedicure regular">Pedicure regular</option>
+              <option value="Pedi Spa 4 pasos">Pedi Spa 4 pasos</option>
+              <option value="Pintura en Gel">Pintura en Gel</option>
+              <option value="Uñas Acrílicas">Uñas Acrílicas</option>
+              <option value="Uñas Francesas">Uñas Francesas</option>
+              <option value="Soft Gel Tips / Baby Boomer">Soft Gel Tips / Baby Boomer</option>
+            </optgroup>
+            <optgroup label="✂️ Peluquería">
+              <option value="Lavado de pelo">Lavado de pelo</option>
+              <option value="Corte de cabello">Corte de cabello</option>
+              <option value="Peinado elaborado">Peinado elaborado</option>
+              <option value="Definición de rizos">Definición de rizos</option>
+            </optgroup>
+            <optgroup label="🌿 Otros">
+              <option value="Depilación con cera">Depilación con cera</option>
+              <option value="Maquillaje Professional">Maquillaje Profesional</option>
+              <option value="Facial / Skincare">Facial / Skincare</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="especialista">Especialista (opcional)</label>
+          <select id="especialista" name="especialista" class="form-input">
+            <option value="Sin preferencia">Sin preferencia</option>
+            <option value="Alba">Alba (Acrílicos)</option>
+            <option value="Laura">Laura (Diseño)</option>
+            <option value="Cristina">Cristina (Pelo)</option>
+            <option value="Carmen">Carmen (Spa)</option>
+            <option value="María">María (Estilista)</option>
           </select>
         </div>
 
@@ -2747,6 +2783,11 @@
         <div class="field">
           <label class="field-label" for="telefono">Tu WhatsApp</label>
           <input id="telefono" type="tel" name="telefono" required placeholder="+1 809..." class="form-input">
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="notas">Nota adicional (opcional)</label>
+          <textarea id="notas" name="notas" placeholder="Diseño especial, alergias, etc." class="form-input" style="min-height: 80px; resize: vertical;"></textarea>
         </div>
 
         <button type="submit" class="submit-btn">
@@ -3001,13 +3042,14 @@
 
       const formData = new FormData(reservaForm);
       const data = Object.fromEntries(formData.entries());
-      const webhookUrl = "https://n8nsophia.duckdns.org/webhook-test/429dc08d-c49a-4840-8938-d3878efe5f6c";
+      const webhookUrl = "https://n8nsophia.duckdns.org/webhook/429dc08d-c49a-4840-8938-d3878efe5f6c";
       const originalText = btnText.textContent;
 
       btnText.textContent = "Procesando";
 
       try {
-        await fetch(webhookUrl, {
+        // Enviar a n8n en background
+        fetch(webhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -3015,21 +3057,24 @@
             source: "Micheline_Butera_Modal_V2",
             reserva: data
           })
-        });
+        }).catch(err => console.log("N8n webhook track error (silent)"));
 
-        const waText = `Hola Micheline, vi la web Butera y me gustaria reservar:
-✨ *Servicio*: ${data.servicio}
-📅 *Fecha*: ${data.fecha}
-⌚ *Hora*: ${data.hora}
-👤 *Nombre*: ${data.nombre}
+        const waText = `¡Hola Micheline!\n\nMe gustaría reservar una cita (Butera Edition):\n` +
+          `✨ *Servicio:* ${data.servicio}\n` +
+          `📍 *Sucursal:* ${data.sucursal}\n` +
+          `👤 *Especialista:* ${data.especialista}\n` +
+          `📅 *Fecha:* ${data.fecha}\n` +
+          `⌚ *Hora:* ${data.hora}\n` +
+          `👤 *Nombre:* ${data.nombre}\n` +
+          `📱 *WhatsApp:* ${data.telefono}\n` +
+          (data.notas ? `📝 *Notas:* ${data.notas}\n` : "") +
+          `\n¿Me confirman disponibilidad por favor?`;
 
-¿Me confirman disponibilidad por favor?`;
-
-        window.open(`https://wa.me/8098979609?text=${encodeURIComponent(waText)}`, "_blank");
+        window.open(`https://wa.me/18098979609?text=${encodeURIComponent(waText)}`, "_blank");
         closeModal();
       } catch (error) {
         alert("Hubo un pequeno error. Te redirigiremos a WhatsApp directamente.");
-        window.open("https://wa.me/8098979609", "_blank");
+        window.open("https://wa.me/18098979609", "_blank");
       } finally {
         btnText.textContent = originalText;
       }
