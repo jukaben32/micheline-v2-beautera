@@ -3423,25 +3423,20 @@
 
           if (res.ok) {
             const data = await res.json().catch(() => ({}));
-            const reply = data.reply || data.message || data.output || data.text || data.respuesta;
+            // Búsqueda exhaustiva del mensaje de respuesta en el JSON de n8n
+            const reply = data.reply || data.message || data.output || data.text || data.respuesta || data.response || (typeof data === 'string' ? data : null);
             
             if (reply) {
               addMsg(reply, "bot");
             } else {
-              addMsg("✅ ¡Recibido! Nuestro equipo te contactará pronto. Si prefieres hablar ahora mismo, haz clic aquí: <a href='https://wa.me/18098979609' target='_blank' style='color:var(--pink);text-decoration:underline;'>WhatsApp directo</a>", "bot");
+              addMsg("✅ ¡Recibido! Nuestro equipo procesará tu solicitud a la brevedad.", "bot");
             }
           } else {
-            addMsg("Redirigiendo a WhatsApp para asegurar tu respuesta...", "bot");
-            setTimeout(() => {
-              window.open(`https://wa.me/18098979609?text=${encodeURIComponent(text)}`, "_blank");
-            }, 1000);
+            addMsg("⚠️ No he podido conectar con el asistente, pero tu mensaje ha sido registrado. Por favor, intenta de nuevo en unos momentos.", "bot");
           }
         } catch (err) {
           removeTyping();
-          addMsg("Conectando con WhatsApp...", "bot");
-          setTimeout(() => {
-            window.open(`https://wa.me/18098979609?text=${encodeURIComponent(text)}`, "_blank");
-          }, 1000);
+          addMsg("⚠️ Error de conexión. Por favor, asegúrate de tener internet o intenta contactarnos por nuestros canales directos.", "bot");
         }
       }
 
