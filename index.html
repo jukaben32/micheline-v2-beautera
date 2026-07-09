@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Micheline Nail Bar | Butera Edition</title>
+  
+  <!-- Fonts: Beautera Aesthetic -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['"Source Serif 4"', 'serif'],
+            mono: ['"IBM Plex Mono"', 'monospace'],
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            butera: {
+              bg: '#FDFCFB',
+              text: '#141413',
+              accent: '#B08D57',
+              brand: '#D8A7B1', /* Rosa Micheline Luxury */
+              border: '#E8E4E1',
+              muted: '#9997AB'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  
+  <style>
+    body { background-color: #FDFCFB; color: #141413; }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(180px, auto);
+      gap: 1.5rem;
+    }
+    .bento-item {
+      background: white;
+      border: 1px solid #E8E4E1;
+      border-radius: 28px;
+      padding: 2.5rem;
+      transition: all 0.6s cubic-bezier(0.23, 1, 0.320, 1);
+    }
+    .bento-item:hover {
+      border-color: #B08D57;
+      transform: translateY(-8px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.04);
+    }
+    .custom-cursor {
+      width: 20px;
+      height: 20px;
+      border: 1px solid #141413;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.15s ease-out;
+    }
+    .reveal-text {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: reveal 1.2s forwards cubic-bezier(0.23, 1, 0.320, 1);
+    }
+    @keyframes reveal {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .staff-card {
+      filter: grayscale(100%);
+      transition: all 0.5s ease;
+    }
+    .staff-card:hover {
+      filter: grayscale(0%);
+    }
+    .wa-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      width: 65px;
+      height: 65px;
+      background: #25D366;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: pulse-wa 2s infinite;
+    }
+    @keyframes pulse-wa {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+      70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+    }
+    .wa-btn:hover {
+      transform: scale(1.15) rotate(10deg);
+      background: #128C7E;
+    }
+  </style>
+</head>
+<body class="font-sans antialiased overflow-x-hidden">
+
+  <!-- Custom Cursor -->
+  <div class="custom-cursor hidden md:block" id="cursor"></div>
+
+  <!-- Header -->
+  <header class="fixed top-0 w-full z-50 px-8 py-8 transition-all duration-500 hover:bg-white/80 hover:backdrop-blur-md">
+    <nav class="flex justify-between items-center max-w-7xl mx-auto">
+      <a href="#" class="font-serif text-3xl tracking-tighter text-butera-text">Micheline<span class="text-butera-brand">.</span></a>
+      <div class="space-x-12 text-[10px] font-mono uppercase tracking-[0.4em] hidden md:flex text-butera-text/80">
+        <a href="#servicios" class="hover:text-butera-brand transition-colors font-bold">Servicios</a>
+        <a href="#equipo" class="hover:text-butera-brand transition-colors font-bold">Equipo</a>
+        <a href="#reserva" class="hover:text-butera-brand transition-colors font-bold">Reservar</a>
+      </div>
+      <button class="font-mono text-[10px] border border-butera-text px-6 py-2 rounded-full hover:bg-butera-brand hover:border-butera-brand hover:text-white transition-all tracking-widest text-butera-text">MENU</button>
+    </nav>
+  </header>
+
+  <main class="pt-48 px-8">
+    <!-- Hero Section -->
+    <section class="max-w-7xl mx-auto mb-32">
+      <div class="flex flex-col md:flex-row gap-16 items-end">
+        <div class="md:w-3/5">
+          <p class="font-mono text-[10px] uppercase tracking-[0.5em] text-butera-accent mb-8 reveal-text">Micheline Nail Bar & Beauty Lounge</p>
+          <h1 class="font-serif text-7xl md:text-9xl leading-[1] reveal-text" style="animation-delay: 0.2s;">
+            Arte & <span class="italic font-light">Belleza</span> en cada detalle.
+          </h1>
+        </div>
+        <div class="md:w-2/5 reveal-text" style="animation-delay: 0.4s;">
+          <p class="text-xl text-slate-400 font-light leading-relaxed mb-10">
+            La belleza es una forma de autocuidado. En Micheline, elevamos esa expresión personal al nivel de obra maestra.
+          </p>
+          <a href="#reserva" class="inline-flex items-center group font-mono text-[10px] tracking-[0.3em] uppercase">
+            Empieza tu experiencia
+            <span class="ml-6 w-16 h-16 rounded-full border border-butera-text flex items-center justify-center group-hover:bg-butera-text group-hover:text-white transition-all duration-500">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bento Services Grid -->
+    <section id="servicios" class="max-w-7xl mx-auto mb-40">
+      <div class="bento-grid">
+        <!-- Item 1: Nail Bar (Highlight) -->
+        <div class="bento-item col-span-4 md:col-span-2 row-span-2 flex flex-col justify-end min-h-[600px] relative overflow-hidden group">
+          <img src="C:\Users\IA Power Engine\.gemini\antigravity\brain\85d673b5-a60f-4b5f-bf66-9c50be42e7b7\micheline_hero_butera_1774670438389.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Nail Art Hero">
+          <div class="absolute inset-0 bg-gradient-to-t from-butera-bg via-transparent to-transparent opacity-90"></div>
+          <div class="relative z-10">
+            <span class="font-mono text-[10px] uppercase tracking-widest text-butera-accent">Exclusivo</span>
+            <h3 class="font-serif text-5xl mt-3 mb-6">Nail Art <br/>Profesional</h3>
+            <p class="text-sm opacity-60 max-w-xs leading-relaxed">Manicure, pedicure, gel y las más finas acrílicas para manos que cuentan historias.</p>
+          </div>
+        </div>
+
+        <!-- Item 2: Pedi Spa -->
+        <div class="bento-item col-span-4 md:col-span-2 min-h-[280px] flex flex-col justify-between relative overflow-hidden group">
+            <img src="C:\Users\IA Power Engine\.gemini\antigravity\brain\85d673b5-a60f-4b5f-bf66-9c50be42e7b7\micheline_pedi_spa_butera_1774670455859.png" class="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-30 transition-opacity" alt="Pedi Spa">
+            <div class="relative z-10">
+              <div class="flex justify-between items-start">
+                <h3 class="font-serif text-3xl">Pedi Spa <br/>4 Pasos</h3>
+              </div>
+              <p class="text-sm opacity-50 mt-4 max-w-sm">Exfoliación, hidratación profunda y relajación absoluta para tus pies.</p>
+            </div>
+            <a href="#" class="font-mono text-[9px] underline tracking-[0.3em] uppercase relative z-10">Ver Ritual</a>
+        </div>
+
+        <!-- Item 3: Peluquería -->
+        <div class="bento-item col-span-2 md:col-span-1 min-h-[400px] flex flex-col justify-end relative overflow-hidden group">
+            <img src="img/hair.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Hair Art">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative z-10 transition-transform duration-500 group-hover:-translate-y-4">
+              <h3 class="font-serif text-2xl mb-1 text-butera-text group-hover:text-white">Peluquería</h3>
+              <p class="text-[9px] font-mono opacity-50 uppercase tracking-widest text-butera-text group-hover:text-white/80">Estilo & Definición</p>
+            </div>
+        </div>
+
+        <!-- Item 4: Depilación (Skin) -->
+        <div class="bento-item col-span-2 md:col-span-1 min-h-[400px] flex flex-col justify-between relative overflow-hidden group">
+            <img src="img/skin.png" class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-100 transition-all duration-1000" alt="Skin Care">
+            <h3 class="font-serif text-2xl relative z-10">Cera & <br/><span class="text-butera-brand italic">Cuidado</span></h3>
+            <div class="flex items-center gap-2 relative z-10">
+              <div class="h-[1px] flex-1 bg-butera-brand/30"></div>
+              <span class="font-mono text-[9px] text-butera-brand">REVELAR</span>
+            </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Space Divider -->
+    <div class="h-32"></div>
+
+    <!-- Locations -->
+    <section class="max-w-7xl mx-auto mb-40">
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="bento-item bg-zinc-900 text-white border-none p-12">
+          <span class="font-mono text-[9px] tracking-[0.4em] text-butera-accent">MAIN STUDIO</span>
+          <h3 class="font-serif text-4xl mt-4 mb-8">San Pedro de Macorís</h3>
+          <p class="font-light opacity-70 mb-12">Lunes a Sábado: 07:00 — 23:00<br/>Domingo: 07:00 — 22:00</p>
+          <a href="tel:8092465821" class="font-mono text-[10px] border border-white/20 px-8 py-3 rounded-full hover:bg-white hover:text-black transition-all uppercase tracking-widest">Llamar Ahora</a>
+        </div>
+        <div class="bento-item p-12">
+          <span class="font-mono text-[9px] tracking-[0.4em] text-butera-accent">COASTAL STUDIO</span>
+          <h3 class="font-serif text-4xl mt-4 mb-8">Boca Chica</h3>
+          <p class="font-light opacity-50 mb-12">Lunes a Sábado: 07:00 — 21:00<br/>Domingo: 07:00 — 20:00</p>
+          <a href="https://wa.me/8096277471" class="font-mono text-[10px] border border-butera-text px-8 py-3 rounded-full hover:bg-butera-text hover:text-white transition-all uppercase tracking-widest">WhatsApp</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl mx-auto py-32 border-t border-butera-border text-center">
+      <h2 class="font-serif text-6xl mb-12 italic">Tu momento es ahora.</h2>
+      <div class="flex justify-center mb-16">
+        <button id="reservaBtn" class="font-mono text-3xl bg-[#FF4D94] text-white px-20 py-10 rounded-full hover:bg-butera-text transition-all duration-700 shadow-[0_20px_60px_rgba(255,77,148,0.5)] hover:shadow-2xl">
+          AGENDAR CITA
+        </button>
+      </div>
+      <p class="font-mono text-[10px] text-butera-muted tracking-[0.3em]">
+        © 2024 MICHELINE NAIL BAR — @MICHELINENAILBAR
+      </p>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/8096277471?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita." class="wa-btn flex items-center justify-center p-4 group" target="_blank" aria-label="WhatsApp Micheline">
+      <svg viewBox="0 0 448 512" width="28" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.4-8.6-44.6-27.6-16.5-14.7-27.6-32.8-30.8-38.4-3.2-5.6-.3-8.6 2.5-11.4 2.5-2.5 5.5-6.5 8.3-9.8 2.8-3.3 3.7-5.5 5.5-9.2 1.9-3.7 1-6.9-.5-9.8-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.2 5.8 23.5 9.2 31.6 11.8 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/>
+      </svg>
+    </a>
+  </main>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
+    });
+
+    document.querySelectorAll('a, button, .bento-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform += ' scale(3)';
+        cursor.style.backgroundColor = 'rgba(20,20,19,0.05)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = cursor.style.transform.replace(' scale(3)', '');
+        cursor.style.backgroundColor = 'transparent';
+      });
+    });
+
+    // n8n Booking Integration - Butera Edition
+    document.getElementById('reservaBtn').addEventListener('click', async () => {
+      const webhookUrl = "https://n8nsophia.duckdns.org/webhook/429dc08d-c49a-4840-8938-d3878efe5f6c";
+      alert("Cargando motor de reserva premium...");
+      // Simulación de envío a n8n
+      try {
+        await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "intent_reserva", source: "Micheline_Butera_V2" })
+        });
+        window.location.href = "https://wa.me/8096277471?text=Hola%20Micheline,%20vi%20la%20nueva%20web%20Butera%20y%20quiero%20agendar%20una%20cita.";
+      } catch (e) {
+        window.location.href = "https://wa.me/8096277471";
+      }
+    });
+  </script>
+</body>
+</html>
