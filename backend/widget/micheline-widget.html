@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Widget Micheline Nail Bar</title>
+<style>
+  /* ===== Estilos del widget (autónomo, no choca con tu landing) ===== */
+  #micheline-widget * { box-sizing: border-box; font-family: 'IBM Plex Mono', ui-monospace, monospace; }
+  #micheline-widget {
+    position: fixed; right: 20px; bottom: 20px; z-index: 99999;
+    --accent: #d4a3a3; --accent-dark: #b07d7d; --ink: #2b2323; --bg: #fffaf8;
+  }
+  #mw-toggle {
+    width: 60px; height: 60px; border-radius: 50%; border: none; cursor: pointer;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff; font-size: 26px; box-shadow: 0 8px 24px rgba(176,125,125,.5);
+    transition: transform .2s;
+  }
+  #mw-toggle:hover { transform: scale(1.08); }
+  #mw-panel {
+    position: absolute; bottom: 76px; right: 0; width: 360px; max-width: 92vw;
+    background: var(--bg); border-radius: 18px; overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25); display: none; flex-direction: column;
+    max-height: 78vh;
+  }
+  #mw-panel.open { display: flex; }
+  #mw-header {
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff; padding: 16px; text-align: center;
+  }
+  #mw-header h3 { margin: 0; font-size: 16px; letter-spacing: .5px; }
+  #mw-header p { margin: 4px 0 0; font-size: 11px; opacity: .85; }
+  #mw-tabs { display: flex; border-bottom: 1px solid #eee; }
+  #mw-tabs button {
+    flex: 1; padding: 10px; border: none; background: #fff; cursor: pointer;
+    font-size: 12px; color: var(--ink); border-bottom: 2px solid transparent;
+  }
+  #mw-tabs button.active { border-bottom-color: var(--accent); font-weight: bold; }
+  #mw-body { padding: 14px; overflow-y: auto; flex: 1; }
+  .mw-view { display: none; }
+  .mw-view.active { display: block; }
+
+  /* Reserva */
+  .mw-label { font-size: 11px; color: #888; margin: 10px 0 4px; }
+  .mw-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mw-chip {
+    padding: 7px 11px; border: 1px solid #e0d4d4; border-radius: 20px; cursor: pointer;
+    font-size: 12px; background: #fff; color: var(--ink); transition: .15s;
+  }
+  .mw-chip:hover { border-color: var(--accent); }
+  .mw-chip.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .mw-chip small { opacity: .7; }
+  select, input {
+    width: 100%; padding: 9px; border: 1px solid #e0d4d4; border-radius: 10px;
+    font-size: 13px; margin-top: 4px; background: #fff; color: var(--ink);
+  }
+  .mw-slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 6px; }
+  .mw-slot {
+    padding: 8px 0; text-align: center; border: 1px solid #e0d4d4; border-radius: 8px;
+    font-size: 12px; cursor: pointer; background: #fff;
+  }
+  .mw-slot:hover { border-color: var(--accent); }
+  .mw-slot.sel { background: var(--accent); color: #fff; }
+  .mw-slot.empty { color: #ccc; cursor: default; border-style: dashed; }
+  .mw-btn {
+    width: 100%; margin-top: 14px; padding: 12px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff; font-size: 14px; cursor: pointer; font-weight: bold;
+  }
+  .mw-btn:disabled { opacity: .5; cursor: default; }
+  .mw-msg { font-size: 12px; padding: 10px; border-radius: 10px; margin-top: 10px; }
+  .mw-ok { background: #e7f6ec; color: #1c7a3f; }
+  .mw-err { background: #fdeaea; color: #b32626; }
+
+  /* Chat */
+  #mw-chat { display: flex; flex-direction: column; height: 320px; }
+  #mw-messages { flex: 1; overflow-y: auto; padding: 4px; }
+  .mw-bubble { max-width: 85%; padding: 8px 11px; border-radius: 12px; font-size: 12.5px; margin: 5px 0; line-height: 1.4; white-space: pre-wrap; }
+  .mw-bot { background: #f3ecec; color: var(--ink); align-self: flex-start; border-bottom-left-radius: 2px; }
+  .mw-user { background: var(--accent); color: #fff; align-self: flex-end; border-bottom-right-radius: 2px; }
+  #mw-input { display: flex; gap: 6px; margin-top: 8px; }
+  #mw-input input { margin: 0; }
+  #mw-input button {
+    padding: 0 14px; border: none; border-radius: 10px; background: var(--accent-dark);
+    color: #fff; cursor: pointer; font-size: 13px;
+  }
+  .mw-thinking { font-style: italic; opacity: .6; font-size: 12px; }
+</style>
+</head>
+<body>
+<!-- ===== MARCA DE MONTAJE DEL WIDGET =====
+     Pega este bloque justo antes de </body> en tu index.html.
+     Luego añade: <script src="https://kpszlnymywgudutqlgqa.supabase.co/storage/v1/object/public/widget/micheline-widget.js"></script> -->
+<div id="micheline-widget">
+  <div id="mw-panel">
+    <div id="mw-header">
+      <h3>Micheline Nail Bar</h3>
+      <p>Reserva tu momento de belleza 💅</p>
+    </div>
+    <div id="mw-tabs">
+      <button data-tab="book" class="active">📅 Reservar</button>
+      <button data-tab="info">💬 Info</button>
+    </div>
+    <div id="mw-body">
+      <!-- VISTA RESERVAR -->
+      <div class="mw-view active" id="view-book">
+        <div class="mw-label">1. Servicio</div>
+        <div class="mw-row" id="mw-services"></div>
+        <div class="mw-label">2. Estilista</div>
+        <div class="mw-row" id="mw-stylists"></div>
+        <div class="mw-label">3. Fecha</div>
+        <input type="date" id="mw-date" />
+        <div class="mw-label">4. Horario disponible</div>
+        <div class="mw-slots" id="mw-slots"></div>
+        <button class="mw-btn" id="mw-confirm" disabled>Confirmar reserva</button>
+        <div id="mw-result"></div>
+      </div>
+      <!-- VISTA INFO/CHAT -->
+      <div class="mw-view" id="view-info">
+        <div id="mw-chat">
+          <div id="mw-messages">
+            <div class="mw-bubble mw-bot">¡Hola! Soy la asistente de Micheline 💅 Pregúntame por precios, servicios, estilistas u horarios.</div>
+          </div>
+          <div id="mw-input">
+            <input id="mw-text" placeholder="Escribe tu pregunta..." />
+            <button id="mw-send">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button id="mw-toggle">💅</button>
+</div>
+
+<script>
+(function () {
+  // ===== CONFIG =====
+  const SUPABASE_URL = 'https://kpszlnymywgudutqlgqa.supabase.co';
+  const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDgwMTksImV4cCI6MjA5ODkyNDAxOX0.zljEdqznFgdUNRKpib3h1_SzamrQRI3h0iIULTgEFdY';
+
+  const state = { service: null, stylist: null, time: null, date: null };
+
+  // ---- Toggle panel ----
+  const panel = document.getElementById('mw-panel');
+  document.getElementById('mw-toggle').onclick = () => panel.classList.toggle('open');
+
+  // ---- Tabs ----
+  document.querySelectorAll('#mw-tabs button').forEach(b => {
+    b.onclick = () => {
+      document.querySelectorAll('#mw-tabs button').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.mw-view').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      document.getElementById('view-' + b.dataset.tab).classList.add('active');
+    };
+  });
+
+  // ---- Cargar servicios y estilistas desde la BD ----
+  async function loadData() {
+    const [sRes, eRes] = await Promise.all([
+      fetch(SUPABASE_URL + '/rest/v1/services?select=id,name,price,duration_min&is_active=eq.true&order=price',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }),
+      fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty&is_active=eq.true',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }),
+    ]);
+    const servicios = await sRes.json();
+    const estilistas = await eRes.json();
+
+    const sBox = document.getElementById('mw-services');
+    servicios.forEach(s => {
+      const c = document.createElement('div');
+      c.className = 'mw-chip'; c.innerHTML = `${s.name} <small>$${s.price}</small>`;
+      c.onclick = () => { state.service = s; sel(sBox, c); clearSlots(); };
+      sBox.appendChild(c);
+    });
+    const eBox = document.getElementById('mw-stylists');
+    const anyC = document.createElement('div');
+    anyC.className = 'mw-chip'; anyC.textContent = 'Cualquiera disponible';
+    anyC.onclick = () => { state.stylist = null; sel(eBox, anyC); clearSlots(); };
+    eBox.appendChild(anyC);
+    estilistas.forEach(e => {
+      const c = document.createElement('div');
+      c.className = 'mw-chip'; c.textContent = e.full_name;
+      c.onclick = () => { state.stylist = e; sel(eBox, c); clearSlots(); };
+      eBox.appendChild(c);
+    });
+
+    // fecha mínima = hoy
+    const d = document.getElementById('mw-date');
+    d.min = new Date().toISOString().split('T')[0];
+    d.onchange = () => { state.date = d.value; state.time = null; loadSlots(); };
+  }
+
+  function sel(box, el) {
+    box.querySelectorAll('.mw-chip').forEach(x => x.classList.remove('sel'));
+    el.classList.add('sel');
+  }
+
+  // ---- Cargar huecos disponibles ----
+  async function loadSlots() {
+    const box = document.getElementById('mw-slots');
+    box.innerHTML = '<div class="mw-slot empty">…</div>';
+    if (!state.stylist || !state.date) return;
+    const r = await fetch(SUPABASE_URL + '/functions/v1/get-availability', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
+      body: JSON.stringify({ stylist_id: state.stylist.id, date: state.date }),
+    });
+    const { slots } = await r.json();
+    box.innerHTML = '';
+    if (!slots || slots.length === 0) {
+      box.innerHTML = '<div class="mw-slot empty">Sin huecos</div>';
+      return;
+    }
+    slots.forEach(t => {
+      const s = document.createElement('div');
+      s.className = 'mw-slot'; s.textContent = t;
+      s.onclick = () => {
+        document.querySelectorAll('#mw-slots .mw-slot').forEach(x => x.classList.remove('sel'));
+        s.classList.add('sel'); state.time = t; updateConfirm();
+      };
+      box.appendChild(s);
+    });
+  }
+  function clearSlots() { document.getElementById('mw-slots').innerHTML = '<div class="mw-slot empty">Elige estilista y fecha</div>'; state.time = null; updateConfirm(); }
+
+  function updateConfirm() {
+    document.getElementById('mw-confirm').disabled = !(state.service && state.stylist && state.date && state.time);
+  }
+
+  // ---- Confirmar reserva ----
+  document.getElementById('mw-confirm').onclick = async () => {
+    const name = prompt('Tu nombre:'); if (!name) return;
+    const phone = prompt('Tu teléfono (whatsapp):'); if (!phone) return;
+    const email = prompt('Tu email (opcional, para confirmación):') || '';
+    const res = await fetch(SUPABASE_URL + '/functions/v1/create-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
+      body: JSON.stringify({
+        stylist_id: state.stylist.id, service_id: state.service.id,
+        date: state.date, time: state.time,
+        client_name: name, client_phone: phone, client_email: email,
+      }),
+    });
+    const out = document.getElementById('mw-result');
+    if (res.ok) {
+      out.className = 'mw-msg mw-ok';
+      out.textContent = '✅ ¡Reserva confirmada! Te esperamos 💅';
+      // WhatsApp de la dueña (notificación)
+      const wa = `https://wa.me/18096277471?text=${encodeURIComponent('Nueva reserva: ' + name + ' ' + state.date + ' ' + state.time)}`;
+      setTimeout(() => window.open(wa, '_blank'), 600);
+    } else {
+      const e = await res.json();
+      out.className = 'mw-msg mw-err';
+      out.textContent = '❌ ' + (e.error || 'No se pudo reservar');
+    }
+  };
+
+  // ---- Chat / Info ----
+  const msgs = document.getElementById('mw-messages');
+  const text = document.getElementById('mw-text');
+  let history = [];
+  async function send() {
+    const v = text.value.trim(); if (!v) return;
+    addBubble(v, 'user'); text.value = '';
+    const think = addBubble('escribiendo…', 'bot', true);
+    const r = await fetch(SUPABASE_URL + '/functions/v1/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
+      body: JSON.stringify({ message: v, history }),
+    });
+    const { reply } = await r.json();
+    think.remove();
+    addBubble(reply, 'bot');
+    history.push({ role: 'user', content: v }, { role: 'assistant', content: reply });
+  }
+  function addBubble(t, who, thinking) {
+    const b = document.createElement('div');
+    b.className = 'mw-bubble ' + (who === 'user' ? 'mw-user' : 'mw-bot') + (thinking ? ' mw-thinking' : '');
+    b.textContent = t; msgs.appendChild(b); msgs.scrollTop = msgs.scrollHeight;
+    return b;
+  }
+  document.getElementById('mw-send').onclick = send;
+  text.onkeydown = e => { if (e.key === 'Enter') send(); };
+
+  loadData();
+})();
+</script>
+</body>
+</html>

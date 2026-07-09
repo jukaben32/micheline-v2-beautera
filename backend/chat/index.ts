@@ -1,0 +1,100 @@
+// Edge Function: chat  (widget de información + IA)
+// Responde preguntas del cliente sobre precios, servicios, estilistas y horarios.
+// Usa Claude (@anthropic-ai/sdk) si hay ANTHROPIC_API_KEY; si no, responde
+// con datos reales de la BD (rule-based). Esta misma función es el punto de
+// entrada para conectar luego un bot de Meta WhatsApp.
+//
+// Entrada (POST JSON): { "message": "..." , "history": [ {role, content} ] }
+// Salida: { "reply": "..." }
+
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+Deno.serve(async (req) => {
+  const cors = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'authorization, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+
+  try {
+    const { message, history } = await req.json()
+    if (!message) {
+      return new Response(JSON.stringify({ error: 'Falta message' }),
+        { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+
+    // Traer datos reales de la BD para contexto/respuesta
+    const [{ data: servicios }, { data: estilistas }] = await Promise.all([
+      supabase.from('services').select('name,duration_min,price,category').eq('is_active', true).order('price'),
+      supabase.from('stylists').select('full_name,specialty,bio').eq('is_active', true),
+    ])
+
+    const ctx = {
+      negocio: 'Micheline Nail Bar',
+      servicios: servicios ?? [],
+      estilistas: estilistas ?? [],
+    }
+
+    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY')
+
+    if (anthropicKey) {
+      // --- MODO IA: Claude responde usando el contexto real ---
+      const system = `Eres la asistente virtual de ${ctx.negocio}, un salon de uñas. ` +
+        `Responde en español, corto y amable. Usa SOLO estos datos:\n` +
+        `Servicios: ${JSON.stringify(ctx.servicios)}\n` +
+        `Estilistas: ${JSON.stringify(ctx.estilistas)}\n` +
+        `Si te piden reservar, di que usen el boton "Reservar cita" del widget.`
+      const msgs = [...(history ?? []).slice(-6), { role: 'user', content: message }]
+      const r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': anthropicKey,
+          'anthropic-version': '2023-06-01',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-haiku-latest',
+          max_tokens: 400,
+          system,
+          messages: msgs,
+        }),
+      })
+      const data = await r.json()
+      const reply = data?.content?.[0]?.text ?? 'No pude responder ahora.'
+      return new Response(JSON.stringify({ reply, mode: 'ai' }),
+        { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+
+    // --- MODO SIN IA: reglas simples sobre los datos reales ---
+    const txt = message.toLowerCase()
+    let reply = ''
+
+    if (txt.includes('precio') || txt.includes('cuesta') || txt.includes('costo') || txt.includes('precios')) {
+      reply = '💅 Nuestros servicios:\n' + ctx.servicios
+        .map((s: any) => `• ${s.name} (${s.duration_min} min) — $${Number(s.price).toFixed(2)}`)
+        .join('\n')
+    } else if (txt.includes('estilista') || txt.includes('profesional') || txt.includes('quien')) {
+      reply = '👩‍🎨 Nuestras especialistas:\n' + ctx.estilistas
+        .map((e: any) => `• ${e.full_name} — ${e.specialty}`)
+        .join('\n')
+    } else if (txt.includes('horario') || txt.includes('abierto') || txt.includes('hora')) {
+      reply = '🕘 Atendemos lunes a sábado de 9:00 a.m. a 5:00 p.m. Usa "Reservar cita" para ver huecos disponibles.'
+    } else if (txt.includes('reserv') || txt.includes('agendar') || txt.includes('cita')) {
+      reply = '📅 ¡Claro! Toca el botón "Reservar cita" arriba, elige servicio y estilista, y verás los horarios libres. '
+    } else {
+      reply = 'Hola 💅 Soy la asistente de Micheline Nail Bar. Puedes preguntarme por precios, servicios, estilistas u horarios. ¿En qué te ayudo?'
+    }
+
+    return new Response(JSON.stringify({ reply, mode: 'info' }),
+      { headers: { ...cors, 'Content-Type': 'application/json' } })
+  } catch (e) {
+    return new Response(JSON.stringify({ error: String(e) }),
+      { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } })
+  }
+})
