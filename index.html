@@ -255,20 +255,19 @@
       });
     });
 
-    // n8n Booking Integration - Butera Edition
-    document.getElementById('reservaBtn').addEventListener('click', async () => {
-      const webhookUrl = "https://n8nsophia.duckdns.org/webhook/429dc08d-c49a-4840-8938-d3878efe5f6c";
-      alert("Cargando motor de reserva premium...");
-      // Simulación de envío a n8n
-      try {
-        await fetch(webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "intent_reserva", source: "Micheline_Butera_V2" })
-        });
-        window.location.href = "https://wa.me/8096277471?text=Hola%20Micheline,%20vi%20la%20nueva%20web%20Butera%20y%20quiero%20agendar%20una%20cita.";
-      } catch (e) {
-        window.location.href = "https://wa.me/8096277471";
+    // Reserva Micheline - abre el widget embebible (reemplaza n8n)
+    document.getElementById('reservaBtn').addEventListener('click', () => {
+      const w = document.getElementById('micheline-widget');
+      if (w) {
+        const panel = w.querySelector('#mw-panel');
+        const tabs = w.querySelectorAll('#mw-tabs button');
+        if (panel) panel.classList.add('open');
+        // activar pestaña Reservar
+        tabs.forEach(t => { if (t.dataset.tab === 'book') t.click(); });
+        w.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        // fallback: WhatsApp si el widget no cargó
+        window.location.href = "https://wa.me/8096277471?text=Hola%20Micheline,%20quiero%20agendar%20una%20cita.";
       }
     });
   </script>
