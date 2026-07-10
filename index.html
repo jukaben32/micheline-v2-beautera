@@ -286,11 +286,13 @@
       <div class="mw-view active" id="view-book">
         <div class="mw-label">1. Servicio</div>
         <div class="mw-row" id="mw-services"></div>
-        <div class="mw-label">2. Estilista</div>
+        <div class="mw-label">2. Línea de producto / Marca</div>
+        <div class="mw-row" id="mw-brands"></div>
+        <div class="mw-label">3. Estilista</div>
         <div class="mw-row" id="mw-stylists"></div>
-        <div class="mw-label">3. Fecha</div>
+        <div class="mw-label">4. Fecha</div>
         <input type="date" id="mw-date" />
-        <div class="mw-label">4. Horario disponible</div>
+        <div class="mw-label">5. Horario disponible</div>
         <div class="mw-slots" id="mw-slots"></div>
         <button class="mw-btn" id="mw-confirm" disabled>Confirmar reserva</button>
         <div id="mw-result"></div>
@@ -318,7 +320,7 @@
   const SUPABASE_URL = 'https://kpszlnymywgudutqlgqa.supabase.co';
   const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDgwMTksImV4cCI6MjA5ODkyNDAxOX0.zljEdqznFgdUNRKpib3h1_SzamrQRI3h0iIULTgEFdY';
 
-  const state = { service: null, stylist: null, time: null, date: null };
+  const state = { service: null, brand: null, stylist: null, time: null, date: null };
 
   // ---- Toggle panel ----
   const panel = document.getElementById('mw-panel');
@@ -349,7 +351,7 @@
     servicios.forEach(s => {
       const c = document.createElement('div');
       c.className = 'mw-chip'; c.innerHTML = `${s.name} <small>$${s.price}</small>`;
-      c.onclick = () => { state.service = s; sel(sBox, c); clearSlots(); };
+      c.onclick = () => { state.service = s; sel(sBox, c); loadBrands(s.id); clearSlots(); };
       sBox.appendChild(c);
     });
     const eBox = document.getElementById('mw-stylists');
@@ -363,6 +365,30 @@
       c.onclick = () => { state.stylist = e; sel(eBox, c); clearSlots(); };
       eBox.appendChild(c);
     });
+
+    // cargar lineas de producto/marca segun servicio
+    async function loadBrands(serviceId) {
+      const bBox = document.getElementById('mw-brands');
+      bBox.innerHTML = '<span class="mw-slot empty">…</span>';
+      state.brand = null; updateConfirm();
+      const r = await fetch(SUPABASE_URL + '/rest/v1/service_product_lines?select=id,price_adjustment,brands(name)&service_id=eq.' + serviceId + '&order=price_adjustment',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } });
+      const lines = await r.json();
+      bBox.innerHTML = '';
+      if (!lines.length) {
+        bBox.innerHTML = '<span class="mw-slot empty">Sin opciones</span>';
+        return;
+      }
+      lines.forEach(l => {
+        const c = document.createElement('div');
+        c.className = 'mw-chip';
+        const final = (state.service.price + l.price_adjustment).toFixed(2);
+        c.innerHTML = `${l.brands.name} <small>$${final}</small>`;
+        c.onclick = () => { state.brand = l; sel(bBox, c); };
+        bBox.appendChild(c);
+      });
+    }
+    window.__loadBrands = loadBrands;
 
     // fecha mínima = hoy
     const d = document.getElementById('mw-date');
@@ -404,7 +430,7 @@
   function clearSlots() { document.getElementById('mw-slots').innerHTML = '<div class="mw-slot empty">Elige estilista y fecha</div>'; state.time = null; updateConfirm(); }
 
   function updateConfirm() {
-    document.getElementById('mw-confirm').disabled = !(state.service && state.stylist && state.date && state.time);
+    document.getElementById('mw-confirm').disabled = !(state.service && state.brand && state.stylist && state.date && state.time);
   }
 
   // ---- Confirmar reserva ----
@@ -412,11 +438,14 @@
     const name = prompt('Tu nombre:'); if (!name) return;
     const phone = prompt('Tu teléfono (whatsapp):'); if (!phone) return;
     const email = prompt('Tu email (opcional, para confirmación):') || '';
+    const price = state.brand ? (Number(state.service.price) + Number(state.brand.price_adjustment)).toFixed(2) : state.service.price;
     const res = await fetch(SUPABASE_URL + '/functions/v1/create-booking', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
       body: JSON.stringify({
         stylist_id: state.stylist.id, service_id: state.service.id,
+        service_product_line_id: state.brand ? state.brand.id : null,
+        price: price,
         date: state.date, time: state.time,
         client_name: name, client_phone: phone, client_email: email,
       }),
@@ -424,9 +453,9 @@
     const out = document.getElementById('mw-result');
     if (res.ok) {
       out.className = 'mw-msg mw-ok';
-      out.textContent = '✅ ¡Reserva confirmada! Te esperamos 💅';
+      out.textContent = '✅ ¡Reserva confirmada! Total: $' + price + ' 💅';
       // WhatsApp de la dueña (notificación)
-      const wa = `https://wa.me/18096277471?text=${encodeURIComponent('Nueva reserva: ' + name + ' ' + state.date + ' ' + state.time)}`;
+      const wa = `https://wa.me/18096277471?text=${encodeURIComponent('Nueva reserva: ' + name + ' ' + state.service.name + ' (' + (state.brand ? state.brand.brands.name : 'sin marca') + ') ' + state.date + ' ' + state.time + ' $' + price)}`;
       setTimeout(() => window.open(wa, '_blank'), 600);
     } else {
       const e = await res.json();
