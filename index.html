@@ -579,6 +579,72 @@
       100%{ box-shadow: 0 0 0 0 rgba(216,167,177,0); }
     }
     #book-fab:hover { transform: scale(1.1) rotate(-5deg); }
+
+    /* ===== BOTÓN Y MODAL DE PRODUCTOS 🛍️ ===== */
+    /* Botón flotante de productos */
+    #products-fab {
+      position: fixed;
+      bottom: 6.5rem; left: 2rem;   /* encima del de reserva (💅) */
+      z-index: 1000;
+      width: 65px; height: 65px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #B08D57, #D8A7B1);
+      border: none;
+      font-size: 1.7rem;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(176,141,87,0.5);
+      transition: all 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+      animation: pulse-prod 2.5s infinite;
+    }
+    @keyframes pulse-prod {
+      0%  { box-shadow: 0 0 0 0 rgba(176,141,87,0.7); }
+      70% { box-shadow: 0 0 0 18px rgba(176,141,87,0); }
+      100%{ box-shadow: 0 0 0 0 rgba(176,141,87,0); }
+    }
+    #products-fab:hover { transform: scale(1.1) rotate(5deg); }
+
+    /* Overlay del modal de productos */
+    #products-overlay {
+      position: fixed; inset: 0; z-index: 5000;
+      background: rgba(20,20,19,0.7);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    #products-overlay.active { display: flex; }
+    #products-modal {
+      background: #FDFCFB;
+      border-radius: 28px;
+      width: 100%; max-width: 900px;
+      max-height: 90vh; overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.25);
+      animation: modalIn 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    #products-body { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
+    #products-body::-webkit-scrollbar { width: 6px; }
+    #products-body::-webkit-scrollbar-thumb { background: #E8E4E1; border-radius: 4px; }
+    .prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .prod-card {
+      border: 1.5px solid #E8E4E1; border-radius: 16px;
+      padding: 1.25rem; background: white;
+      transition: all 0.25s; display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .prod-card:hover { border-color: #D8A7B1; transform: translateY(-3px); box-shadow: 0 12px 24px rgba(216,167,177,0.18); }
+    .prod-type {
+      align-self: flex-start;
+      font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      background: #F5EEF0; color: #B08D57; padding: 3px 8px; border-radius: 20px;
+    }
+    .prod-name { font-weight: 500; font-size: 1rem; color: #141413; }
+    .prod-desc { font-size: 0.78rem; color: #9997AB; line-height: 1.4; }
+    .prod-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 0.4rem; }
+    .prod-price { font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; color: #B08D57; }
+    .prod-stock { font-size: 0.7rem; color: #9997AB; font-family: 'IBM Plex Mono', monospace; }
+    .prod-stock.low { color: #D97706; }
+    .prod-stock.out { color: #DC2626; }
   </style>
 </head>
 <body class="font-sans antialiased overflow-x-hidden">
@@ -709,6 +775,9 @@
 
   <!-- Botón flotante de reserva 💅 -->
   <button id="book-fab" onclick="openBooking()" title="Reservar cita">💅</button>
+
+  <!-- Botón flotante de productos 🛍️ -->
+  <button id="products-fab" onclick="openProducts()" title="Ver productos">🛍️</button>
 
   <!-- ====== MODAL DE RESERVA ====== -->
   <div id="booking-overlay" onclick="if(event.target===this)closeBooking()">
@@ -849,6 +918,29 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ====== MODAL DE PRODUCTOS 🛍️ ====== -->
+  <div id="products-overlay" onclick="if(event.target===this)closeProducts()">
+    <div id="products-modal" role="dialog" aria-label="Catálogo de productos Micheline">
+      <!-- Cabecera -->
+      <div id="bm-header">
+        <div>
+          <h2>Micheline · Tienda</h2>
+          <p>Productos de belleza</p>
+        </div>
+        <button id="bm-close" onclick="closeProducts()" aria-label="Cerrar">✕</button>
+      </div>
+      <!-- Cuerpo -->
+      <div id="products-body">
+        <div id="products-list">
+          <div class="text-center py-8" style="color:#9997AB">
+            <div style="font-size:2rem">🛍️</div>
+            <p class="text-sm mt-2">Cargando productos...</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1295,6 +1387,53 @@
 
   // Inicializar
   goToStep(1);
-  </script>
+
+  // ========== MODAL DE PRODUCTOS 🛍️ ==========
+  function openProducts() {
+    document.getElementById('products-overlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (!window._prodLoaded) { loadProducts(); window._prodLoaded = true; }
+  }
+  function closeProducts() {
+    document.getElementById('products-overlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  // Carga los productos activos desde Supabase (misma BD que el dashboard)
+  async function loadProducts() {
+    const list = document.getElementById('products-list');
+    try {
+      const res = await fetch(
+        SUPABASE_URL + '/rest/v1/products?select=name,type,description,brand,price,stock&is_active=eq.true&order=name',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }
+      );
+      const prods = await res.json();
+
+      if (!prods || prods.length === 0) {
+        list.innerHTML = `<p class="text-center py-8" style="color:#9997AB">Aún no hay productos disponibles. 🛍️</p>`;
+        return;
+      }
+
+      list.innerHTML = '<div class="prod-grid">' + prods.map(p => {
+        const stock = p.stock ?? 0;
+        let stockClass = '', stockText = stock + ' disponibles';
+        if (stock <= 0) { stockClass = 'out'; stockText = 'Agotado'; }
+        else if (stock <= 5) { stockClass = 'low'; stockText = stock + ' (pocas)'; }
+        return `
+          <div class="prod-card">
+            <span class="prod-type">${p.type || 'Producto'}</span>
+            <div class="prod-name">${p.name}${p.brand ? ' · <span style="color:#9997AB;font-weight:400">' + p.brand + '</span>' : ''}</div>
+            ${p.description ? `<div class="prod-desc">${p.description}</div>` : ''}
+            <div class="prod-foot">
+              <span class="prod-price">$${parseFloat(p.price).toFixed(2)}</span>
+              <span class="prod-stock ${stockClass}">${stockText}</span>
+            </div>
+          </div>`;
+      }).join('') + '</div>';
+    } catch (e) {
+      list.innerHTML = `<p class="text-center py-8" style="color:#9997AB">No se pudieron cargar los productos. Intenta más tarde.</p>`;
+    }
+  }
+</script>
 </body>
 </html>
