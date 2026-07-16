@@ -106,6 +106,306 @@
       transform: scale(1.15) rotate(10deg);
       background: #128C7E;
     }
+
+    /* === WIDGET STYLES (REDISEÑO) === */
+    #micheline-widget {
+      position: fixed;
+      bottom: 2rem;
+      left: 2rem;
+      z-index: 1000;
+      font-family: 'Inter', sans-serif;
+    }
+    #mw-toggle {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      background: #D8A7B1; /* Rosa Micheline */
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(216, 167, 177, 0.4);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: pulse-mw 2s infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @keyframes pulse-mw {
+      0% { box-shadow: 0 0 0 0 rgba(216, 167, 177, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(216, 167, 177, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(216, 167, 177, 0); }
+    }
+    #mw-toggle:hover {
+      transform: scale(1.1);
+      background: #B08D57;
+    }
+    #mw-panel {
+      position: absolute;
+      bottom: 80px;
+      left: 0;
+      width: 380px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      border: 1px solid #E8E4E1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+      pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+      transform-origin: bottom left;
+    }
+    /* En móviles, centrar y expandir un poco el widget */
+    @media (max-width: 640px) {
+      #mw-panel {
+        width: calc(100vw - 4rem);
+      }
+    }
+    #mw-panel.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    #mw-header {
+      background: #141413;
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    #mw-header h3 {
+      font-family: 'Source Serif 4', serif;
+      font-size: 1.5rem;
+      margin: 0 0 0.25rem 0;
+    }
+    #mw-header p {
+      font-size: 0.8rem;
+      color: #9997AB;
+      margin: 0;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    #mw-tabs {
+      display: flex;
+      border-bottom: 1px solid #E8E4E1;
+      background: #FDFCFB;
+    }
+    #mw-tabs button {
+      flex: 1;
+      padding: 1rem;
+      background: none;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #9997AB;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    #mw-tabs button.active {
+      color: #141413;
+      border-bottom: 2px solid #D8A7B1;
+    }
+    #mw-body {
+      padding: 1.5rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    /* Custom Scrollbar for mw-body */
+    #mw-body::-webkit-scrollbar { width: 6px; }
+    #mw-body::-webkit-scrollbar-thumb { background: #E8E4E1; border-radius: 4px; }
+    
+    .mw-view {
+      display: none;
+    }
+    .mw-view.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .mw-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #B08D57;
+      margin-bottom: 0.5rem;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
+    .mw-label:first-child {
+      margin-top: 0;
+    }
+    .mw-row, .mw-slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .mw-chip, .mw-slot {
+      background: #FDFCFB;
+      border: 1px solid #E8E4E1;
+      padding: 0.6rem 1rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1 1 auto;
+      text-align: center;
+    }
+    .mw-chip small {
+      color: #9997AB;
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+    .mw-chip:hover, .mw-slot:hover {
+      border-color: #D8A7B1;
+      background: #fffafa;
+    }
+    .mw-chip.sel, .mw-slot.sel {
+      background: #D8A7B1;
+      color: white;
+      border-color: #D8A7B1;
+    }
+    .mw-chip.sel small {
+      color: rgba(255,255,255,0.9);
+    }
+    .mw-slot.empty {
+      background: transparent;
+      border: 1px dashed #E8E4E1;
+      color: #9997AB;
+      cursor: not-allowed;
+      width: 100%;
+      text-align: center;
+    }
+    input[type="date"]#mw-date {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #E8E4E1;
+      border-radius: 12px;
+      font-family: inherit;
+      color: #141413;
+      outline: none;
+      background: #FDFCFB;
+      transition: border-color 0.3s;
+    }
+    input[type="date"]#mw-date:focus {
+      border-color: #D8A7B1;
+    }
+    .mw-btn {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      background: #141413;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      letter-spacing: 0.05em;
+    }
+    .mw-btn:disabled {
+      background: #E8E4E1;
+      color: #9997AB;
+      cursor: not-allowed;
+    }
+    .mw-btn:not(:disabled):hover {
+      background: #D8A7B1;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(216,167,177,0.3);
+    }
+    #mw-result {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      text-align: center;
+      font-weight: 500;
+    }
+    .mw-ok { color: #25D366; }
+    .mw-err { color: #FF4D94; }
+    
+    /* === CHAT STYLES === */
+    #mw-chat {
+      display: flex;
+      flex-direction: column;
+      height: 350px;
+    }
+    #mw-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    #mw-messages::-webkit-scrollbar { width: 4px; }
+    #mw-messages::-webkit-scrollbar-thumb { background: #E8E4E1; border-radius: 4px; }
+    
+    .mw-bubble {
+      max-width: 85%;
+      padding: 0.75rem 1rem;
+      border-radius: 18px;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      animation: fadeIn 0.3s ease;
+      white-space: pre-wrap;
+    }
+    .mw-bot {
+      background: #FDFCFB;
+      border: 1px solid #E8E4E1;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .mw-user {
+      background: #D8A7B1;
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .mw-thinking {
+      color: #9997AB;
+      font-style: italic;
+    }
+    #mw-input {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: auto;
+      border-top: 1px solid #E8E4E1;
+      padding-top: 1rem;
+    }
+    #mw-text {
+      flex: 1;
+      padding: 0.75rem 1rem;
+      border: 1px solid #E8E4E1;
+      border-radius: 20px;
+      outline: none;
+      font-size: 0.85rem;
+      background: #FDFCFB;
+      transition: border-color 0.3s;
+    }
+    #mw-text:focus {
+      border-color: #D8A7B1;
+    }
+    #mw-send {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #141413;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    #mw-send:hover {
+      background: #D8A7B1;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body class="font-sans antialiased overflow-x-hidden">
