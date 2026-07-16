@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Micheline Nail Bar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ======= RESET & VARS ======= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --rosa: #D8A7B1;
+      --rosa-light: #fdf3f5;
+      --dorado: #B08D57;
+      --oscuro: #141413;
+      --crema: #FDFCFB;
+      --borde: #E8E4E1;
+      --gris: #9997AB;
+      --gris-bg: #F5F4F2;
+      --verde: #25D366;
+      --rojo: #FF4D6D;
+      --azul: #4A90D9;
+      --sidebar-w: 240px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--gris-bg); color: var(--oscuro); }
+
+    /* ======= LOGIN SCREEN ======= */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--oscuro);
+    }
+    .login-card {
+      background: white;
+      border-radius: 24px;
+      padding: 3rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+    }
+    .login-logo {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .login-logo h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gris);
+      font-weight: 400;
+    }
+    .login-logo .brand {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--oscuro);
+      letter-spacing: -0.03em;
+    }
+    .login-logo .brand span { color: var(--rosa); }
+    .login-form-group { margin-bottom: 1.25rem; }
+    .login-form-group label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--dorado);
+      margin-bottom: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .login-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .login-input:focus { border-color: var(--rosa); }
+    .login-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--oscuro);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-family: 'IBM Plex Mono', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+    .login-btn:hover { background: var(--rosa); }
+    #login-error {
+      color: var(--rojo);
+      font-size: 0.8rem;
+      text-align: center;
+      margin-top: 0.75rem;
+    }
+
+    /* ======= MAIN LAYOUT ======= */
+    #app { display: none; min-height: 100vh; }
+
+    /* Sidebar */
+    #sidebar {
+      position: fixed; left: 0; top: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--oscuro);
+      display: flex; flex-direction: column;
+      z-index: 100;
+      overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 2rem 1.5rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .sidebar-logo .name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: -0.02em;
+    }
+    .sidebar-logo .name span { color: var(--rosa); }
+    .sidebar-logo small {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.35);
+      display: block;
+      margin-top: 2px;
+    }
+    .sidebar-nav { padding: 1rem 0; flex: 1; }
+    .nav-section {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: rgba(255,255,255,0.3);
+      padding: 1rem 1.5rem 0.5rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.875rem;
+      border-left: 3px solid transparent;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+    .nav-item.active { background: rgba(216,167,177,0.15); color: var(--rosa); border-left-color: var(--rosa); }
+    .nav-item .ico { font-size: 1rem; width: 20px; text-align: center; }
+    .sidebar-footer {
+      padding: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .logout-btn {
+      width: 100%;
+      padding: 0.65rem;
+      background: rgba(255,77,109,0.15);
+      border: 1px solid rgba(255,77,109,0.3);
+      border-radius: 10px;
+      color: #FF4D6D;
+      font-size: 0.75rem;
+      font-family: 'IBM Plex Mono', monospace;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,77,109,0.25); }
+
+    /* Main content */
+    #main {
+      margin-left: var(--sidebar-w);
+      min-height: 100vh;
+    }
+    #topbar {
+      background: white;
+      border-bottom: 1px solid var(--borde);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+    }
+    #page-title { font-size: 1.25rem; font-weight: 600; color: var(--oscuro); }
+    #topbar-right {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .topbar-user {
+      font-size: 0.8rem; color: var(--gris);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    #content { padding: 2rem; }
+
+    /* ======= PAGES ======= */
+    .page { display: none; }
+    .page.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ======= METRIC CARDS ======= */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .metric-card {
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: box-shadow 0.3s;
+    }
+    .metric-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.06); }
+    .metric-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gris);
+      margin-bottom: 0.5rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--oscuro);
+      letter-spacing: -0.03em;
+    }
+    .metric-sub { font-size: 0.75rem; color: var(--gris); margin-top: 0.25rem; }
+    .metric-card.rosa-card { border-left: 4px solid var(--rosa); }
+    .metric-card.dorado-card { border-left: 4px solid var(--dorado); }
+    .metric-card.verde-card  { border-left: 4px solid var(--verde); }
+    .metric-card.azul-card   { border-left: 4px solid var(--azul); }
+
+    /* ======= CARD WRAPPER ======= */
+    .card {
+      background: white;
+      border: 1px solid var(--borde);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+    .card-title {
+      font-size: 1rem; font-weight: 600; color: var(--oscuro);
+    }
+
+    /* ======= TABLE ======= */
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--gris);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--borde);
+    }
+    td {
+      padding: 0.85rem 1rem;
+      font-size: 0.85rem;
+      color: var(--oscuro);
+      border-bottom: 1px solid var(--borde);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--crema); }
+
+    /* ======= BADGES ======= */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .badge-verde  { background: rgba(37,211,102,0.12); color: #1a9e50; }
+    .badge-rojo   { background: rgba(255,77,109,0.12); color: var(--rojo); }
+    .badge-dorado { background: rgba(176,141,87,0.12); color: var(--dorado); }
+    .badge-gris   { background: rgba(153,151,171,0.12); color: var(--gris); }
+    .badge-azul   { background: rgba(74,144,217,0.12); color: var(--azul); }
+
+    /* ======= BUTTONS ======= */
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary { background: var(--oscuro); color: white; }
+    .btn-primary:hover { background: var(--rosa); }
+    .btn-outline { background: none; border: 1.5px solid var(--borde); color: var(--oscuro); }
+    .btn-outline:hover { border-color: var(--rosa); color: var(--rosa); }
+    .btn-danger  { background: rgba(255,77,109,0.1); color: var(--rojo); border: 1.5px solid rgba(255,77,109,0.2); }
+    .btn-danger:hover { background: var(--rojo); color: white; }
+    .btn-success { background: rgba(37,211,102,0.1); color: #1a9e50; border: 1.5px solid rgba(37,211,102,0.2); }
+    .btn-success:hover { background: var(--verde); color: white; }
+    .btn-sm { padding: 0.35rem 0.8rem; font-size: 0.75rem; }
+
+    /* Toggle switch */
+    .toggle { position: relative; display: inline-block; width: 40px; height: 22px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0;
+      background: var(--borde); border-radius: 22px;
+      cursor: pointer; transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute;
+      width: 16px; height: 16px;
+      left: 3px; top: 3px;
+      background: white; border-radius: 50%;
+      transition: 0.3s;
+    }
+    .toggle input:checked + .toggle-slider { background: var(--rosa); }
+    .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+    /* ======= SEARCH & FILTER ======= */
+    .search-bar {
+      display: flex; gap: 0.75rem; align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .search-input {
+      flex: 1;
+      padding: 0.65rem 1rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .search-input:focus { border-color: var(--rosa); }
+
+    /* ======= MODAL ======= */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 500;
+      background: rgba(20,20,19,0.6);
+      backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+      background: white;
+      border-radius: 20px;
+      width: 100%; max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+      animation: fadeIn 0.3s ease;
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--borde);
+    }
+    .modal-header h3 { font-size: 1rem; font-weight: 600; }
+    .modal-close {
+      background: none; border: none; font-size: 1.2rem;
+      cursor: pointer; color: var(--gris);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: var(--gris-bg); }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer {
+      display: flex; gap: 0.75rem; justify-content: flex-end;
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--borde);
+    }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--dorado);
+      margin-bottom: 6px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--borde);
+      border-radius: 10px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: var(--oscuro);
+      background: white;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .form-control:focus { border-color: var(--rosa); }
+    .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    /* Toast notification */
+    #toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+      background: var(--oscuro); color: white;
+      padding: 0.85rem 1.5rem;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.23,1,0.32,1);
+    }
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { border-left: 4px solid var(--verde); }
+    #toast.error   { border-left: 4px solid var(--rojo); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 3rem;
+      color: var(--gris); font-size: 0.9rem;
+    }
+    .empty-state .ico { font-size: 2.5rem; margin-bottom: 1rem; }
+
+    /* Avatar */
+    .avatar-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--rosa), var(--dorado));
+      display: inline-flex; align-items: center; justify-content: center;
+      color: white; font-size: 0.75rem; font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #main { margin-left: 0; }
+    }
+
+    /* Loading spinner */
+    .spinner {
+      width: 20px; height: 20px;
+      border: 2px solid var(--borde);
+      border-top-color: var(--rosa);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Appointment status colors */
+    .status-pending   { background:rgba(176,141,87,0.12);  color:var(--dorado); }
+    .status-confirmed { background:rgba(37,211,102,0.12);  color:#1a9e50; }
+    .status-cancelled { background:rgba(255,77,109,0.12);  color:var(--rojo); }
+    .status-done      { background:rgba(74,144,217,0.12);  color:var(--azul); }
+  </style>
+</head>
+<body>
+
+<!-- ======= LOGIN ======= -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand">Micheline<span>.</span></div>
+      <h1>Panel de Administración</h1>
+    </div>
+    <div class="login-form-group">
+      <label for="lg-email">Email</label>
+      <input class="login-input" id="lg-email" type="email" placeholder="admin@micheline.com" autocomplete="email">
+    </div>
+    <div class="login-form-group">
+      <label for="lg-pass">Contraseña</label>
+      <input class="login-input" id="lg-pass" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()" id="login-btn">Ingresar</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<!-- ======= APP ======= -->
+<div id="app">
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="sidebar-logo">
+      <div class="name">Micheline<span>.</span></div>
+      <small>Admin Panel</small>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Principal</div>
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="ico">📊</span> Resumen
+      </div>
+      <div class="nav-item" onclick="showPage('appointments')">
+        <span class="ico">📅</span> Citas
+      </div>
+      <div class="nav-section">Catálogo</div>
+      <div class="nav-item" onclick="showPage('services')">
+        <span class="ico">💅</span> Servicios
+      </div>
+      <div class="nav-item" onclick="showPage('stylists')">
+        <span class="ico">👩‍🎨</span> Estilistas
+      </div>
+      <div class="nav-item" onclick="showPage('brands')">
+        <span class="ico">🏷️</span> Marcas
+      </div>
+      <div class="nav-section">Clientes</div>
+      <div class="nav-item" onclick="showPage('clients')">
+        <span class="ico">👥</span> Clientes
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="topbar-user" style="color:rgba(255,255,255,0.4);margin-bottom:0.75rem;font-size:0.7rem" id="sidebar-email"></div>
+      <button class="logout-btn" onclick="doLogout()">⎋ Cerrar sesión</button>
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div id="main">
+    <div id="topbar">
+      <span id="page-title">Resumen</span>
+      <div id="topbar-right">
+        <span class="topbar-user" id="topbar-email"></span>
+      </div>
+    </div>
+    <div id="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="metrics-grid" id="metrics-grid">
+          <div class="metric-card rosa-card">
+            <div class="metric-label">Citas hoy</div>
+            <div class="metric-value" id="m-today">—</div>
+            <div class="metric-sub">reservas para hoy</div>
+          </div>
+          <div class="metric-card dorado-card">
+            <div class="metric-label">Ingresos del mes</div>
+            <div class="metric-value" id="m-revenue">—</div>
+            <div class="metric-sub">en citas confirmadas</div>
+          </div>
+          <div class="metric-card verde-card">
+            <div class="metric-label">Total citas</div>
+            <div class="metric-value" id="m-total">—</div>
+            <div class="metric-sub">todas las reservas</div>
+          </div>
+          <div class="metric-card azul-card">
+            <div class="metric-label">Servicios activos</div>
+            <div class="metric-value" id="m-services">—</div>
+            <div class="metric-sub">en el catálogo</div>
+          </div>
+        </div>
+
+        <!-- Citas recientes -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Próximas citas</span>
+            <button class="btn btn-outline btn-sm" onclick="showPage('appointments')">Ver todas →</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th><th>Servicio</th><th>Estilista</th>
+                  <th>Fecha</th><th>Hora</th><th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="recent-appts">
+                <tr><td colspan="6" class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CITAS ===== -->
+      <div class="page" id="page-appointments">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Gestión de Citas</span>
+          </div>
+          <div class="search-bar">
+            <input class="search-input" id="appt-search" placeholder="🔍 Buscar por cliente, servicio..." oninput="filterAppts()">
+            <select class="search-input" id="appt-status-filter" style="max-width:160px" onchange="filterAppts()">
+              <option value="">Todos los estados</option>
+              <option value="pending">Pendiente</option>
+              <option value="confirmed">Confirmada</option>
+              <option value="done">Completada</option>
+              <option value="cancelled">Cancelada</option>
+            </select>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Cliente</th><th>Teléfono</th><th>Servicio</th>
+                  <th>Estilista</th><th>Fecha</th><th>Hora</th>
+                  <th>Precio</th><th>Estado</th><th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="appts-tbody">
+                <tr><td colspan="9" class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== SERVICIOS ===== -->
+      <div class="page" id="page-services">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Servicios</span>
+            <button class="btn btn-primary" onclick="openSvcModal()">+ Nuevo servicio</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Nombre</th><th>Precio</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="svc-tbody">
+                <tr><td colspan="5" class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ESTILISTAS ===== -->
+      <div class="page" id="page-stylists">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Estilistas</span>
+            <button class="btn btn-primary" onclick="openStyModal()">+ Nueva estilista</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Nombre</th><th>Especialidad</th><th>Bio</th><th>Estado</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="sty-tbody">
+                <tr><td colspan="5" class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MARCAS ===== -->
+      <div class="page" id="page-brands">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Marcas de Productos</span>
+            <button class="btn btn-primary" onclick="openBrandModal()">+ Nueva marca</button>
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr>
+              </thead>
+              <tbody id="brand-tbody">
+                <tr><td colspan="3" class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CLIENTES ===== -->
+      <div class="page" id="page-clients">
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Clientes</span>
+          </div>
+          <div class="search-bar">
+            <input class="search-input" id="client-search" placeholder="🔍 Buscar por nombre o teléfono..." oninput="filterClients()">
+          </div>
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr><th>Cliente</th><th>Teléfono</th><th>Email</th><th>Citas</th><th>Última visita</th></tr>
+              </thead>
+              <tbody id="clients-tbody">
+                <tr><td colspan="5" class="empty-state"><div class="spinner"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- ===== MODALS ===== -->
+
+<!-- Modal Servicio -->
+<div class="modal-overlay" id="modal-svc" onclick="if(event.target===this)closeModal('modal-svc')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="svc-modal-title">Nuevo Servicio</h3>
+      <button class="modal-close" onclick="closeModal('modal-svc')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="svc-id">
+      <div class="form-grid-2">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Nombre del servicio</label>
+          <input class="form-control" id="svc-name" placeholder="Ej: Manicure con gel">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio ($)</label>
+          <input class="form-control" id="svc-price" type="number" step="0.01" placeholder="0.00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duración (minutos)</label>
+          <input class="form-control" id="svc-duration" type="number" placeholder="60">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Descripción (opcional)</label>
+          <textarea class="form-control" id="svc-desc" rows="3" placeholder="Breve descripción del servicio..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-svc')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSvc()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Estilista -->
+<div class="modal-overlay" id="modal-sty" onclick="if(event.target===this)closeModal('modal-sty')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="sty-modal-title">Nueva Estilista</h3>
+      <button class="modal-close" onclick="closeModal('modal-sty')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="sty-id">
+      <div class="form-grid-2">
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-control" id="sty-name" placeholder="Ej: Valentina López">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Especialidad</label>
+          <input class="form-control" id="sty-spec" placeholder="Ej: Nail Art, Gel & Acrílico">
+        </div>
+        <div class="form-group" style="grid-column:span 2">
+          <label class="form-label">Bio corta (opcional)</label>
+          <textarea class="form-control" id="sty-bio" rows="3" placeholder="Sobre la estilista..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-sty')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveSty()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Marca -->
+<div class="modal-overlay" id="modal-brand" onclick="if(event.target===this)closeModal('modal-brand')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="brand-modal-title">Nueva Marca</h3>
+      <button class="modal-close" onclick="closeModal('modal-brand')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="brand-id">
+      <div class="form-group">
+        <label class="form-label">Nombre de la marca</label>
+        <input class="form-control" id="brand-name" placeholder="Ej: OPI, Essie, CND...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción (opcional)</label>
+        <textarea class="form-control" id="brand-desc" rows="3" placeholder="Descripción de la marca..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-brand')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveBrand()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle de Cita -->
+<div class="modal-overlay" id="modal-appt" onclick="if(event.target===this)closeModal('modal-appt')">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Detalle de Cita</h3>
+      <button class="modal-close" onclick="closeModal('modal-appt')">✕</button>
+    </div>
+    <div class="modal-body" id="appt-detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-appt')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+const SB_URL  = 'https://kpszlnymywgudutqlgqa.supabase.co';
+const ANON    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDgwMTksImV4cCI6MjA5ODkyNDAxOX0.zljEdqznFgdUNRKpib3h1_SzamrQRI3h0iIULTgEFdY';
+const SVC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzM0ODAxOSwiZXhwIjoyMDk4OTI0MDE5fQ.WF9-VaARpyLquKSBk1_TGpV5-U-40IEvgRr5pbQ1AFM';
+
+let ACCESS_TOKEN = null;
+let allAppts = [], allClients = [], allServices = [], allStylists = [], allBrands = [];
+
+/* ======= AUTH ======= */
+async function doLogin() {
+  const email = document.getElementById('lg-email').value.trim();
+  const pass  = document.getElementById('lg-pass').value;
+  const btn   = document.getElementById('login-btn');
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+  btn.textContent = 'Verificando...';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass }),
+    });
+    const data = await r.json();
+    if (!r.ok || !data.access_token) {
+      errEl.textContent = '❌ Email o contraseña incorrectos.';
+      btn.textContent = 'Ingresar'; btn.disabled = false;
+      return;
+    }
+    ACCESS_TOKEN = data.access_token;
+    const userEmail = data.user?.email || email;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    document.getElementById('topbar-email').textContent = userEmail;
+    document.getElementById('sidebar-email').textContent = userEmail;
+    loadAll();
+  } catch(e) {
+    errEl.textContent = '❌ Error de red. Verifica tu conexión.';
+    btn.textContent = 'Ingresar'; btn.disabled = false;
+  }
+}
+
+function doLogout() {
+  ACCESS_TOKEN = null;
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+/* ======= API HELPERS ======= */
+function authHeaders(extra = {}) {
+  return {
+    'apikey': ANON,
+    'Authorization': `Bearer ${ACCESS_TOKEN || ANON}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation',
+    ...extra
+  };
+}
+
+async function sbGet(path) {
+  const r = await fetch(SB_URL + '/rest/v1/' + path, { headers: authHeaders() });
+  return r.json();
+}
+
+async function sbPost(table, body) {
+  const r = await fetch(SB_URL + '/rest/v1/' + table, {
+    method: 'POST', headers: authHeaders(), body: JSON.stringify(body)
+  });
+  return { ok: r.ok, data: await r.json() };
+}
+
+async function sbPatch(table, id, body) {
+  const r = await fetch(SB_URL + `/rest/v1/${table}?id=eq.${id}`, {
+    method: 'PATCH', headers: authHeaders(), body: JSON.stringify(body)
+  });
+  return { ok: r.ok, data: await r.json() };
+}
+
+async function sbDelete(table, id) {
+  const r = await fetch(SB_URL + `/rest/v1/${table}?id=eq.${id}`, {
+    method: 'DELETE', headers: authHeaders()
+  });
+  return r.ok;
+}
+
+/* ======= LOAD ALL ======= */
+async function loadAll() {
+  await Promise.all([loadDashboard(), loadAppts(), loadServices(), loadStylists(), loadBrands(), loadClients()]);
+}
+
+/* ======= NAVIGATION ======= */
+const PAGE_TITLES = {
+  dashboard: 'Resumen', appointments: 'Citas', services: 'Servicios',
+  stylists: 'Estilistas', brands: 'Marcas', clients: 'Clientes'
+};
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    if (n.textContent.toLowerCase().includes(PAGE_TITLES[name].toLowerCase().slice(0,4))) n.classList.add('active');
+  });
+  document.getElementById('page-title').textContent = PAGE_TITLES[name] || name;
+}
+
+/* ======= TOAST ======= */
+function toast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 3000);
+}
+
+/* ======= MODALS ======= */
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+/* ======= DASHBOARD ======= */
+async function loadDashboard() {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    const thisMonth = today.slice(0,7);
+
+    const [appts, svcs] = await Promise.all([
+      sbGet('appointments?select=*,services(name),stylists(full_name)&order=date.desc'),
+      sbGet('services?select=*&is_active=eq.true'),
+    ]);
+
+    allAppts    = Array.isArray(appts) ? appts : [];
+    allServices = Array.isArray(svcs)  ? svcs  : [];
+
+    const todayAppts  = allAppts.filter(a => a.date === today);
+    const monthRevenue = allAppts
+      .filter(a => a.date?.startsWith(thisMonth) && a.status === 'confirmed')
+      .reduce((s,a) => s + parseFloat(a.price||0), 0);
+
+    document.getElementById('m-today').textContent    = todayAppts.length;
+    document.getElementById('m-revenue').textContent  = '$' + monthRevenue.toFixed(0);
+    document.getElementById('m-total').textContent    = allAppts.length;
+    document.getElementById('m-services').textContent = allServices.length;
+
+    // Tabla reciente (próximas 5)
+    const upcoming = allAppts.filter(a => a.date >= today).slice(0,5);
+    const tbody = document.getElementById('recent-appts');
+    if (!upcoming.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><div class="ico">📭</div>No hay citas próximas</div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = upcoming.map(a => `
+      <tr>
+        <td><strong>${a.client_name || '—'}</strong></td>
+        <td>${a.services?.name || '—'}</td>
+        <td>${a.stylists?.full_name || 'Cualquiera'}</td>
+        <td>${fmtDate(a.date)}</td>
+        <td>${a.time || '—'}</td>
+        <td><span class="badge status-${a.status||'pending'}">${labelStatus(a.status)}</span></td>
+      </tr>
+    `).join('');
+  } catch(e) {
+    console.error('Dashboard error:', e);
+  }
+}
+
+/* ======= CITAS ======= */
+async function loadAppts() {
+  const tbody = document.getElementById('appts-tbody');
+  try {
+    const data = await sbGet('appointments?select=*,services(name),stylists(full_name)&order=date.desc');
+    allAppts = Array.isArray(data) ? data : [];
+    renderAppts(allAppts);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9">Error cargando citas.</td></tr>`;
+  }
+}
+
+function renderAppts(list) {
+  const tbody = document.getElementById('appts-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="ico">📭</div>No hay citas</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(a => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:0.5rem">
+        <div class="avatar-circle">${initials(a.client_name)}</div>
+        <strong>${a.client_name||'—'}</strong>
+      </div></td>
+      <td>${a.client_phone||'—'}</td>
+      <td>${a.services?.name||'—'}</td>
+      <td>${a.stylists?.full_name||'Cualquiera'}</td>
+      <td>${fmtDate(a.date)}</td>
+      <td>${a.time||'—'}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--dorado)">$${parseFloat(a.price||0).toFixed(2)}</td>
+      <td>
+        <select onchange="updateApptStatus(${a.id},this.value)" style="border:1px solid var(--borde);border-radius:8px;padding:4px 8px;font-size:0.75rem;background:white;cursor:pointer">
+          ${['pending','confirmed','done','cancelled'].map(s =>
+            `<option value="${s}" ${a.status===s?'selected':''}>${labelStatus(s)}</option>`
+          ).join('')}
+        </select>
+      </td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteAppt(${a.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterAppts() {
+  const q  = document.getElementById('appt-search').value.toLowerCase();
+  const st = document.getElementById('appt-status-filter').value;
+  const filtered = allAppts.filter(a => {
+    const matchQ  = !q || (a.client_name||'').toLowerCase().includes(q) || (a.services?.name||'').toLowerCase().includes(q);
+    const matchSt = !st || a.status === st;
+    return matchQ && matchSt;
+  });
+  renderAppts(filtered);
+}
+
+async function updateApptStatus(id, status) {
+  const { ok } = await sbPatch('appointments', id, { status });
+  if (ok) {
+    const a = allAppts.find(x => x.id === id);
+    if (a) a.status = status;
+    toast('Estado actualizado ✓');
+    loadDashboard();
+  } else {
+    toast('Error al actualizar', 'error');
+  }
+}
+
+async function deleteAppt(id) {
+  if (!confirm('¿Eliminar esta cita? No se puede deshacer.')) return;
+  const ok = await sbDelete('appointments', id);
+  if (ok) {
+    allAppts = allAppts.filter(a => a.id !== id);
+    renderAppts(allAppts);
+    loadDashboard();
+    toast('Cita eliminada');
+  } else {
+    toast('Error al eliminar', 'error');
+  }
+}
+
+/* ======= SERVICIOS ======= */
+async function loadServices() {
+  try {
+    const data = await sbGet('services?select=*&order=price');
+    allServices = Array.isArray(data) ? data : [];
+    renderServices();
+  } catch(e) {}
+}
+
+function renderServices() {
+  const tbody = document.getElementById('svc-tbody');
+  if (!allServices.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="ico">💅</div>No hay servicios</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allServices.map(s => `
+    <tr>
+      <td><strong>${s.name}</strong>${s.description ? `<br><small style="color:var(--gris)">${s.description}</small>` : ''}</td>
+      <td style="font-family:'IBM Plex Mono',monospace;color:var(--dorado)">$${parseFloat(s.price).toFixed(2)}</td>
+      <td>${s.duration_min} min</td>
+      <td>
+        <label class="toggle"><input type="checkbox" ${s.is_active?'checked':''} onchange="toggleSvc(${s.id},this.checked)">
+        <span class="toggle-slider"></span></label>
+      </td>
+      <td style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="openSvcModal(${s.id})">✏️ Editar</button>
+        <button class="btn btn-danger btn-sm"  onclick="deleteSvc(${s.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openSvcModal(id = null) {
+  document.getElementById('svc-id').value      = id || '';
+  document.getElementById('svc-modal-title').textContent = id ? 'Editar Servicio' : 'Nuevo Servicio';
+  if (id) {
+    const s = allServices.find(x => x.id === id);
+    document.getElementById('svc-name').value     = s.name || '';
+    document.getElementById('svc-price').value    = s.price || '';
+    document.getElementById('svc-duration').value = s.duration_min || '';
+    document.getElementById('svc-desc').value     = s.description || '';
+  } else {
+    ['svc-name','svc-price','svc-duration','svc-desc'].forEach(i => document.getElementById(i).value = '');
+  }
+  openModal('modal-svc');
+}
+
+async function saveSvc() {
+  const id   = document.getElementById('svc-id').value;
+  const body = {
+    name: document.getElementById('svc-name').value.trim(),
+    price: parseFloat(document.getElementById('svc-price').value) || 0,
+    duration_min: parseInt(document.getElementById('svc-duration').value) || 60,
+    description: document.getElementById('svc-desc').value.trim(),
+    is_active: true,
+  };
+  if (!body.name) { toast('El nombre es obligatorio', 'error'); return; }
+  const { ok } = id ? await sbPatch('services', id, body) : await sbPost('services', body);
+  if (ok) {
+    closeModal('modal-svc');
+    await loadServices();
+    document.getElementById('m-services').textContent = allServices.filter(s=>s.is_active).length;
+    toast(id ? 'Servicio actualizado ✓' : 'Servicio creado ✓');
+  } else {
+    toast('Error guardando servicio', 'error');
+  }
+}
+
+async function toggleSvc(id, active) {
+  await sbPatch('services', id, { is_active: active });
+  const s = allServices.find(x => x.id === id);
+  if (s) s.is_active = active;
+  toast(active ? 'Servicio activado' : 'Servicio desactivado');
+}
+
+async function deleteSvc(id) {
+  if (!confirm('¿Eliminar este servicio?')) return;
+  const ok = await sbDelete('services', id);
+  if (ok) {
+    allServices = allServices.filter(s => s.id !== id);
+    renderServices();
+    toast('Servicio eliminado');
+  } else {
+    toast('Error al eliminar (puede tener citas asociadas)', 'error');
+  }
+}
+
+/* ======= ESTILISTAS ======= */
+async function loadStylists() {
+  try {
+    const data = await sbGet('stylists?select=*&order=full_name');
+    allStylists = Array.isArray(data) ? data : [];
+    renderStylists();
+  } catch(e) {}
+}
+
+function renderStylists() {
+  const tbody = document.getElementById('sty-tbody');
+  if (!allStylists.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="ico">👩‍🎨</div>No hay estilistas</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allStylists.map(e => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:0.75rem">
+        <div class="avatar-circle">${initials(e.full_name)}</div>
+        <strong>${e.full_name}</strong>
+      </div></td>
+      <td>${e.specialty || '—'}</td>
+      <td style="max-width:200px;font-size:0.8rem;color:var(--gris)">${e.bio || '—'}</td>
+      <td>
+        <label class="toggle"><input type="checkbox" ${e.is_active?'checked':''} onchange="toggleSty(${e.id},this.checked)">
+        <span class="toggle-slider"></span></label>
+      </td>
+      <td style="display:flex;gap:0.5rem">
+        <button class="btn btn-outline btn-sm" onclick="openStyModal(${e.id})">✏️ Editar</button>
+        <button class="btn btn-danger btn-sm"  onclick="deleteSty(${e.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openStyModal(id = null) {
+  document.getElementById('sty-id').value = id || '';
+  document.getElementById('sty-modal-title').textContent = id ? 'Editar Estilista' : 'Nueva Estilista';
+  if (id) {
+    const e = allStylists.find(x => x.id === id);
+    document.getElementById('sty-name').value = e.full_name || '';
+    document.getElementById('sty-spec').value = e.specialty || '';
+    document.getElementById('sty-bio').value  = e.bio || '';
+  } else {
+    ['sty-name','sty-spec','sty-bio'].forEach(i => document.getElementById(i).value = '');
+  }
+  openModal('modal-sty');
+}
+
+async function saveSty() {
+  const id = document.getElementById('sty-id').value;
+  const body = {
+    full_name: document.getElementById('sty-name').value.trim(),
+    specialty: document.getElementById('sty-spec').value.trim(),
+    bio: document.getElementById('sty-bio').value.trim(),
+    is_active: true,
+  };
+  if (!body.full_name) { toast('El nombre es obligatorio', 'error'); return; }
+  const { ok } = id ? await sbPatch('stylists', id, body) : await sbPost('stylists', body);
+  if (ok) {
+    closeModal('modal-sty');
+    await loadStylists();
+    toast(id ? 'Estilista actualizada ✓' : 'Estilista creada ✓');
+  } else {
+    toast('Error guardando estilista', 'error');
+  }
+}
+
+async function toggleSty(id, active) {
+  await sbPatch('stylists', id, { is_active: active });
+  toast(active ? 'Estilista activada' : 'Estilista desactivada');
+}
+
+async function deleteSty(id) {
+  if (!confirm('¿Eliminar esta estilista?')) return;
+  const ok = await sbDelete('stylists', id);
+  if (ok) { allStylists = allStylists.filter(e => e.id !== id); renderStylists(); toast('Estilista eliminada'); }
+  else     { toast('Error al eliminar', 'error'); }
+}
+
+/* ======= MARCAS ======= */
+async function loadBrands() {
+  try {
+    const data = await sbGet('brands?select=*&order=name');
+    allBrands = Array.isArray(data) ? data : [];
+    renderBrands();
+  } catch(e) {}
+}
+
+function renderBrands() {
+  const tbody = document.getElementById('brand-tbody');
+  if (!allBrands.length) {
+    tbody.innerHTML = `<tr><td colspan="3"><div class="empty-state"><div class="ico">🏷️</div>No hay marcas</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = allBrands.map(b => `
+    <tr>
+      <td><strong>${b.name}</strong></td>
+      <td style="color:var(--gris);font-size:0.8rem">${b.description||'—'}</td>
+      <td style="display:flex;gap:0.5rem">
+        <button class="btn btn-outline btn-sm" onclick="openBrandModal(${b.id})">✏️ Editar</button>
+        <button class="btn btn-danger btn-sm"  onclick="deleteBrand(${b.id})">🗑</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openBrandModal(id = null) {
+  document.getElementById('brand-id').value = id || '';
+  document.getElementById('brand-modal-title').textContent = id ? 'Editar Marca' : 'Nueva Marca';
+  if (id) {
+    const b = allBrands.find(x => x.id === id);
+    document.getElementById('brand-name').value = b.name || '';
+    document.getElementById('brand-desc').value = b.description || '';
+  } else {
+    ['brand-name','brand-desc'].forEach(i => document.getElementById(i).value = '');
+  }
+  openModal('modal-brand');
+}
+
+async function saveBrand() {
+  const id = document.getElementById('brand-id').value;
+  const body = {
+    name: document.getElementById('brand-name').value.trim(),
+    description: document.getElementById('brand-desc').value.trim(),
+  };
+  if (!body.name) { toast('El nombre es obligatorio', 'error'); return; }
+  const { ok } = id ? await sbPatch('brands', id, body) : await sbPost('brands', body);
+  if (ok) {
+    closeModal('modal-brand');
+    await loadBrands();
+    toast(id ? 'Marca actualizada ✓' : 'Marca creada ✓');
+  } else {
+    toast('Error guardando marca', 'error');
+  }
+}
+
+async function deleteBrand(id) {
+  if (!confirm('¿Eliminar esta marca?')) return;
+  const ok = await sbDelete('brands', id);
+  if (ok) { allBrands = allBrands.filter(b => b.id !== id); renderBrands(); toast('Marca eliminada'); }
+  else     { toast('Error al eliminar', 'error'); }
+}
+
+/* ======= CLIENTES ======= */
+async function loadClients() {
+  const tbody = document.getElementById('clients-tbody');
+  try {
+    const data = await sbGet('appointments?select=client_name,client_phone,client_email,date&order=date.desc');
+    if (!Array.isArray(data)) { allClients = []; return; }
+
+    // Agrupar por nombre+telefono
+    const map = {};
+    data.forEach(a => {
+      const key = (a.client_phone || a.client_name || '').toLowerCase();
+      if (!map[key]) map[key] = { name: a.client_name, phone: a.client_phone, email: a.client_email, count: 0, last: a.date };
+      map[key].count++;
+      if (a.date > map[key].last) map[key].last = a.date;
+    });
+    allClients = Object.values(map);
+    renderClients(allClients);
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="5">Error cargando clientes.</td></tr>`;
+  }
+}
+
+function renderClients(list) {
+  const tbody = document.getElementById('clients-tbody');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="ico">👥</div>No hay clientes aún</div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:0.75rem">
+        <div class="avatar-circle">${initials(c.name)}</div>
+        <strong>${c.name||'—'}</strong>
+      </div></td>
+      <td>${c.phone ? `<a href="https://wa.me/${c.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--verde)">${c.phone}</a>` : '—'}</td>
+      <td style="color:var(--gris)">${c.email||'—'}</td>
+      <td><span class="badge badge-azul">${c.count} cita${c.count>1?'s':''}</span></td>
+      <td>${fmtDate(c.last)}</td>
+    </tr>
+  `).join('');
+}
+
+function filterClients() {
+  const q = document.getElementById('client-search').value.toLowerCase();
+  renderClients(allClients.filter(c =>
+    (c.name||'').toLowerCase().includes(q) || (c.phone||'').includes(q)
+  ));
+}
+
+/* ======= UTILS ======= */
+function fmtDate(d) {
+  if (!d) return '—';
+  const [y,m,day] = d.split('-');
+  const MONTHS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return `${day} ${MONTHS[parseInt(m)-1]} ${y}`;
+}
+
+function initials(name = '') {
+  return name.split(' ').slice(0,2).map(w => w[0]?.toUpperCase() || '').join('');
+}
+
+function labelStatus(s) {
+  return { pending:'Pendiente', confirmed:'Confirmada', done:'Completada', cancelled:'Cancelada' }[s] || s || '—';
+}
+</script>
+</body>
+</html>
