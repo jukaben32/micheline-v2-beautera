@@ -9,9 +9,10 @@ Deno.serve(async (req) => {
   }
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   try {
-    const { stylist_id, date } = await req.json()
-    if (!stylist_id || !date) {
-      return new Response(JSON.stringify({ error: 'Faltan stylist_id o date' }),
+    // stylist_id puede venir null cuando el cliente elige "Cualquiera disponible"
+    const { stylist_id: rawStylistId, date } = await req.json()
+    if (!date) {
+      return new Response(JSON.stringify({ error: 'Falta date' }),
         { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
     }
     const supabase = createClient(
@@ -19,9 +20,32 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
     const dayOfWeek = new Date(date + 'T00:00:00').getDay()
-    const { data: avail } = await supabase
-      .from('availability').select('start_time, end_time')
-      .eq('stylist_id', stylist_id).eq('day_of_week', dayOfWeek).single()
+
+    // Si no hay estilista concreta, tomamos la disponibilidad de cualquier
+    // estilista activa que trabaje ese dia (la de mayor rango horario).
+    let stylist_id = rawStylistId
+    let avail: { start_time: string; end_time: string } | null = null
+    if (stylist_id) {
+      const { data } = await supabase
+        .from('availability').select('start_time, end_time')
+        .eq('stylist_id', stylist_id).eq('day_of_week', dayOfWeek).single()
+      avail = data
+    } else {
+      // "Cualquiera": buscamos todas las disponibilidades activas de ese dia
+      const { data: rows } = await supabase
+        .from('availability')
+        .select('stylist_id, start_time, end_time, stylists!inner(is_active)')
+        .eq('day_of_week', dayOfWeek)
+        .eq('stylists.is_active', true)
+        .order('start_time', { ascending: true })
+      if (rows && rows.length > 0) {
+        // Elegimos la franja mas amplia para ofrecer mas huecos posibles.
+        const widest = rows.reduce((a: any, b: any) =>
+          (b.end_time > a.end_time ? b : a), rows[0])
+        stylist_id = widest.stylist_id
+        avail = { start_time: widest.start_time, end_time: widest.end_time }
+      }
+    }
     if (!avail) {
       return new Response(JSON.stringify({ slots: [] }),
         { headers: { ...cors, 'Content-Type': 'application/json' } })
