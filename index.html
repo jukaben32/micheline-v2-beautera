@@ -625,6 +625,29 @@
     #products-body { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
     #products-body::-webkit-scrollbar { width: 6px; }
     #products-body::-webkit-scrollbar-thumb { background: #E8E4E1; border-radius: 4px; }
+    /* ---- Barra de filtros del catálogo ---- */
+    .prod-filters {
+      display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .prod-filters input[type="text"],
+    .prod-filters select {
+      border: 1.5px solid #E8E4E1; border-radius: 12px;
+      padding: 0.55rem 0.9rem; font-size: 0.85rem; color: #141413;
+      background: white; outline: none; transition: border-color 0.2s ease;
+    }
+    .prod-filters input[type="text"]:focus,
+    .prod-filters select:focus { border-color: #D8A7B1; }
+    .prod-filters input[type="text"] { flex: 1; min-width: 180px; }
+    /* Checkbox "solo disponibles" */
+    .prod-filters label {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.8rem; color: #9997AB; cursor: pointer; user-select: none;
+    }
+    .prod-filters label input { accent-color: #D8A7B1; }
+    /* Contador de resultados */
+    .prod-count { font-size: 0.75rem; color: #9997AB; margin-bottom: 0.75rem; }
+
     .prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
     .prod-card {
       border: 1.5px solid #E8E4E1; border-radius: 16px;
@@ -1416,7 +1439,10 @@
     window.open(`https://wa.me/18096277471?text=${encodeURIComponent(msg)}`, '_blank');
   }
 
-  // Carga los productos activos desde Supabase (misma BD que el dashboard)
+  // Guardamos aquí los productos cargados para poder filtrarlos sin volver a pedir a la BD
+  let _productos = [];
+
+  // Carga los productos activos desde Supabase (una sola vez) y luego los pinta
   async function loadProducts() {
     const list = document.getElementById('products-list');
     try {
@@ -1424,38 +1450,96 @@
         SUPABASE_URL + '/rest/v1/products?select=name,type,description,brand,price,stock&is_active=eq.true&order=name',
         { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }
       );
-      const prods = await res.json();
+      _productos = await res.json();
 
-      if (!prods || prods.length === 0) {
+      if (!_productos || _productos.length === 0) {
         list.innerHTML = `<p class="text-center py-8" style="color:#9997AB">Aún no hay productos disponibles. 🛍️</p>`;
         return;
       }
 
-      list.innerHTML = '<div class="prod-grid">' + prods.map(p => {
-        const stock = p.stock ?? 0;
-        let stockClass = '', stockText = stock + ' disponibles';
-        if (stock <= 0) { stockClass = 'out'; stockText = 'Agotado'; }
-        else if (stock <= 5) { stockClass = 'low'; stockText = stock + ' (pocas)'; }
-        return `
-          <div class="prod-card">
-            <span class="prod-type">${p.type || 'Producto'}</span>
-            <div class="prod-name">${p.name}${p.brand ? ' · <span style="color:#9997AB;font-weight:400">' + p.brand + '</span>' : ''}</div>
-            ${p.description ? `<div class="prod-desc">${p.description}</div>` : ''}
-            <div class="prod-foot">
-              <span class="prod-price">$${parseFloat(p.price).toFixed(2)}</span>
-              <span class="prod-stock ${stockClass}">${stockText}</span>
-            </div>
-            ${stock > 0
-              ? `<button class="prod-wa" onclick="consultarProducto('${(p.name).replace(/'/g, "\\'")}', ${parseFloat(p.price).toFixed(2)})">
-                   <span>💬</span> Consultar por WhatsApp
-                 </button>`
-              : `<button class="prod-wa" disabled>Sin stock por ahora</button>`}
-          </div>`;
-      }).join('') + '</div>';
+      // Construimos la barra de filtros + contenedor de resultados (una sola vez)
+      const tipos = [...new Set(_productos.map(p => p.type).filter(Boolean))].sort();
+      list.innerHTML = `
+        <div class="prod-filters">
+          <input type="text" id="prod-search" placeholder="🔍 Buscar por nombre o marca..." oninput="renderProducts()">
+          <select id="prod-type" onchange="renderProducts()">
+            <option value="">Todos los tipos</option>
+            ${tipos.map(t => `<option value="${t}">${t}</option>`).join('')}
+          </select>
+          <select id="prod-sort" onchange="renderProducts()">
+            <option value="name">Nombre (A-Z)</option>
+            <option value="price-asc">Precio: menor a mayor</option>
+            <option value="price-desc">Precio: mayor a menor</option>
+          </select>
+          <label><input type="checkbox" id="prod-avail" onchange="renderProducts()"> Solo disponibles</label>
+        </div>
+        <div class="prod-count" id="prod-count"></div>
+        <div id="prod-results"></div>`;
+
+      renderProducts(); // primer pintado
     } catch (e) {
       list.innerHTML = `<p class="text-center py-8" style="color:#9997AB">No se pudieron cargar los productos. Intenta más tarde.</p>`;
     }
   }
+
+  // Aplica los filtros seleccionados y pinta las tarjetas
+  function renderProducts() {
+    const texto = (document.getElementById('prod-search')?.value || '').toLowerCase().trim();
+    const tipo = document.getElementById('prod-type')?.value || '';
+    const orden = document.getElementById('prod-sort')?.value || 'name';
+    const soloDisp = document.getElementById('prod-avail')?.checked || false;
+
+    // 1) Filtramos
+    let filtrados = _productos.filter(p => {
+      const coincideTexto = !texto
+        || (p.name || '').toLowerCase().includes(texto)
+        || (p.brand || '').toLowerCase().includes(texto);
+      const coincideTipo = !tipo || p.type === tipo;
+      const disponible = !soloDisp || (p.stock ?? 0) > 0;
+      return coincideTexto && coincideTipo && disponible;
+    });
+
+    // 2) Ordenamos
+    filtrados.sort((a, b) => {
+      if (orden === 'price-asc') return parseFloat(a.price) - parseFloat(b.price);
+      if (orden === 'price-desc') return parseFloat(b.price) - parseFloat(a.price);
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+    // 3) Contador
+    const count = document.getElementById('prod-count');
+    if (count) count.textContent = `${filtrados.length} producto${filtrados.length === 1 ? '' : 's'}`;
+
+    // 4) Pintamos las tarjetas
+    const results = document.getElementById('prod-results');
+    if (!results) return;
+    if (filtrados.length === 0) {
+      results.innerHTML = `<p class="text-center py-8" style="color:#9997AB">No hay productos que coincidan con tu búsqueda. 🔍</p>`;
+      return;
+    }
+    results.innerHTML = '<div class="prod-grid">' + filtrados.map(p => {
+      const stock = p.stock ?? 0;
+      let stockClass = '', stockText = stock + ' disponibles';
+      if (stock <= 0) { stockClass = 'out'; stockText = 'Agotado'; }
+      else if (stock <= 5) { stockClass = 'low'; stockText = stock + ' (pocas)'; }
+      return `
+        <div class="prod-card">
+          <span class="prod-type">${p.type || 'Producto'}</span>
+          <div class="prod-name">${p.name}${p.brand ? ' · <span style="color:#9997AB;font-weight:400">' + p.brand + '</span>' : ''}</div>
+          ${p.description ? `<div class="prod-desc">${p.description}</div>` : ''}
+          <div class="prod-foot">
+            <span class="prod-price">$${parseFloat(p.price).toFixed(2)}</span>
+            <span class="prod-stock ${stockClass}">${stockText}</span>
+          </div>
+          ${stock > 0
+            ? `<button class="prod-wa" onclick="consultarProducto('${(p.name).replace(/'/g, "\\'")}', ${parseFloat(p.price).toFixed(2)})">
+                 <span>💬</span> Consultar por WhatsApp
+               </button>`
+            : `<button class="prod-wa" disabled>Sin stock por ahora</button>`}
+        </div>`;
+    }).join('') + '</div>';
+  }
+
 </script>
 </body>
 </html>
