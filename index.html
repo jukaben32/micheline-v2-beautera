@@ -645,6 +645,17 @@
     .prod-stock { font-size: 0.7rem; color: #9997AB; font-family: 'IBM Plex Mono', monospace; }
     .prod-stock.low { color: #D97706; }
     .prod-stock.out { color: #DC2626; }
+    /* Botón WhatsApp en cada producto */
+    .prod-wa {
+      margin-top: 0.75rem; width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-family: inherit; font-size: 0.8rem; font-weight: 500;
+      padding: 0.6rem 1rem; border: none; border-radius: 12px;
+      background: #25D366; color: white; cursor: pointer;
+      transition: all 0.2s;
+    }
+    .prod-wa:hover { background: #1EBE5B; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(37,211,102,0.35); }
+    .prod-wa:disabled { background: #E8E4E1; color: #9997AB; cursor: not-allowed; transform: none; box-shadow: none; }
   </style>
 </head>
 <body class="font-sans antialiased overflow-x-hidden">
@@ -1399,6 +1410,12 @@
     document.body.style.overflow = '';
   }
 
+  // Abre WhatsApp con un mensaje pre-escrito para consultar/comprar un producto
+  function consultarProducto(nombre, precio) {
+    const msg = `¡Hola Micheline! 💅 Me interesa el producto "${nombre}" ($${precio}). ¿Está disponible?`;
+    window.open(`https://wa.me/18096277471?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
   // Carga los productos activos desde Supabase (misma BD que el dashboard)
   async function loadProducts() {
     const list = document.getElementById('products-list');
@@ -1428,6 +1445,11 @@
               <span class="prod-price">$${parseFloat(p.price).toFixed(2)}</span>
               <span class="prod-stock ${stockClass}">${stockText}</span>
             </div>
+            ${stock > 0
+              ? `<button class="prod-wa" onclick="consultarProducto('${(p.name).replace(/'/g, "\\'")}', ${parseFloat(p.price).toFixed(2)})">
+                   <span>💬</span> Consultar por WhatsApp
+                 </button>`
+              : `<button class="prod-wa" disabled>Sin stock por ahora</button>`}
           </div>`;
       }).join('') + '</div>';
     } catch (e) {
