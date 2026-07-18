@@ -1112,7 +1112,7 @@
       const [sRes, eRes] = await Promise.all([
         fetch(SUPABASE_URL + '/rest/v1/services?select=id,name,price,duration_min&is_active=eq.true&order=price',
           { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }),
-        fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty&is_active=eq.true',
+        fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty,photo_url&is_active=eq.true',
           { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }),
       ]);
       state.services  = await sRes.json();
@@ -1181,8 +1181,11 @@
     (state.stylists || []).forEach(e => {
       const card = document.createElement('div');
       card.className = 'stylist-card';
-      const initials = e.full_name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
-      card.innerHTML = `<div class="avatar">${initials}</div><div class="sname">${e.full_name}</div><div class="spec">${e.specialty || 'Especialista'}</div>`;
+      // Si tiene foto la mostramos, si no mostramos sus iniciales
+      const avatar = e.photo_url
+        ? `<img src="${e.photo_url}" alt="${e.full_name}" style="width:48px;height:48px;border-radius:50%;object-fit:cover" />`
+        : `<div class="avatar">${(e.full_name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase())}</div>`;
+      card.innerHTML = `${avatar}<div class="sname">${e.full_name}</div><div class="spec">${e.specialty || 'Especialista'}</div>`;
       card.onclick = () => {
         document.querySelectorAll('.stylist-card').forEach(c => c.classList.remove('sel'));
         card.classList.add('sel');
@@ -1687,7 +1690,7 @@
 
     // --- Equipo (estilistas activos) ---
     try {
-      const eRes = await fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty&is_active=eq.true',
+      const eRes = await fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty,photo_url&is_active=eq.true',
         { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } });
       renderHomeTeam(await eRes.json());
     } catch (e) { /* silencioso */ }
@@ -1723,10 +1726,12 @@
     if (!lista || !lista.length) { box.innerHTML = '<p style="color:#9997AB">Próximamente...</p>'; return; }
     box.innerHTML = lista.map(e => {
       const nombre = e.full_name || 'Equipo';
-      const initials = nombre.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const avatar = e.photo_url
+        ? `<img src="${e.photo_url}" alt="${nombre}" class="team-avatar" style="object-fit:cover" />`
+        : `<div class="team-avatar">${(nombre.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase())}</div>`;
       return `
       <div class="team-card">
-        <div class="team-avatar">${initials}</div>
+        ${avatar}
         <div class="team-name">${nombre}</div>
         <div class="team-spec">${e.specialty || 'Especialista'}</div>
       </div>`;
