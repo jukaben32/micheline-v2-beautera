@@ -681,6 +681,37 @@
     }
     .prod-wa:hover { background: #1EBE5B; transform: translateY(-1px); box-shadow: 0 6px 14px rgba(37,211,102,0.35); }
     .prod-wa:disabled { background: #E8E4E1; color: #9997AB; cursor: not-allowed; transform: none; box-shadow: none; }
+    /* ===== HOME DINÁMICA (Equipo / Servicios / Productos desde Supabase) ===== */
+    .home-svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .home-svc-card {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1.25rem 1.5rem; border: 1.5px solid #E8E4E1; border-radius: 18px;
+      background: white; transition: all 0.25s;
+    }
+    .home-svc-card:hover { border-color: #D8A7B1; background: #fffafa; }
+    .home-svc-card .icon { width: 48px; height: 48px; border-radius: 12px; background: #F5EEF0; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0; }
+    .home-svc-card .info { flex: 1; }
+    .home-svc-card .name { font-weight: 500; font-size: 0.95rem; color: #141413; }
+    .home-svc-card .dur { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #9997AB; margin-top: 2px; }
+    .home-svc-card .price { font-family: 'IBM Plex Mono', monospace; font-size: 1rem; font-weight: 600; color: #B08D57; }
+
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1.5rem; }
+    .team-card { text-align: center; padding: 2rem 1rem; border: 1px solid #E8E4E1; border-radius: 28px; background: white; transition: all 0.4s; }
+    .team-card:hover { border-color: #D8A7B1; transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.04); }
+    .team-avatar { width: 90px; height: 90px; margin: 0 auto 1rem; border-radius: 50%; background: #F5EEF0; color: #B08D57; display: flex; align-items: center; justify-content: center; font-family: 'Source Serif 4', serif; font-size: 1.8rem; font-weight: 600; }
+    .team-name { font-family: 'Source Serif 4', serif; font-size: 1.25rem; color: #141413; }
+    .team-spec { font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; color: #9997AB; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .home-prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.25rem; }
+    .home-prod-card { padding: 1.5rem; border: 1px solid #E8E4E1; border-radius: 24px; background: white; transition: all 0.3s; }
+    .home-prod-card:hover { border-color: #D8A7B1; transform: translateY(-4px); }
+    .hp-top { display: flex; justify-content: space-between; margin-bottom: 0.75rem; }
+    .hp-type, .hp-brand { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: #B08D57; }
+    .hp-name { font-family: 'Source Serif 4', serif; font-size: 1.1rem; color: #141413; margin-bottom: 1rem; }
+    .hp-foot { display: flex; justify-content: space-between; align-items: center; }
+    .hp-price { font-family: 'IBM Plex Mono', monospace; font-weight: 600; color: #141413; }
+    .hp-stock { font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: #9997AB; }
+
   </style>
 </head>
 <body class="font-sans antialiased overflow-x-hidden">
@@ -765,6 +796,39 @@
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- Servicios dinámicos (se cargan desde Supabase) -->
+    <section class="max-w-7xl mx-auto mb-40">
+      <div class="flex items-end justify-between mb-12">
+        <div>
+          <span class="font-mono text-[10px] uppercase tracking-[0.4em]" style="color:#B08D57">Nuestro Menú</span>
+          <h2 class="font-serif text-5xl mt-3">Servicios</h2>
+        </div>
+        <a href="#reserva" class="font-mono text-[10px] uppercase tracking-[0.3em] hover:text-rosa transition-colors">Reservar →</a>
+      </div>
+      <div id="home-services" class="home-svc-grid"></div>
+    </section>
+
+    <!-- Equipo dinámico (se carga desde Supabase) -->
+    <section id="equipo" class="max-w-7xl mx-auto mb-40">
+      <div class="mb-12">
+        <span class="font-mono text-[10px] uppercase tracking-[0.4em]" style="color:#B08D57">Quienes te cuidan</span>
+        <h2 class="font-serif text-5xl mt-3">Equipo</h2>
+      </div>
+      <div id="home-team" class="team-grid"></div>
+    </section>
+
+    <!-- Productos destacados dinámicos (se cargan desde Supabase) -->
+    <section id="productos" class="max-w-7xl mx-auto mb-40">
+      <div class="flex items-end justify-between mb-12">
+        <div>
+          <span class="font-mono text-[10px] uppercase tracking-[0.4em]" style="color:#B08D57">Tienda</span>
+          <h2 class="font-serif text-5xl mt-3">Productos destacados</h2>
+        </div>
+        <button onclick="openProducts()" class="font-mono text-[10px] uppercase tracking-[0.3em] hover:text-rosa transition-colors">Ver todo 🛍️</button>
+      </div>
+      <div id="home-products" class="home-prod-grid"></div>
     </section>
 
     <!-- Espacio -->
@@ -1610,6 +1674,87 @@
         </div>`;
     }).join('') + '</div>';
   }
+
+  // ========== HOME DINÁMICA: Equipo + Servicios + Productos ==========
+  // Carga los datos activos desde Supabase y los pinta en la página principal.
+  async function loadHomeData() {
+    // --- Servicios activos ---
+    try {
+      const sRes = await fetch(SUPABASE_URL + '/rest/v1/services?select=id,name,price,duration_min&is_active=eq.true&order=price',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } });
+      renderHomeServices(await sRes.json());
+    } catch (e) { /* si falla, la sección queda en "Próximamente" */ }
+
+    // --- Equipo (estilistas activos) ---
+    try {
+      const eRes = await fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty&is_active=eq.true',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } });
+      renderHomeTeam(await eRes.json());
+    } catch (e) { /* silencioso */ }
+
+    // --- Productos destacados (activos con stock) ---
+    try {
+      const pRes = await fetch(SUPABASE_URL + '/rest/v1/products?select=id,name,brand,type,price,stock&is_active=eq.true&order=name',
+        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } });
+      renderHomeProducts(await pRes.json());
+    } catch (e) { /* silencioso */ }
+  }
+
+  // Pinta la lista de servicios en la home
+  function renderHomeServices(lista) {
+    const box = document.getElementById('home-services');
+    if (!box) return;
+    if (!lista || !lista.length) { box.innerHTML = '<p style="color:#9997AB">Próximamente...</p>'; return; }
+    box.innerHTML = lista.map(s => `
+      <div class="home-svc-card">
+        <div class="icon">${svcIcon(s.name)}</div>
+        <div class="info">
+          <div class="name">${s.name}</div>
+          <div class="dur">${s.duration_min || ''} min</div>
+        </div>
+        <div class="price">$${parseFloat(s.price).toFixed(2)}</div>
+      </div>`).join('');
+  }
+
+  // Pinta el equipo (estilistas) en la home
+  function renderHomeTeam(lista) {
+    const box = document.getElementById('home-team');
+    if (!box) return;
+    if (!lista || !lista.length) { box.innerHTML = '<p style="color:#9997AB">Próximamente...</p>'; return; }
+    box.innerHTML = lista.map(e => {
+      const nombre = e.full_name || 'Equipo';
+      const initials = nombre.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      return `
+      <div class="team-card">
+        <div class="team-avatar">${initials}</div>
+        <div class="team-name">${nombre}</div>
+        <div class="team-spec">${e.specialty || 'Especialista'}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Pinta los productos destacados (con stock) en la home
+  function renderHomeProducts(lista) {
+    const box = document.getElementById('home-products');
+    if (!box) return;
+    const destacados = (lista || []).filter(p => (p.stock ?? 0) > 0).slice(0, 4);
+    if (!destacados.length) { box.innerHTML = '<p style="color:#9997AB">Próximamente...</p>'; return; }
+    box.innerHTML = destacados.map(p => `
+      <div class="home-prod-card">
+        <div class="hp-top">
+          <span class="hp-type">${p.type || 'Producto'}</span>
+          ${p.brand ? `<span class="hp-brand">${p.brand}</span>` : ''}
+        </div>
+        <div class="hp-name">${p.name}</div>
+        <div class="hp-foot">
+          <span class="hp-price">$${parseFloat(p.price).toFixed(2)}</span>
+          <span class="hp-stock">${p.stock} disponibles</span>
+        </div>
+      </div>`).join('');
+  }
+
+  // Al abrir la página, cargamos los datos dinámicos de la home
+  document.addEventListener('DOMContentLoaded', loadHomeData);
 
 </script>
 </body>
