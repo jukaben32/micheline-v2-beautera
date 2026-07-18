@@ -3,6 +3,25 @@
 > Resumen de continuidad. Última actualización: sesión de construcción multi-tenant + alta de cliente.
 > Para retomar: "continuemos Micheline" o "lee MICHELINE-ESTADO.md".
 
+## 🎯 MISIÓN / VISIÓN DE ESCALA (lo más importante)
+Micheline NO es el producto, es el PRIMER proyecto de una plataforma SaaS que el usuario
+va a replicar decenas de veces. La misión es tener **decenas de proyectos como este funcionando
+en el futuro cercano** (2do, 3er, 4to... cliente seguidos). Por tanto: TODO lo que se construya
+debe quedar preparado para escalar desde el día 1 (multi-tenant real, monitoreo, operaciones 24/7).
+
+Objetivo a mediano plazo: Hermes corriendo en un VPS con gateway + cron, monitoreando y dando
+soporte a todos los clientes a la vez (el usuario no puede vigilar 30 negocios solo).
+
+Para eso, dejar sembradas estas bases (baratas hoy, imprescindibles mañana):
+- Fase 1.E: aislar widget/landing por `business_id` (previo a cliente 2).
+- Enriquecer tabla `business` con `owner_email`, `owner_phone`, `domain`, `plan`, `status`
+  (para que Hermes sepa a quién escribir y el estado de cada cliente).
+- Dashboard de operaciones (vista super_admin con estado de TODOS los clientes).
+- Motor de monitoreo (cron) cuando haya ~5 clientes reales.
+- VPS + gateway 24/7 cuando se quiera soporte continuo.
+
+NO sobre-ingeniería hoy (KISS), pero SÍ dejar el modelo de datos listo para decenas de tenants.
+
 ## Qué es
 SaaS de reservas para salones de uñas. Usuario = dev principiante, explica paso a paso en español,
 código comentado, simple>complejo, commit+push proactivo, verificar con pruebas reales (NO asumir).
