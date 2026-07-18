@@ -546,7 +546,7 @@
       transition: border-color 0.3s;
     }
     #chat-text:focus { border-color: #D8A7B1; }
-    #chat-send {
+    #chat-send, #chat-voice {
       width: 42px; height: 42px;
       border-radius: 50%;
       background: #141413;
@@ -556,7 +556,9 @@
       transition: all 0.2s;
       flex-shrink: 0;
     }
-    #chat-send:hover { background: #D8A7B1; }
+    #chat-send:hover, #chat-voice:hover { background: #D8A7B1; }
+    #chat-voice.recording { background: #ff4444; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
     /* Botón flotante de reserva (💅) */
     #book-fab {
@@ -947,6 +949,7 @@
           </div>
           <div id="chat-input-row">
             <input id="chat-text" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')chatSend()">
+            <button id="chat-voice" onmousedown="startVoice()" onmouseup="stopVoice()" ontouchstart="startVoice()" ontouchend="stopVoice()" title="Mantén presionado para hablar">🎤</button>
             <button id="chat-send" onclick="chatSend()">➤</button>
           </div>
         </div>
@@ -1417,6 +1420,56 @@
     msgs.appendChild(b);
     msgs.scrollTop = msgs.scrollHeight;
     return b;
+  }
+
+  // ========== VOICE RECOGNITION ==========
+  let recognition = null;
+  let isRecording = false;
+
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'es-DO';
+
+    recognition.onresult = function(event) {
+      const transcript = event.results[0][0].transcript;
+      const input = document.getElementById('chat-text');
+      input.value = transcript;
+      chatSend(); // Auto-send when voice is transcribed
+    };
+
+    recognition.onerror = function(event) {
+      console.error('Speech recognition error', event.error);
+      const btn = document.getElementById('chat-voice');
+      if (btn) btn.classList.remove('recording');
+      isRecording = false;
+    };
+
+    recognition.onend = function() {
+      const btn = document.getElementById('chat-voice');
+      if (btn) btn.classList.remove('recording');
+      isRecording = false;
+    };
+  }
+
+  function startVoice() {
+    if (!recognition) {
+      alert('Tu navegador no soporta mensajes de voz.');
+      return;
+    }
+    if (!isRecording) {
+      isRecording = true;
+      document.getElementById('chat-voice').classList.add('recording');
+      try { recognition.start(); } catch(e) {}
+    }
+  }
+
+  function stopVoice() {
+    if (recognition && isRecording) {
+      recognition.stop();
+    }
   }
 
   // Inicializar

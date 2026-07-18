@@ -87,6 +87,9 @@
     padding: 0 14px; border: none; border-radius: 10px; background: var(--accent-dark);
     color: #fff; cursor: pointer; font-size: 13px;
   }
+  #mw-voice { background: #141413 !important; }
+  #mw-voice.recording { background: #ff4444 !important; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
   .mw-thinking { font-style: italic; opacity: .6; font-size: 12px; }
 </style>
 </head>
@@ -125,7 +128,8 @@
             <div class="mw-bubble mw-bot">¡Hola! Soy la asistente de Micheline 💅 Pregúntame por precios, servicios, estilistas u horarios.</div>
           </div>
           <div id="mw-input">
-            <input id="mw-text" placeholder="Escribe tu pregunta..." />
+            <input type="text" id="mw-text" placeholder="Escribe tu mensaje..." />
+            <button id="mw-voice" onmousedown="startVoiceW()" onmouseup="stopVoiceW()" ontouchstart="startVoiceW()" ontouchend="stopVoiceW()">🎤</button>
             <button id="mw-send">➤</button>
           </div>
         </div>
@@ -284,6 +288,32 @@
   }
   document.getElementById('mw-send').onclick = send;
   text.onkeydown = e => { if (e.key === 'Enter') send(); };
+
+  let recogW = null, isRecW = false;
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recogW = new SR();
+    recogW.lang = 'es-DO';
+    recogW.onresult = e => {
+      text.value = e.results[0][0].transcript;
+      send();
+    };
+    recogW.onerror = () => {
+      const b = document.getElementById('mw-voice');
+      if (b) b.classList.remove('recording');
+      isRecW = false;
+    };
+    recogW.onend = () => {
+      const b = document.getElementById('mw-voice');
+      if (b) b.classList.remove('recording');
+      isRecW = false;
+    };
+  }
+  window.startVoiceW = function() {
+    if (!recogW) return alert('Tu navegador no soporta voz.');
+    if (!isRecW) { isRecW = true; document.getElementById('mw-voice').classList.add('recording'); try { recogW.start(); } catch(e){} }
+  };
+  window.stopVoiceW = function() { if (recogW && isRecW) recogW.stop(); };
 
   loadData();
 })();
