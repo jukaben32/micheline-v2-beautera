@@ -96,7 +96,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${resendKey}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Micheline Nail Bar <hola@micheline.com>',
+          from: 'Micheline Nail Bar <onboarding@resend.dev>', // cambiar a tu dominio cuando esté verificado en Resend
           to: [client_email],
           subject: 'Confirmación de tu cita - Micheline Nail Bar',
           html: `<h2>¡Cita confirmada!</h2><p>Hola ${client_name}, tu cita es el <b>${date}</b> a las <b>${time}</b> con Micheline.</p><p>Te esperamos 💅</p>`
