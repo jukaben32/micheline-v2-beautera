@@ -42,8 +42,9 @@ Deno.serve(async (req) => {
 
     // Duración del servicio
     const { data: service } = await supabase
-      .from('services').select('duration_min, name').eq('id', service_id).single()
+      .from('services').select('duration_min, name, price').eq('id', service_id).single()
     const duration = service?.duration_min ?? SLOT_MINUTES
+    const price = Number(service?.price) || 0
 
     // Calcular inicio/fin en America/Santo_Domingo (UTC-4)
     const [h, m] = time.split(':').map(Number)
@@ -80,12 +81,13 @@ Deno.serve(async (req) => {
       clientId = nuevo?.id ?? null
     }
 
-    // Insertar cita
+    // Insertar cita en estado 'pendiente_pago' (se confirma al pagar)
     const { data: appt, error } = await supabase
       .from('appointments').insert({
         client_id: clientId, stylist_id, service_id,
         start_at: startAt, end_at: endAt,
-        client_name, client_phone, notes, source: 'widget', status: 'confirmada'
+        client_name, client_phone, notes, source: 'widget',
+        status: 'pendiente_pago', price
       }).select('id').single()
     if (error) throw error
 

@@ -249,17 +249,57 @@
       }),
     });
     const out = document.getElementById('mw-result');
-    if (res.ok) {
-      out.className = 'mw-msg mw-ok';
-      out.textContent = '✅ ¡Reserva confirmada! Te esperamos 💅';
-      // WhatsApp de la dueña (notificación)
-      const wa = \`https://wa.me/18096277471?text=\${encodeURIComponent('Nueva reserva: ' + name + ' ' + state.date + ' ' + state.time)}\`;
-      setTimeout(() => window.open(wa, '_blank'), 600);
-    } else {
+    if (!res.ok) {
       const e = await res.json();
       out.className = 'mw-msg mw-err';
       out.textContent = '❌ ' + (e.error || 'No se pudo reservar');
+      return;
     }
+    const { appointment_id } = await res.json();
+
+    // PASO DE PAGO: elegir metodo
+    const method = prompt('¿Cómo pagas? Escribe:\n1 = Tarjeta (CardNET)\n2 = Transferencia bancaria');
+    if (method === '1' || /tarj/i.test(method || '')) {
+      // Tarjeta -> creamos el link de pago CardNET y redirigimos
+      const pr = await fetch(SUPABASE_URL + '/functions/v1/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
+        body: JSON.stringify({ appointment_id, method: 'cardnet', client_name: name, client_email: email }),
+      });
+      const pd = await pr.json();
+      if (pr.ok && pd.pay_url) {
+        out.className = 'mw-msg mw-ok';
+        out.textContent = '💳 Redirigiendo a pagar con tarjeta…';
+        setTimeout(() => window.open(pd.pay_url, '_blank'), 400);
+      } else {
+        out.className = 'mw-msg mw-err';
+        out.textContent = '❌ ' + (pd.error || 'No se pudo generar el pago con tarjeta');
+      }
+    } else if (method === '2' || /trans/i.test(method || '')) {
+      // Transferencia -> mostramos los datos bancarios del salon
+      const pr = await fetch(SUPABASE_URL + '/functions/v1/create-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
+        body: JSON.stringify({ appointment_id, method: 'transferencia', client_name: name, client_email: email }),
+      });
+      const pd = await pr.json();
+      if (pr.ok) {
+        out.className = 'mw-msg mw-ok';
+        out.innerHTML = '🏦 Transfiere a:<br><b>' + (pd.bank?.bank || 'Banco') + '</b><br>' +
+          'Titular: ' + (pd.bank?.holder || '—') + '<br>Cuenta: ' + (pd.bank?.account || '—') +
+          '<br><br>Envía el comprobante por WhatsApp y te confirmamos 💅';
+      } else {
+        out.className = 'mw-msg mw-err';
+        out.textContent = '❌ ' + (pd.error || 'No se pudo obtener los datos de transferencia');
+      }
+    } else {
+      out.className = 'mw-msg mw-ok';
+      out.textContent = '✅ Reserva registrada. Te confirmaremos pronto 💅';
+    }
+
+    // WhatsApp de la dueña (notificación)
+    const wa = `https://wa.me/18096277471?text=${encodeURIComponent('Nueva reserva: ' + name + ' ' + state.date + ' ' + state.time)}`;
+    setTimeout(() => window.open(wa, '_blank'), 600);
   };
 
   // ---- Chat / Info ----
