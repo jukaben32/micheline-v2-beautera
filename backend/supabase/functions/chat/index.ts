@@ -71,23 +71,61 @@ Deno.serve(async (req) => {
         { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
-    // --- MODO SIN IA: reglas simples sobre los datos reales ---
+    // --- MODO SIN IA: reglas simples sobre los datos reales con contexto de historial ---
     const txt = message.toLowerCase()
     let reply = ''
 
+    // Obtener el último mensaje del usuario del historial para contexto
+    const lastUserMsg = history
+      .filter(h => h.role === 'user')
+      .map(h => h.content.toLowerCase())
+      .pop() ?? ''
+
+    // Contexto combinado: último mensaje del usuario + mensaje actual
+    const context = lastUserMsg + ' ' + txt
+
+    // Servicios
     if (txt.includes('precio') || txt.includes('cuesta') || txt.includes('costo') || txt.includes('precios')) {
-      reply = '💅 Nuestros servicios:\n' + ctx.servicios
-        .map((s: any) => `• ${s.name} (${s.duration_min} min) — $${Number(s.price).toFixed(2)}`)
-        .join('\n')
-    } else if (txt.includes('estilista') || txt.includes('profesional') || txt.includes('quien')) {
-      reply = '👩‍🎨 Nuestras especialistas:\n' + ctx.estilistas
-        .map((e: any) => `• ${e.full_name} — ${e.specialty}`)
-        .join('\n')
-    } else if (txt.includes('horario') || txt.includes('abierto') || txt.includes('hora')) {
+      // Buscar si se menciona un servicio específico en el contexto
+      const servicioEnContexto = ctx.servicios.find(s => 
+        context.includes(s.name.toLowerCase())
+      )
+      if (servicioEnContexto) {
+        reply = `💅 El precio de ${servicioEnContexto.name} es $${Number(servicioEnContexto.price).toFixed(2)} (${servicioEnContexto.duration_min} min).`
+      } else {
+        reply = '💅 Nuestros servicios:\n' + ctx.servicios
+          .map((s: any) => `• ${s.name} (${s.duration_min} min) — $${Number(s.price).toFixed(2)}`)
+          .join('\n')
+      }
+    }
+    // Estilistas
+    else if (txt.includes('estilista') || txt.includes('profesional') || txt.includes('quien') || 
+             txt.includes('especialista') || txt.includes('técnica')) {
+      // Buscar si se menciona un estilista específico en el contexto
+      const estilistaEnContexto = ctx.estilistas.find(e => 
+        context.includes(e.full_name.toLowerCase()) || 
+        context.includes(e.specialty.toLowerCase())
+      )
+      if (estilistaEnContexto) {
+        reply = `👩‍🎨 ${estilistaEnContexto.full_name} especializa en ${estilistaEnContexto.specialty}.`
+      } else {
+        reply = '👩‍🎨 Nuestras especialistas:\n' + ctx.estilistas
+          .map((e: any) => `• ${e.full_name} — ${e.specialty}`)
+          .join('\n')
+      }
+    }
+    // Horarios
+    else if (txt.includes('horario') || txt.includes('abierto') || txt.includes('hora') || 
+             txt.includes('cuando') || txt.includes('día')) {
       reply = '🕘 Atendemos lunes a sábado de 9:00 a.m. a 5:00 p.m. Usa "Reservar cita" para ver huecos disponibles.'
-    } else if (txt.includes('reserv') || txt.includes('agendar') || txt.includes('cita')) {
+    }
+    // Reservas
+    else if (txt.includes('reserv') || txt.includes('agendar') || txt.includes('cita') || 
+             txt.includes('turno') || txt.includes('hora')) {
       reply = '📅 ¡Claro! Toca el botón "Reservar cita" arriba, elige servicio y estilista, y verás los horarios libres. '
-    } else {
+    }
+    // Otros
+    else {
       reply = 'Hola 💅 Soy la asistente de Micheline Nail Bar. Puedes preguntarme por precios, servicios, estilistas u horarios. ¿En qué te ayudo?'
     }
 
