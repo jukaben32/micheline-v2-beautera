@@ -59,13 +59,25 @@ Deno.serve(async (req) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-3-5-haiku-latest',
+          // claude-3-5-haiku-latest fue retirado el 19-feb-2026; usar el modelo vigente.
+          model: 'claude-haiku-4-5-20251001',
           max_tokens: 400,
           system,
           messages: msgs,
         }),
       })
       const data = await r.json()
+
+      if (!r.ok) {
+        // Loguear el error real de Anthropic (visible en Supabase > Edge Functions > Logs)
+        console.error('Anthropic API error', r.status, JSON.stringify(data))
+        return new Response(JSON.stringify({
+          reply: 'En este momento no puedo responder. Para más info llama al 809-246-5821 o escríbenos por WhatsApp.',
+          mode: 'ai_error',
+          error: data?.error?.message ?? `HTTP ${r.status}`,
+        }), { status: 200, headers: { ...cors, 'Content-Type': 'application/json' } })
+      }
+
       const reply = data?.content?.[0]?.text ?? 'No pude responder ahora.'
       return new Response(JSON.stringify({ reply, mode: 'ai' }),
         { headers: { ...cors, 'Content-Type': 'application/json' } })
