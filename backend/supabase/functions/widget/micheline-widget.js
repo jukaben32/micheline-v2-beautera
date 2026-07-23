@@ -141,221 +141,429 @@
 
 <script>
 (function () {
+  'use strict';
+
   // ===== CONFIG =====
   const SUPABASE_URL = 'https://kpszlnymywgudutqlgqa.supabase.co';
   const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDgwMTksImV4cCI6MjA5ODkyNDAxOX0.zljEdqznFgdUNRKpib3h1_SzamrQRI3h0iIULTgEFdY';
 
-  const state = { service: null, stylist: null, time: null, date: null };
+  // ===== GLOBAL STATE =====
+  const state = {
+    service: null,
+    stylist: null,
+    date: null,
+    time: null,
+    client: { name: '', phone: '', email: '' },
+    history: [],
+    isRecording: false,
+    voiceRecorder: null,
+    // UI state
+    activeTab: 'book',
+    ui: {
+      services: [],
+      stylists: [],
+    }
+  };
 
-  // ---- Toggle panel ----
-  const panel = document.getElementById('mw-panel');
-  document.getElementById('mw-toggle').onclick = () => panel.classList.toggle('open');
+  // ===== UTILS =====
+  function emitError(container, msg) {
+    const el = document.createElement('div');
+    el.className = 'mw-msg mw-err';
+    el.textContent = msg;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
 
-  // ---- Tabs ----
-  document.querySelectorAll('#mw-tabs button').forEach(b => {
-    b.onclick = () => {
-      document.querySelectorAll('#mw-tabs button').forEach(x => x.classList.remove('active'));
-      document.querySelectorAll('.mw-view').forEach(x => x.classList.remove('active'));
-      b.classList.add('active');
-      document.getElementById('view-' + b.dataset.tab).classList.add('active');
+  function clearElement(el) {
+    while (el.firstChild) el.removeChild(el.firstChild);
+  }
+
+  function showLoading(messagesContainer) {
+    const loader = document.createElement('div');
+    loader.className = 'mw-bubble mw-bot mw-thinking';
+    const texts = ['Procesando tu solicitud...', 'Buscando disponibilidad…', 'Generando respuesta...', 'Casi listo...'];
+    let idx = 0;
+    loader.textContent = texts[idx];
+    messagesContainer.appendChild(loader);
+    const pulse = setInterval(() => {
+      loader.textContent = texts[idx = (idx + 1) % texts.length];
+    }, 1000);
+    setTimeout(() => {
+      clearInterval(pulse);
+      loader.remove();
+    }, 2000);
+    return { removeLoader: () => clearInterval(pulse) };
+  }
+
+  // ===== SUPABASE HELPERS =====
+  async function fetchSupabase(path, options = {}) {
+    const url = `${SUPABASE_URL}${path}`;
+    const headers = {
+      'apikey': ANON,
+      'Authorization': 'Bearer ' + ANON,
+      'Content-Type': 'application/json',
+      ...options.headers
+    };
+    const res = await fetch(url, { ...options, headers });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => '');
+      throw new Error(txt || `HTTP ${res.status}`);
+    }
+    return res.json();
+  }
+
+  // ===== SERVICES & STYLISTS =====
+  async function loadData() {
+    try {
+      const [servicios, estilistas] = await Promise.all([
+        fetchSupabase('/rest/v1/services?select=id,name,price,duration_min&is_active=eq.true&order=price'),
+        fetchSupabase('/rest/v1/stylists?select=id,full_name,specialty&is_active=eq.true'),
+      ]);
+      state.ui.services = servicios;
+      state.ui.stylists = estilistas;
+      renderServices();
+      renderStylists();
+      setDateToday();
+    } catch (e) {
+      console.error('loadData error', e);
+      emitError(document.getElementById('mw-result'), 'No se pudo cargar la información');
+    }
+  }
+
+  function renderServices() {
+    const box = document.getElementById('mw-services');
+    clearElement(box);
+    state.ui.services.forEach(s => {
+      const chip = document.createElement('div');
+      chip.className = 'mw-chip';
+      chip.innerHTML = `${s.name}<br><small>$${s.price}</small>`;
+      chip.onclick = () => selectService(s, chip, box);
+      box.appendChild(chip);
+    });
+  }
+
+  function selectService(service, chipEl, box) {
+    document.querySelectorAll('#mw-services .mw-chip').forEach(c => c.classList.remove('sel'));
+    chipEl.classList.add('sel');
+    state.service = service;
+    clearSlots();
+  }
+
+  function renderStylists() {
+    const box = document.getElementById('mw-stylists');
+    clearElement(box);
+    // Any stylist option
+    const any = document.createElement('div');
+    any.className = 'mw-chip';
+    any.textContent = 'Cualquiera disponible';
+    any.onclick = () => selectStylist(null, any, box);
+    box.appendChild(any);
+    state.ui.stylists.forEach(e => {
+      const chip = document.createElement('div');
+      chip.className = 'mw-chip';
+      chip.textContent = e.full_name;
+      chip.onclick = () => selectStylist(e, chip, box);
+      box.appendChild(chip);
+    });
+  }
+
+  function selectStylist(stylist, chipEl, box) {
+    document.querySelectorAll('#mw-stylists .mw-chip').forEach(c => c.classList.remove('sel'));
+    chipEl.classList.add('sel');
+    state.stylist = stylist;
+    clearSlots();
+  }
+
+  function setDateToday() {
+    const d = document.getElementById('mw-date');
+    const today = new Date().toISOString().split('T')[0];
+    d.min = today;
+    d.value = state.date || today;
+    if (!state.date) state.date = d.value;
+    d.onchange = () => {
+      state.date = d.value;
+      state.time = null;
+      loadSlots();
+    };
+  }
+
+  // ===== SLOTS =====
+  async function loadSlots() {
+    const box = document.getElementById('mw-slots');
+    clearElement(box);
+    if (!state.stylist || !state.date) {
+      box.innerHTML = '<div class="mw-slot empty">Elige estilista y fecha</div>';
+      return;
+    }
+    try {
+      const { slots } = await fetchSupabase('/functions/v1/get-availability', {
+        method: 'POST',
+        body: JSON.stringify({ stylist_id: state.stylist.id, date: state.date })
+      });
+      if (!slots || slots.length === 0) {
+        box.innerHTML = '<div class="mw-slot empty">Sin huecos</div>';
+        return;
+      }
+      slots.forEach(t => {
+        const s = document.createElement('div');
+        s.className = 'mw-slot';
+        s.textContent = t;
+        s.onclick = () => selectSlot(t, s, box);
+        box.appendChild(s);
+      });
+    } catch (e) {
+      console.error('loadSlots error', e);
+      clearElement(box);
+      box.innerHTML = '<div class="mw-slot empty">Error cargando horarios</div>';
+    }
+  }
+
+  function selectSlot(time, slotEl, box) {
+    document.querySelectorAll('#mw-slots .mw-slot').forEach(s => s.classList.remove('sel'));
+    slotEl.classList.add('sel');
+    state.time = time;
+    updateConfirm();
+  }
+
+  function clearSlots() {
+    document.getElementById('mw-slots').innerHTML = '<div class="mw-slot empty">Elige estilista y fecha</div>';
+    state.time = null;
+    updateConfirm();
+  }
+
+  function updateConfirm() {
+    const btn = document.getElementById('mw-confirm');
+    const ready = state.service && state.stylist && state.date && state.time;
+    btn.disabled = !ready;
+    btn.textContent = ready ? 'Confirmar reserva' : 'Selecciona todos los campos';
+  }
+
+  // ===== CHAT =====
+  const messagesContainer = document.getElementById('mw-messages');
+  const inputText = document.getElementById('mw-text');
+
+  async function sendMessage() {
+    const text = inputText.value.trim();
+    if (!text) return;
+
+    // Render user bubble
+    appendBubble(text, 'user');
+    inputText.value = '';
+
+    // Show typing indicator
+    const loader = showLoading(messagesContainer);
+
+    try {
+      const { reply } = await fetchSupabase('/functions/v1/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message: text, history: state.history })
+      });
+
+      // Remove loader
+      document.querySelector('.mw-thinking')?.remove();
+
+      // Render bot response
+      appendBubble(reply, 'bot');
+
+      // Update history
+      state.history.push(
+        { role: 'user', content: text },
+        { role: 'assistant', content: reply }
+      );
+    } catch (e) {
+      console.error('Chat error', e);
+      document.querySelector('.mw-thinking')?.remove();
+      emitError(messagesContainer, 'Error en el chat: ' + e.message);
+    }
+  }
+
+  function appendBubble(text, who) {
+    const bubble = document.createElement('div');
+    bubble.className = `mw-bubble ${who === 'user' ? 'mw-user' : 'mw-bot'}`;
+    bubble.textContent = text;
+    messagesContainer.appendChild(bubble);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  // ===== VOICE =====
+  function initVoice() {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      state.voiceRecorder = new SR();
+      state.voiceRecorder.lang = 'es-ES';
+      state.voiceRecorder.continuous = false;
+      state.voiceRecorder.interimResults = false;
+
+      state.voiceRecorder.onresult = e => {
+        inputText.value = e.results[0][0].transcript;
+        sendMessage();
+        stopRecording();
+      };
+      state.voiceRecorder.onerror = e => {
+        console.error('Voz error', e);
+        stopRecording();
+        alert('Error en reconocimiento de voz');
+      };
+      state.voiceRecorder.onend = () => stopRecording();
+    }
+  }
+
+  function toggleRecording() {
+    if (!state.voiceRecorder) return alert('Tu navegador no soporta reconocimiento de voz');
+
+    if (state.isRecording) {
+      // Paused (explicit stop)
+      state.voiceRecorder.stop();
+    } else {
+      // Start
+      state.isRecording = true;
+      document.getElementById('mw-voice').classList.add('recording');
+      try {
+        state.voiceRecorder.start();
+      } catch (e) {
+        console.error('Start error', e);
+        stopRecording();
+      }
+    }
+  }
+
+  function stopRecording() {
+    if (state.isRecording) {
+      state.voiceRecorder?.stop();
+      state.isRecording = false;
+      document.getElementById('mw-voice').classList.remove('recording');
+    }
+  }
+
+  // ===== BOOKING =====
+  document.getElementById('mw-confirm').onclick = async () => {
+    const name = prompt('Tu nombre:');
+    if (!name) return;
+    const phone = prompt('Tu teléfono (whatsapp):');
+    if (!phone) return;
+    const email = prompt('Tu email (opcional, para confirmación):') || '';
+
+    state.client = { name, phone, email };
+
+    if (!state.service || !state.stylist) {
+      emitError(document.getElementById('mw-result'), 'Selecciona servicio y estilista');
+      return;
+    }
+
+    const resultBox = document.getElementById('mw-result');
+    clearElement(resultBox);
+
+    try {
+      const { appointment_id } = await fetchSupabase('/functions/v1/create-booking', {
+        method: 'POST',
+        body: JSON.stringify({
+          stylist_id: state.stylist.id,
+          service_id: state.service.id,
+          date: state.date,
+          time: state.time,
+          client_name: name,
+          client_phone: phone,
+          client_email: email
+        })
+      });
+
+      // Payment step
+      const methodPrompt = `¿Cómo pagas?
+1 = Tarjeta (CardNET)
+2 = Transferencia bancaria
+Escribe 1 o 2:`;
+      const method = prompt(methodPrompt);
+      if (!method) return;
+
+      if (method === '1' || /tarj/i.test(method)) {
+        const { pay_url, error } = await fetchSupabase('/functions/v1/create-payment', {
+          method: 'POST',
+          body: JSON.stringify({
+            appointment_id,
+            method: 'cardnet',
+            client_name: name,
+            client_email: email
+          })
+        });
+        if (pay_url) {
+          appendResult('💳 Redirigiendo a pagar con tarjeta…');
+          setTimeout(() => window.open(pay_url, '_blank'), 400);
+        } else {
+          emitError(resultBox, '❌ ' + (error || 'No se pudo generar pago con tarjeta'));
+        }
+      } else if (method === '2' || /trans/i.test(method)) {
+        const { bank, error } = await fetchSupabase('/functions/v1/create-payment', {
+          method: 'POST',
+          body: JSON.stringify({
+            appointment_id,
+            method: 'transferencia',
+            client_name: name,
+            client_email: email
+          })
+        });
+        if (bank) {
+          appendResult(`🏦 Transfiere a:<br><b>${bank.bank}</b><br>` +
+                        `Titular: ${bank.holder}<br>Cuenta: ${bank.account}<br>` +
+                        `Envía el comprobante por WhatsApp y te confirmamos 💅`);
+        } else {
+          emitError(resultBox, '❌ ' + (error || 'No se pudo obtener datos de transferencia'));
+        }
+      } else {
+        appendResult('✅ Reserva registrada. Te confirmaremos pronto 💅');
+      }
+
+      // WhatsApp notification
+      const waUrl = `https://wa.me/18096277471?text=${encodeURIComponent(
+        `Nueva reserva: ${name} ${state.date} ${state.time}`
+      )}`;
+      setTimeout(() => window.open(waUrl, '_blank'), 600);
+
+    } catch (e) {
+      console.error('Booking error', e);
+      emitError(resultBox, '❌ ' + e.message);
+    }
+  };
+
+  function appendResult(html) {
+    const box = document.getElementById('mw-result');
+    const div = document.createElement('div');
+    div.className = 'mw-msg mw-ok';
+    div.innerHTML = html;
+    box.appendChild(div);
+  }
+
+  // ===== TABS =====
+  document.querySelectorAll('#mw-tabs button').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('#mw-tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.mw-view').forEach(v => v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('view-' + btn.dataset.tab).classList.add('active');
+      state.activeTab = btn.dataset.tab;
     };
   });
 
-  // ---- Cargar servicios y estilistas desde la BD ----
-  async function loadData() {
-    const [sRes, eRes] = await Promise.all([
-      fetch(SUPABASE_URL + '/rest/v1/services?select=id,name,price,duration_min&is_active=eq.true&order=price',
-        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }),
-      fetch(SUPABASE_URL + '/rest/v1/stylists?select=id,full_name,specialty&is_active=eq.true',
-        { headers: { 'apikey': ANON, 'Authorization': 'Bearer ' + ANON } }),
-    ]);
-    const servicios = await sRes.json();
-    const estilistas = await eRes.json();
+  // ===== INITIALIZATION =====
+  (function init() {
+    // toggle panel
+    const panel = document.getElementById('mw-panel');
+    document.getElementById('mw-toggle').onclick = () => panel.classList.toggle('open');
 
-    const sBox = document.getElementById('mw-services');
-    servicios.forEach(s => {
-      const c = document.createElement('div');
-      c.className = 'mw-chip'; c.innerHTML = \`\${s.name} <small>$\${s.price}</small>\`;
-      c.onclick = () => { state.service = s; sel(sBox, c); clearSlots(); };
-      sBox.appendChild(c);
-    });
-    const eBox = document.getElementById('mw-stylists');
-    const anyC = document.createElement('div');
-    anyC.className = 'mw-chip'; anyC.textContent = 'Cualquiera disponible';
-    anyC.onclick = () => { state.stylist = null; sel(eBox, anyC); clearSlots(); };
-    eBox.appendChild(anyC);
-    estilistas.forEach(e => {
-      const c = document.createElement('div');
-      c.className = 'mw-chip'; c.textContent = e.full_name;
-      c.onclick = () => { state.stylist = e; sel(eBox, c); clearSlots(); };
-      eBox.appendChild(c);
-    });
+    // bind chat actions
+    document.getElementById('mw-send').onclick = sendMessage;
+    inputText.onkeydown = e => { if (e.key === 'Enter') sendMessage(); };
 
-    // fecha mínima = hoy
-    const d = document.getElementById('mw-date');
-    d.min = new Date().toISOString().split('T')[0];
-    d.onchange = () => { state.date = d.value; state.time = null; loadSlots(); };
-  }
+    // voice (mousedown/up for desktop, touch for mobile)
+    const voiceBtn = document.getElementById('mw-voice');
+    voiceBtn.onmousedown = () => toggleRecording();
+    voiceBtn.onmouseup = () => stopRecording();
+    voiceBtn.ontouchstart = e => { e.preventDefault(); toggleRecording(); };
+    voiceBtn.ontouchend = e => { e.preventDefault(); stopRecording(); };
 
-  function sel(box, el) {
-    box.querySelectorAll('.mw-chip').forEach(x => x.classList.remove('sel'));
-    el.classList.add('sel');
-  }
-
-  // ---- Cargar huecos disponibles ----
-  async function loadSlots() {
-    const box = document.getElementById('mw-slots');
-    box.innerHTML = '<div class="mw-slot empty">…</div>';
-    if (!state.stylist || !state.date) return;
-    const r = await fetch(SUPABASE_URL + '/functions/v1/get-availability', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
-      body: JSON.stringify({ stylist_id: state.stylist.id, date: state.date }),
-    });
-    const { slots } = await r.json();
-    box.innerHTML = '';
-    if (!slots || slots.length === 0) {
-      box.innerHTML = '<div class="mw-slot empty">Sin huecos</div>';
-      return;
-    }
-    slots.forEach(t => {
-      const s = document.createElement('div');
-      s.className = 'mw-slot'; s.textContent = t;
-      s.onclick = () => {
-        document.querySelectorAll('#mw-slots .mw-slot').forEach(x => x.classList.remove('sel'));
-        s.classList.add('sel'); state.time = t; updateConfirm();
-      };
-      box.appendChild(s);
-    });
-  }
-  function clearSlots() { document.getElementById('mw-slots').innerHTML = '<div class="mw-slot empty">Elige estilista y fecha</div>'; state.time = null; updateConfirm(); }
-
-  function updateConfirm() {
-    document.getElementById('mw-confirm').disabled = !(state.service && state.stylist && state.date && state.time);
-  }
-
-  // ---- Confirmar reserva ----
-  document.getElementById('mw-confirm').onclick = async () => {
-    const name = prompt('Tu nombre:'); if (!name) return;
-    const phone = prompt('Tu teléfono (whatsapp):'); if (!phone) return;
-    const email = prompt('Tu email (opcional, para confirmación):') || '';
-    const res = await fetch(SUPABASE_URL + '/functions/v1/create-booking', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
-      body: JSON.stringify({
-        stylist_id: state.stylist.id, service_id: state.service.id,
-        date: state.date, time: state.time,
-        client_name: name, client_phone: phone, client_email: email,
-      }),
-    });
-    const out = document.getElementById('mw-result');
-    if (!res.ok) {
-      const e = await res.json();
-      out.className = 'mw-msg mw-err';
-      out.textContent = '❌ ' + (e.error || 'No se pudo reservar');
-      return;
-    }
-    const { appointment_id } = await res.json();
-
-    // PASO DE PAGO: elegir metodo
-    const method = prompt('¿Cómo pagas? Escribe:\n1 = Tarjeta (CardNET)\n2 = Transferencia bancaria');
-    if (method === '1' || /tarj/i.test(method || '')) {
-      // Tarjeta -> creamos el link de pago CardNET y redirigimos
-      const pr = await fetch(SUPABASE_URL + '/functions/v1/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
-        body: JSON.stringify({ appointment_id, method: 'cardnet', client_name: name, client_email: email }),
-      });
-      const pd = await pr.json();
-      if (pr.ok && pd.pay_url) {
-        out.className = 'mw-msg mw-ok';
-        out.textContent = '💳 Redirigiendo a pagar con tarjeta…';
-        setTimeout(() => window.open(pd.pay_url, '_blank'), 400);
-      } else {
-        out.className = 'mw-msg mw-err';
-        out.textContent = '❌ ' + (pd.error || 'No se pudo generar el pago con tarjeta');
-      }
-    } else if (method === '2' || /trans/i.test(method || '')) {
-      // Transferencia -> mostramos los datos bancarios del salon
-      const pr = await fetch(SUPABASE_URL + '/functions/v1/create-payment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
-        body: JSON.stringify({ appointment_id, method: 'transferencia', client_name: name, client_email: email }),
-      });
-      const pd = await pr.json();
-      if (pr.ok) {
-        out.className = 'mw-msg mw-ok';
-        out.innerHTML = '🏦 Transfiere a:<br><b>' + (pd.bank?.bank || 'Banco') + '</b><br>' +
-          'Titular: ' + (pd.bank?.holder || '—') + '<br>Cuenta: ' + (pd.bank?.account || '—') +
-          '<br><br>Envía el comprobante por WhatsApp y te confirmamos 💅';
-      } else {
-        out.className = 'mw-msg mw-err';
-        out.textContent = '❌ ' + (pd.error || 'No se pudo obtener los datos de transferencia');
-      }
-    } else {
-      out.className = 'mw-msg mw-ok';
-      out.textContent = '✅ Reserva registrada. Te confirmaremos pronto 💅';
-    }
-
-    // WhatsApp de la dueña (notificación)
-    const wa = `https://wa.me/18096277471?text=${encodeURIComponent('Nueva reserva: ' + name + ' ' + state.date + ' ' + state.time)}`;
-    setTimeout(() => window.open(wa, '_blank'), 600);
-  };
-
-  // ---- Chat / Info ----
-  const msgs = document.getElementById('mw-messages');
-  const text = document.getElementById('mw-text');
-  let history = [];
-  async function send() {
-    const v = text.value.trim(); if (!v) return;
-    addBubble(v, 'user'); text.value = '';
-    const think = addBubble('escribiendo…', 'bot', true);
-    const r = await fetch(SUPABASE_URL + '/functions/v1/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON },
-      body: JSON.stringify({ message: v, history }),
-    });
-    const { reply } = await r.json();
-    think.remove();
-    addBubble(reply, 'bot');
-    history.push({ role: 'user', content: v }, { role: 'assistant', content: reply });
-  }
-  function addBubble(t, who, thinking) {
-    const b = document.createElement('div');
-    b.className = 'mw-bubble ' + (who === 'user' ? 'mw-user' : 'mw-bot') + (thinking ? ' mw-thinking' : '');
-    b.textContent = t; msgs.appendChild(b); msgs.scrollTop = msgs.scrollHeight;
-    return b;
-  }
-  document.getElementById('mw-send').onclick = send;
-  text.onkeydown = e => { if (e.key === 'Enter') send(); };
-
-  let recogW = null, isRecW = false;
-  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    recogW = new SR();
-    recogW.lang = 'es-DO';
-    recogW.onresult = e => {
-      text.value = e.results[0][0].transcript;
-      send();
-    };
-    recogW.onerror = () => {
-      const b = document.getElementById('mw-voice');
-      if (b) b.classList.remove('recording');
-      isRecW = false;
-    };
-    recogW.onend = () => {
-      const b = document.getElementById('mw-voice');
-      if (b) b.classList.remove('recording');
-      isRecW = false;
-    };
-  }
-  window.startVoiceW = function() {
-    if (!recogW) return alert('Tu navegador no soporta voz.');
-    if (!isRecW) { isRecW = true; document.getElementById('mw-voice').classList.add('recording'); try { recogW.start(); } catch(e){} }
-  };
-  window.stopVoiceW = function() { if (recogW && isRecW) recogW.stop(); };
-
-  loadData();
+    // start
+    initVoice();
+    loadData();
+  })();
 })();
 </script>
 </body>
