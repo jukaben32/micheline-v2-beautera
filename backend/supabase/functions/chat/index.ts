@@ -8,6 +8,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getReply } from '../_shared/reply.ts'
+import { logAnthropicUsage, logConversationTurn } from '../_shared/logging.ts'
 
 // Fallback para llamadas viejas sin business_id (index.html estatico
 // original, siempre de Micheline). Quitar cuando ese sitio se retire.
@@ -22,7 +23,7 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { message, history, business_id } = await req.json()
+    const { message, history, business_id, session_id } = await req.json()
     const businessId: string = business_id || LEGACY_MICHELINE_BUSINESS_ID
     if (!message) {
       return new Response(JSON.stringify({ error: 'Falta message' }),
@@ -52,6 +53,14 @@ Deno.serve(async (req) => {
       supabase, businessId, message, history ?? [],
       'Toca el botón "Reservar cita" arriba, elige servicio y estilista, y verás los horarios libres.',
     )
+
+    // No bloquea la respuesta si el registro falla.
+    logConversationTurn(supabase, {
+      businessId, channel: 'web_chat', sessionId: session_id ?? null,
+      userMessage: message, assistantReply: result.reply,
+    }).catch(() => {})
+    logAnthropicUsage(supabase, businessId, result.usage).catch(() => {})
+
     return new Response(JSON.stringify(result),
       { headers: { ...cors, 'Content-Type': 'application/json' } })
   } catch (e) {

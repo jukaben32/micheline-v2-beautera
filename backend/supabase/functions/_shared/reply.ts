@@ -15,7 +15,7 @@ export async function getReply(
   // Como decirle al cliente que complete la reserva: el widget web dice
   // "toca el boton"; WhatsApp necesita un link real a /sites/<slug>.
   bookingInstruction: string,
-): Promise<{ reply: string; mode: string; error?: string }> {
+): Promise<{ reply: string; mode: string; error?: string; usage?: { input_tokens: number; output_tokens: number } }> {
   const [{ data: negocio }, { data: servicios }, { data: estilistas }] = await Promise.all([
     supabase.from('business').select('name').eq('id', businessId).maybeSingle(),
     supabase.from('services').select('name,duration_min,price,category').eq('business_id', businessId).eq('is_active', true).order('price'),
@@ -61,7 +61,13 @@ export async function getReply(
         error: data?.error?.message ?? `HTTP ${r.status}`,
       }
     }
-    return { reply: data?.content?.[0]?.text ?? 'No pude responder ahora.', mode: 'ai' }
+    return {
+      reply: data?.content?.[0]?.text ?? 'No pude responder ahora.',
+      mode: 'ai',
+      usage: data?.usage
+        ? { input_tokens: data.usage.input_tokens ?? 0, output_tokens: data.usage.output_tokens ?? 0 }
+        : undefined,
+    }
   }
 
   // --- MODO SIN IA: reglas simples sobre los datos reales ---

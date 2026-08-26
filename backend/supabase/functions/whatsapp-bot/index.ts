@@ -30,6 +30,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getReply, type ChatMsg } from '../_shared/reply.ts'
+import { logAnthropicUsage, logConversationTurn } from '../_shared/logging.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -110,8 +111,8 @@ Deno.serve(async (req: Request) => {
     await supabase.from('rate_limit_log').insert({ fn: 'whatsapp-bot', rate_key: phone })
 
     // Historial de esta conversacion (persistido: WhatsApp no manda contexto).
-    const { data: pastRows } = await supabase.from('whatsapp_messages')
-      .select('role, content').eq('business_id', business.id).eq('phone', phone)
+    const { data: pastRows } = await supabase.from('conversation_messages')
+      .select('role, content').eq('business_id', business.id).eq('channel', 'whatsapp').eq('phone', phone)
       .order('created_at', { ascending: false }).limit(HISTORY_LIMIT)
     const history: ChatMsg[] = (pastRows ?? []).reverse().map(r => ({ role: r.role, content: r.content }))
 
@@ -122,11 +123,12 @@ Deno.serve(async (req: Request) => {
 
     const result = await getReply(supabase, business.id, text, history, bookingInstruction)
 
-    // Guardar el intercambio para la proxima vez.
-    await supabase.from('whatsapp_messages').insert([
-      { business_id: business.id, phone, role: 'user', content: text },
-      { business_id: business.id, phone, role: 'assistant', content: result.reply },
-    ])
+    // Guardar el intercambio para la proxima vez y el consumo de Anthropic.
+    await logConversationTurn(supabase, {
+      businessId: business.id, channel: 'whatsapp', phone,
+      userMessage: text, assistantReply: result.reply,
+    })
+    await logAnthropicUsage(supabase, business.id, result.usage)
 
     // Enviar la respuesta por Evolution API.
     // Verifica el nombre exacto del endpoint/campos contra tu version real.
