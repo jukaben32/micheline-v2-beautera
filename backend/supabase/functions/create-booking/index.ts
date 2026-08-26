@@ -30,7 +30,8 @@ Deno.serve(async (req) => {
     const body = await req.json()
     const { stylist_id, service_id, date, time, client_name, client_phone, client_email, notes } = body
 
-    if (!stylist_id || !service_id || !date || !time || !client_name || !client_phone) {
+    // stylist_id puede venir null ("cualquiera disponible") a proposito.
+    if (!service_id || !date || !time || !client_name || !client_phone) {
       return new Response(JSON.stringify({ error: 'Faltan campos obligatorios' }),
         { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
     }
@@ -61,11 +62,27 @@ Deno.serve(async (req) => {
       { fn: 'create-booking', rate_key: ip },
     ])
 
-    // Duración del servicio
+    // Duración del servicio + negocio dueño (se deriva del servicio, nunca
+    // se confía en un business_id que mande el cliente).
     const { data: service } = await supabase
-      .from('services').select('duration_min, name, price').eq('id', service_id).single()
-    const duration = service?.duration_min ?? SLOT_MINUTES
-    const price = Number(service?.price) || 0
+      .from('services').select('duration_min, name, price, business_id').eq('id', service_id).single()
+    if (!service) {
+      return new Response(JSON.stringify({ error: 'Servicio no encontrado' }),
+        { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+    const businessId = service.business_id
+    const duration = service.duration_min ?? SLOT_MINUTES
+    const price = Number(service.price) || 0
+
+    // El estilista (si se eligio uno) debe pertenecer al mismo negocio del servicio.
+    if (stylist_id) {
+      const { data: styOk } = await supabase
+        .from('stylists').select('id').eq('id', stylist_id).eq('business_id', businessId).maybeSingle()
+      if (!styOk) {
+        return new Response(JSON.stringify({ error: 'Estilista no valido para este negocio' }),
+          { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
+      }
+    }
 
     // Calcular inicio/fin en America/Santo_Domingo (UTC-4)
     const [h, m] = time.split(':').map(Number)
@@ -74,30 +91,35 @@ Deno.serve(async (req) => {
     const startAt = `${date}T${String(Math.floor(startMin/60)).padStart(2,'0')}:${String(startMin%60).padStart(2,'0')}:00-04:00`
     const endAt = `${date}T${String(Math.floor(endMin/60)).padStart(2,'0')}:${String(endMin%60).padStart(2,'0')}:00-04:00`
 
-    // Validar choque con citas confirmadas
-    const { data: clash } = await supabase
-      .from('appointments')
-      .select('id')
-      .eq('stylist_id', stylist_id)
-      .eq('status', 'confirmada')
-      .lt('start_at', endAt)
-      .gt('end_at', startAt)
-    if (clash && clash.length > 0) {
-      return new Response(JSON.stringify({ error: 'Ese horario ya está ocupado' }),
-        { status: 409, headers: { ...cors, 'Content-Type': 'application/json' } })
+    // Validar choque con citas confirmadas (solo aplica si se eligio un
+    // estilista especifico; "cualquiera" no tiene un stylist_id que chocar)
+    if (stylist_id) {
+      const { data: clash } = await supabase
+        .from('appointments')
+        .select('id')
+        .eq('stylist_id', stylist_id)
+        .eq('business_id', businessId)
+        .eq('status', 'confirmada')
+        .lt('start_at', endAt)
+        .gt('end_at', startAt)
+      if (clash && clash.length > 0) {
+        return new Response(JSON.stringify({ error: 'Ese horario ya está ocupado' }),
+          { status: 409, headers: { ...cors, 'Content-Type': 'application/json' } })
+      }
     }
 
-    // Crear o encontrar cliente
+    // Crear o encontrar cliente (aislado por negocio: el mismo telefono
+    // puede ser cliente de dos negocios distintos sin colisionar)
     let clientId: string | null = null
     const { data: existing } = await supabase
-      .from('clients').select('id').eq('phone', client_phone).maybeSingle()
+      .from('clients').select('id').eq('phone', client_phone).eq('business_id', businessId).maybeSingle()
     if (existing) {
       clientId = existing.id
       await supabase.from('clients').update({ full_name: client_name })
         .eq('id', clientId)
     } else {
       const { data: nuevo } = await supabase
-        .from('clients').insert({ full_name: client_name, phone: client_phone, email: client_email, category: 'nuevo' })
+        .from('clients').insert({ full_name: client_name, phone: client_phone, email: client_email, category: 'nuevo', business_id: businessId })
         .select('id').single()
       clientId = nuevo?.id ?? null
     }
@@ -108,7 +130,7 @@ Deno.serve(async (req) => {
         client_id: clientId, stylist_id, service_id,
         start_at: startAt, end_at: endAt,
         client_name, client_phone, notes, source: 'widget',
-        status: 'pendiente_pago', price
+        status: 'pendiente_pago', price, business_id: businessId
       }).select('id').single()
     if (error) throw error
 

@@ -9,6 +9,10 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
+// Fallback para llamadas viejas sin business_id (index.html estatico
+// original, siempre de Micheline). Quitar cuando ese sitio se retire.
+const LEGACY_MICHELINE_BUSINESS_ID = '645fbc08-035a-4302-9fbe-9a4a21b9decd'
+
 Deno.serve(async (req) => {
   const cors = {
     'Access-Control-Allow-Origin': '*',
@@ -18,7 +22,8 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
   try {
-    const { message, history } = await req.json()
+    const { message, history, business_id } = await req.json()
+    const businessId: string = business_id || LEGACY_MICHELINE_BUSINESS_ID
     if (!message) {
       return new Response(JSON.stringify({ error: 'Falta message' }),
         { status: 400, headers: { ...cors, 'Content-Type': 'application/json' } })
@@ -43,14 +48,15 @@ Deno.serve(async (req) => {
     }
     await supabase.from('rate_limit_log').insert({ fn: 'chat', rate_key: ip })
 
-    // Traer datos reales de la BD para contexto/respuesta
-    const [{ data: servicios }, { data: estilistas }] = await Promise.all([
-      supabase.from('services').select('name,duration_min,price,category').eq('is_active', true).order('price'),
-      supabase.from('stylists').select('full_name,specialty,bio').eq('is_active', true),
+    // Traer datos reales de la BD para contexto/respuesta, aislados por negocio
+    const [{ data: negocio }, { data: servicios }, { data: estilistas }] = await Promise.all([
+      supabase.from('business').select('name').eq('id', businessId).maybeSingle(),
+      supabase.from('services').select('name,duration_min,price,category').eq('business_id', businessId).eq('is_active', true).order('price'),
+      supabase.from('stylists').select('full_name,specialty,bio').eq('business_id', businessId).eq('is_active', true),
     ])
 
     const ctx = {
-      negocio: 'Micheline Nail Bar',
+      negocio: negocio?.name || 'nuestro salón',
       servicios: servicios ?? [],
       estilistas: estilistas ?? [],
     }
@@ -152,7 +158,7 @@ Deno.serve(async (req) => {
     }
     // Otros
     else {
-      reply = 'Hola 💅 Soy la asistente de Micheline Nail Bar. Puedes preguntarme por precios, servicios, estilistas u horarios. ¿En qué te ayudo?'
+      reply = `Hola 💅 Soy la asistente de ${ctx.negocio}. Puedes preguntarme por precios, servicios, estilistas u horarios. ¿En qué te ayudo?`
     }
 
     return new Response(JSON.stringify({ reply, mode: 'info' }),
