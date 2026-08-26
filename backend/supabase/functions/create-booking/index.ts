@@ -40,6 +40,27 @@ Deno.serve(async (req) => {
       (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!
     )
 
+    // Rate limiting: maximo 3 reservas por telefono y 5 por IP en la ultima hora.
+    // Evita spam de reservas falsas (bots que llaman la funcion directo, sin pasar
+    // por el honeypot del formulario).
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+      ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const [{ count: byPhone }, { count: byIp }] = await Promise.all([
+      supabase.from('rate_limit_log').select('id', { count: 'exact', head: true })
+        .eq('fn', 'create-booking').eq('rate_key', client_phone).gte('created_at', oneHourAgo),
+      supabase.from('rate_limit_log').select('id', { count: 'exact', head: true })
+        .eq('fn', 'create-booking').eq('rate_key', ip).gte('created_at', oneHourAgo),
+    ])
+    if ((byPhone ?? 0) >= 3 || (byIp ?? 0) >= 5) {
+      return new Response(JSON.stringify({ error: 'Demasiados intentos de reserva. Intenta de nuevo mas tarde.' }),
+        { status: 429, headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+    await supabase.from('rate_limit_log').insert([
+      { fn: 'create-booking', rate_key: client_phone },
+      { fn: 'create-booking', rate_key: ip },
+    ])
+
     // Duración del servicio
     const { data: service } = await supabase
       .from('services').select('duration_min, name, price').eq('id', service_id).single()

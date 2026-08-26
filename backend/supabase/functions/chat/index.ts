@@ -29,6 +29,20 @@ Deno.serve(async (req) => {
       (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!
     )
 
+    // Rate limiting: maximo 30 mensajes por IP en la ultima hora. El modo IA
+    // llama a la API de Claude (tiene costo), asi que conviene frenar el abuso.
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim()
+      ?? req.headers.get('x-real-ip') ?? 'unknown'
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const { count: hitsIp } = await supabase.from('rate_limit_log')
+      .select('id', { count: 'exact', head: true })
+      .eq('fn', 'chat').eq('rate_key', ip).gte('created_at', oneHourAgo)
+    if ((hitsIp ?? 0) >= 30) {
+      return new Response(JSON.stringify({ error: 'Demasiados mensajes. Intenta de nuevo mas tarde.' }),
+        { status: 429, headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+    await supabase.from('rate_limit_log').insert({ fn: 'chat', rate_key: ip })
+
     // Traer datos reales de la BD para contexto/respuesta
     const [{ data: servicios }, { data: estilistas }] = await Promise.all([
       supabase.from('services').select('name,duration_min,price,category').eq('is_active', true).order('price'),
