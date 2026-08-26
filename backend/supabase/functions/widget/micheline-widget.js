@@ -145,7 +145,7 @@
 
   // ===== CONFIG =====
   const SUPABASE_URL = 'https://kpszlnymywgudutqlgqa.supabase.co';
-  const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDgwMTksImV4cCI6MjA5ODkyNDAxOX0.zljEdqznFgdUNRKpib3h1_SzamrQRI3h0iIULTgEFdY';
+  const ANON = 'sb_publishable_krr5nmHwdyft7o4_Oh6Nlw_Me8SUNKd';
 
   // ===== GLOBAL STATE =====
   const state = {
