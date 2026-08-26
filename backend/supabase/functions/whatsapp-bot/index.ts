@@ -1,96 +1,144 @@
-// Edge Function: whatsapp-bot
-// Recibe mensajes de Meta WhatsApp y responde como "Micheline", agendando citas.
-// Reusa la logica del chat existente y llama a create-booking para guardar la cita.
+// Edge Function: whatsapp-bot (Evolution API)
+//
+// Preparado para conectarse a un servidor Evolution API autoalojado
+// (https://github.com/EvolutionAPI/evolution-api). Evolution puede manejar
+// varias "instancias" (una por numero de WhatsApp conectado) desde un solo
+// servidor con una sola API key de administracion — asi que un negocio
+// nuevo NO necesita su propio servidor, solo su propia instancia.
+//
+// COMO CONECTAR CUANDO TENGAS EL SERVIDOR EVOLUTION LEVANTADO:
+//   1. Crea la instancia del negocio en tu servidor Evolution
+//      (POST {EVOLUTION_API_URL}/instance/create) y conecta el numero
+//      (escaneando el QR que da Evolution).
+//   2. Guarda el nombre de esa instancia en business.evolution_instance
+//      (columna agregada en la migracion 022_whatsapp_evolution.sql).
+//   3. Configura el webhook de esa instancia en Evolution apuntando a:
+//      {SUPABASE_URL}/functions/v1/whatsapp-bot?token={EVOLUTION_WEBHOOK_TOKEN}
+//      (el token es tuyo, cualquier cadena larga al azar — evita que
+//      cualquiera pueda mandarle mensajes falsos a esta funcion).
+//   4. Configura los secretos de esta funcion (supabase secrets set):
+//      EVOLUTION_API_URL, EVOLUTION_API_KEY, EVOLUTION_WEBHOOK_TOKEN.
+//   5. Sin esos 3 secretos configurados, esta funcion rechaza toda
+//      peticion (ver chequeo de token abajo) — no hay riesgo de que
+//      quede "a medio conectar" aceptando trafico sin querer.
+//
+// NOTA: el formato exacto del payload del webhook y del endpoint de envio
+// puede variar segun la version de Evolution API que uses. Lo de abajo
+// sigue el formato mas comun (event "messages.upsert", envio via
+// POST /message/sendText/{instance}) — verificalo contra tu propia
+// instancia antes de darlo por definitivo, y ajusta si hace falta.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { getReply, type ChatMsg } from '../_shared/reply.ts'
 
-// Cabeceras CORS para las respuestas
 const cors = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
 }
 
-// Prompt base de la recepcionista Micheline
-const SYSTEM = `Eres "Micheline", la asistente virtual de un salon de uñas en Santo Domingo.
-Tu trabajo: atender al cliente por WhatsApp, decir servicios y precios, y agendar citas.
-Servicios (precio base): Manicura clasica $15, Manicura con gel $40, Nail art premium $60, Pedicura spa $35, Retiro de esmalte en gel $25.
-Reglas:
-- Habla en espanol, corto y amable.
-- Si el cliente quiere agendar, pregunta: servicio, fecha y hora.
-- Cuando tengas servicio + fecha + hora + nombre + telefono, confirma la cita.
-- No inventes precios.`
+const HISTORY_LIMIT = 10
+
+function extractText(msg: Record<string, unknown> | undefined): string {
+  if (!msg) return ''
+  const m = msg as Record<string, any>
+  return m.conversation
+    ?? m.extendedTextMessage?.text
+    ?? m.imageMessage?.caption
+    ?? m.videoMessage?.caption
+    ?? ''
+}
 
 Deno.serve(async (req: Request) => {
-  // Preflight CORS
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
-  // Meta envia GET para verificar el webhook (challenge) SIN header de auth
+  const evoUrl = Deno.env.get('EVOLUTION_API_URL')
+  const evoKey = Deno.env.get('EVOLUTION_API_KEY')
+  const webhookToken = Deno.env.get('EVOLUTION_WEBHOOK_TOKEN')
+
+  // Sin los 3 secretos configurados, esta funcion se queda inactiva a
+  // proposito (no hay servidor Evolution real todavia).
+  if (!evoUrl || !evoKey || !webhookToken) {
+    return new Response(JSON.stringify({ ok: false, note: 'Evolution API no configurada aun (faltan secretos)' }),
+      { status: 503, headers: { ...cors, 'Content-Type': 'application/json' } })
+  }
+
   const url = new URL(req.url)
-  if (req.method === 'GET') {
-    const mode = url.searchParams.get('hub.mode')
-    const token = url.searchParams.get('hub.verify_token')
-    const challenge = url.searchParams.get('hub.challenge')
-    // El verify_token lo configuras en Meta (usamos uno fijo)
-    if (mode === 'subscribe' && token === 'micheline_webhook_2026') {
-      return new Response(challenge, { status: 200 })
-    }
+  if (url.searchParams.get('token') !== webhookToken) {
     return new Response('forbidden', { status: 403 })
   }
 
   try {
     const body = await req.json()
-    // Meta manda los mensajes dentro de entry[].changes[].value.messages[].text.body
-    const change = body?.entry?.[0]?.changes?.[0]?.value
-    const message = change?.messages?.[0]
-    const from = message?.from // numero del cliente (E.164, ej +1809...)
-    const text = message?.text?.body || ''
 
-    if (!from || !text) {
-      return new Response(JSON.stringify({ ok: true, note: 'no message' }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    // Solo nos interesan mensajes entrantes de texto.
+    if (body.event && body.event !== 'messages.upsert') {
+      return new Response(JSON.stringify({ ok: true, note: 'evento ignorado' }), { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
+    const data = body.data ?? body
+    const fromMe = data?.key?.fromMe === true
+    const remoteJid: string | undefined = data?.key?.remoteJid
+    const text = extractText(data?.message)
+    const instance: string | undefined = body.instance
 
-    // Responder con la IA (logica simple de eco + datos reales de la BD)
+    if (fromMe || !remoteJid || !text || !instance) {
+      return new Response(JSON.stringify({ ok: true, note: 'sin mensaje entrante valido' }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+    const phone = remoteJid.split('@')[0]
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!
     )
 
-    // (Fase 1) Respuesta basica con datos reales: listar servicios si pregunta
-    let reply = ''
-    const lower = text.toLowerCase()
-    if (lower.includes('servicio') || lower.includes('precio') || lower.includes('hola')) {
-      const { data: servicios } = await supabase.from('servicios').select('name, price').eq('is_active', true).order('price')
-      if (servicios) {
-        reply = '💅 Hola, soy Micheline. Nuestros servicios:\n' +
-          servicios.map((s: any) => `• ${s.name}: $${Number(s.price).toFixed(2)}`).join('\n') +
-          '\n¿Cuál te gustaría y en qué fecha/hora?'
-      } else {
-        reply = '💅 Hola, soy Micheline. ¿En qué puedo ayudarte?'
-      }
-    } else {
-      reply = '✅ Recibí tu mensaje. ¿Quieres agendar una cita? Dime el servicio, fecha y hora.'
+    // Resolver el negocio dueño de esta instancia de WhatsApp.
+    const { data: business } = await supabase.from('business')
+      .select('id, name, slug').eq('evolution_instance', instance).maybeSingle()
+    if (!business) {
+      console.error('whatsapp-bot: instancia sin negocio asociado', instance)
+      return new Response(JSON.stringify({ ok: true, note: 'instancia no registrada' }), { headers: { ...cors, 'Content-Type': 'application/json' } })
     }
 
-    // Enviar respuesta por la API de WhatsApp (Meta Graph)
-    const waToken = Deno.env.get('WHATSAPP_TOKEN')!
-    const phoneId = Deno.env.get('PHONE_NUMBER_ID')!
-    await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
+    // Rate limiting: maximo 30 mensajes por telefono en la ultima hora.
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
+    const { count: hits } = await supabase.from('rate_limit_log')
+      .select('id', { count: 'exact', head: true })
+      .eq('fn', 'whatsapp-bot').eq('rate_key', phone).gte('created_at', oneHourAgo)
+    if ((hits ?? 0) >= 30) {
+      return new Response(JSON.stringify({ ok: true, note: 'rate limited' }), { headers: { ...cors, 'Content-Type': 'application/json' } })
+    }
+    await supabase.from('rate_limit_log').insert({ fn: 'whatsapp-bot', rate_key: phone })
+
+    // Historial de esta conversacion (persistido: WhatsApp no manda contexto).
+    const { data: pastRows } = await supabase.from('whatsapp_messages')
+      .select('role, content').eq('business_id', business.id).eq('phone', phone)
+      .order('created_at', { ascending: false }).limit(HISTORY_LIMIT)
+    const history: ChatMsg[] = (pastRows ?? []).reverse().map(r => ({ role: r.role, content: r.content }))
+
+    const siteUrl = business.slug ? `https://micheline-dashboard.vercel.app/sites/${business.slug}` : null
+    const bookingInstruction = siteUrl
+      ? `Visita ${siteUrl} para ver los horarios disponibles y reservar tu cita.`
+      : 'Te escribiremos en breve para coordinar tu cita.'
+
+    const result = await getReply(supabase, business.id, text, history, bookingInstruction)
+
+    // Guardar el intercambio para la proxima vez.
+    await supabase.from('whatsapp_messages').insert([
+      { business_id: business.id, phone, role: 'user', content: text },
+      { business_id: business.id, phone, role: 'assistant', content: result.reply },
+    ])
+
+    // Enviar la respuesta por Evolution API.
+    // Verifica el nombre exacto del endpoint/campos contra tu version real.
+    await fetch(`${evoUrl}/message/sendText/${instance}`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${waToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        messaging_product: 'whatsapp',
-        to: from,
-        type: 'text',
-        text: { body: reply },
-      }),
-    })
+      headers: { 'Content-Type': 'application/json', apikey: evoKey },
+      body: JSON.stringify({ number: phone, text: result.reply }),
+    }).catch((e) => console.error('Error enviando mensaje via Evolution API', e))
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, 'Content-Type': 'application/json' } })
   } catch (e) {
+    console.error('whatsapp-bot error', e)
     return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...cors, 'Content-Type': 'application/json' } })
   }
 })
