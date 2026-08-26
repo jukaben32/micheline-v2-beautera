@@ -17,7 +17,7 @@ const TZ = 'America/Santo_Domingo'
 Deno.serve(async (_req) => {
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!
   )
   const resendKey = Deno.env.get('RESEND_API_KEY')
   const fromEmail = Deno.env.get('REMINDER_FROM_EMAIL') || 'Micheline Nail Bar <hola@micheline.com>'

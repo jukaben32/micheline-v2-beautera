@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!
     )
 
     if (aprobado) {
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
       // Disparar confirmacion por email (reutiliza send-confirmation)
       await fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-confirmation`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${(Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))}` },
         body: JSON.stringify({
           name: appt.client_name, phone: appt.client_phone, email: appt.client_email,
           date: (appt.start_at || '').slice(0, 10), time: (appt.start_at || '').slice(11, 16),

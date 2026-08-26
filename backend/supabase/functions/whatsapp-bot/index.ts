@@ -53,7 +53,7 @@ Deno.serve(async (req: Request) => {
     // Responder con la IA (logica simple de eco + datos reales de la BD)
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      (Deno.env.get('SB_SECRET_KEY') ?? Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))!
     )
 
     // (Fase 1) Respuesta basica con datos reales: listar servicios si pregunta
