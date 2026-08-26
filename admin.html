@@ -819,9 +819,21 @@
 <script>
 const SB_URL  = 'https://kpszlnymywgudutqlgqa.supabase.co';
 const ANON    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMzNDgwMTksImV4cCI6MjA5ODkyNDAxOX0.zljEdqznFgdUNRKpib3h1_SzamrQRI3h0iIULTgEFdY';
-const SVC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtwc3psbnlteXdndWR1dHFsZ3FhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzM0ODAxOSwiZXhwIjoyMDk4OTI0MDE5fQ.WF9-VaARpyLquKSBk1_TGpV5-U-40IEvgRr5pbQ1AFM';
+// La clave service_role NUNCA debe estar aquí: se salta toda la seguridad
+// (RLS) de la base de datos y este archivo es público. Si se necesita
+// saltar RLS para algo, se hace desde una Edge Function server-side.
 
 let ACCESS_TOKEN = null;
+
+// Escapa texto que viene de clientes (formulario público de reservas) antes
+// de insertarlo con innerHTML, para evitar que un nombre/telefono con código
+// HTML se ejecute en el navegador de quien administra el panel (XSS).
+function escapeHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[ch]));
+}
 let allAppts = [], allClients = [], allServices = [], allStylists = [], allBrands = [];
 
 /* ======= AUTH ======= */
@@ -967,9 +979,9 @@ async function loadDashboard() {
     }
     tbody.innerHTML = upcoming.map(a => `
       <tr>
-        <td><strong>${a.client_name || '—'}</strong></td>
-        <td>${a.services?.name || '—'}</td>
-        <td>${a.stylists?.full_name || 'Cualquiera'}</td>
+        <td><strong>${escapeHtml(a.client_name) || '—'}</strong></td>
+        <td>${escapeHtml(a.services?.name) || '—'}</td>
+        <td>${escapeHtml(a.stylists?.full_name) || 'Cualquiera'}</td>
         <td>${fmtDate(a.date)}</td>
         <td>${a.time || '—'}</td>
         <td><span class="badge status-${a.status||'pending'}">${labelStatus(a.status)}</span></td>
@@ -1001,12 +1013,12 @@ function renderAppts(list) {
   tbody.innerHTML = list.map(a => `
     <tr>
       <td><div style="display:flex;align-items:center;gap:0.5rem">
-        <div class="avatar-circle">${initials(a.client_name)}</div>
-        <strong>${a.client_name||'—'}</strong>
+        <div class="avatar-circle">${escapeHtml(initials(a.client_name))}</div>
+        <strong>${escapeHtml(a.client_name)||'—'}</strong>
       </div></td>
-      <td>${a.client_phone||'—'}</td>
-      <td>${a.services?.name||'—'}</td>
-      <td>${a.stylists?.full_name||'Cualquiera'}</td>
+      <td>${escapeHtml(a.client_phone)||'—'}</td>
+      <td>${escapeHtml(a.services?.name)||'—'}</td>
+      <td>${escapeHtml(a.stylists?.full_name)||'Cualquiera'}</td>
       <td>${fmtDate(a.date)}</td>
       <td>${a.time||'—'}</td>
       <td style="font-family:'IBM Plex Mono',monospace;color:var(--dorado)">$${parseFloat(a.price||0).toFixed(2)}</td>
@@ -1322,11 +1334,11 @@ function renderClients(list) {
   tbody.innerHTML = list.map(c => `
     <tr>
       <td><div style="display:flex;align-items:center;gap:0.75rem">
-        <div class="avatar-circle">${initials(c.name)}</div>
-        <strong>${c.name||'—'}</strong>
+        <div class="avatar-circle">${escapeHtml(initials(c.name))}</div>
+        <strong>${escapeHtml(c.name)||'—'}</strong>
       </div></td>
-      <td>${c.phone ? `<a href="https://wa.me/${c.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--verde)">${c.phone}</a>` : '—'}</td>
-      <td style="color:var(--gris)">${c.email||'—'}</td>
+      <td>${c.phone ? `<a href="https://wa.me/${c.phone.replace(/\D/g,'')}" target="_blank" style="color:var(--verde)">${escapeHtml(c.phone)}</a>` : '—'}</td>
+      <td style="color:var(--gris)">${escapeHtml(c.email)||'—'}</td>
       <td><span class="badge badge-azul">${c.count} cita${c.count>1?'s':''}</span></td>
       <td>${fmtDate(c.last)}</td>
     </tr>

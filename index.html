@@ -1071,6 +1071,11 @@
                 <label class="form-label" for="bm-email">Email (opcional, para confirmación)</label>
                 <input class="form-input" id="bm-email" type="email" placeholder="tu@email.com">
               </div>
+              <!-- Honeypot anti-spam: campo invisible para humanos, los bots suelen rellenarlo -->
+              <div class="form-group" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden" aria-hidden="true">
+                <label for="bm-website">Website</label>
+                <input class="form-input" id="bm-website" type="text" tabindex="-1" autocomplete="off">
+              </div>
             </div>
             <div id="bm-result"></div>
           </div>
@@ -1470,10 +1475,17 @@
     const name  = document.getElementById('bm-name').value.trim();
     const phone = document.getElementById('bm-phone').value.trim();
     const email = document.getElementById('bm-email').value.trim();
+    const website = document.getElementById('bm-website').value.trim(); // honeypot
 
     if (!name || !phone) {
       document.getElementById('bm-result').innerHTML =
         `<p style="color:#FF4D94;font-size:0.85rem;margin-top:0.75rem">Por favor completa tu nombre y teléfono.</p>`;
+      return;
+    }
+
+    // Si el honeypot viene relleno, es un bot: fingimos éxito sin llamar al backend
+    if (website) {
+      showSuccess(name, state.service ? parseFloat(state.service.price) : 0);
       return;
     }
 
